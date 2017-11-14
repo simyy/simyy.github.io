@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  
+  <title>垃圾回收GC | Simple Life</title>
+  <meta name="description" content="A blog of simyy" />
+  <meta name="keywords" content="" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="shortcut icon" href="/">
+  <link rel="alternate" href="/atom.xml" title="Simple Life">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="现代语言中，大多数都实现了垃圾回收功能，不再需要开发者自己来释放无用的内存资源，大大提高了开发效率。">
+<meta name="keywords" content="gc">
+<meta property="og:type" content="article">
+<meta property="og:title" content="垃圾回收GC">
+<meta property="og:url" content="http://simyy.com/2017/01/25/gc/index.html">
+<meta property="og:site_name" content="Simple Life">
+<meta property="og:description" content="现代语言中，大多数都实现了垃圾回收功能，不再需要开发者自己来释放无用的内存资源，大大提高了开发效率。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://simyy.com/images/gc-1.jpg">
+<meta property="og:image" content="http://simyy.com/images/gc-2.png">
+<meta property="og:image" content="http://simyy.com/images/gc-3.png">
+<meta property="og:image" content="http://simyy.com/images/gc-4.png">
+<meta property="og:image" content="http://simyy.com/images/gc-5.png">
+<meta property="og:image" content="http://simyy.com/images/gc-6.png">
+<meta property="og:image" content="http://simyy.com/images/gc-7.png">
+<meta property="og:image" content="http://simyy.com/images/gc-8.png">
+<meta property="og:updated_time" content="2017-04-08T09:35:02.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="垃圾回收GC">
+<meta name="twitter:description" content="现代语言中，大多数都实现了垃圾回收功能，不再需要开发者自己来释放无用的内存资源，大大提高了开发效率。">
+<meta name="twitter:image" content="http://simyy.com/images/gc-1.jpg">
+    
+  <link href="https://fonts.googleapis.com/css?family=Inconsolata|Titillium+Web" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
+  <link href='//cdn.bootcss.com/node-waves/0.7.5/waves.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="/style.css">
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+</head>
+
+<body>
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+
+
+  <script>setLoadingBarProgress(20)</script> 
+  <header class="l_header">
+	<div class='wrapper'>
+		<div class="nav-main container container--flex">
+			<a class="logo flat-box" href='/' >
+				Simple Life
+			</a>
+			<div class='menu'>
+				<ul class='h-list'>
+					
+						<li>
+							<a class='flat-box nav-home' href='/'>
+								Home
+							</a>
+						</li>
+					
+						<li>
+							<a class='flat-box nav-archives' href='/archives'>
+								Archives
+							</a>
+						</li>
+					
+						<li>
+							<a class='flat-box nav-about' href='/about'>
+								About
+							</a>
+						</li>
+					
+				</ul>
+				<div class='underline'></div>
+			</div>
+			
+				<div class="m_search">
+					<form name="searchform" class="form u-search-form">
+						<input type="text" class="input u-search-input" placeholder="Search" />
+						<span class="icon icon-search"></span>
+					</form>
+				</div>
+			
+			<ul class='switcher h-list'>
+				
+					<li class='s-search'><a href='javascript:void(0)'><span class="icon icon-search flat-box"></span></a></li>
+				
+				<li class='s-menu'><a href='javascript:void(0)'><span class="icon icon-menu flat-box"></span></a></li>
+			</ul>
+		</div>
+		
+		<div class='nav-sub container container--flex'>
+			<a class="logo" class="flat-box" href='javascript:void(0)'>
+				Word of Forks
+			</a>
+
+			<ul class='switcher h-list'>
+				<li class='s-comment'><a href='javascript:void(0)'><span class="icon icon-chat_bubble_outline flat-box"></span></a></li>
+				<li class='s-top'><a href='javascript:void(0)'><span class="icon icon-arrow_upward flat-box"></span></a></li>
+				<li class='s-toc'><a href='javascript:void(0)'><span class="icon icon-format_list_numbered flat-box"></span></a></li>
+			</ul>
+		</div>
+	</div>
+</header>
+<aside class="menu-phone">
+	<nav>
+		
+			<a href="/" class="nav-home nav">
+				Home
+			</a>
+		
+			<a href="/archives" class="nav-archives nav">
+				Archives
+			</a>
+		
+			<a href="/about" class="nav-about nav">
+				About
+			</a>
+		
+	</nav>
+</aside>
+
+    <script>setLoadingBarProgress(40);</script>
+  <div class="l_body">
+    <div class='container clearfix'>
+      <div class='l_main'>
+        <article id="post-gc"
+  class="post white-box article-type-post"
+  itemscope itemprop="blogPost">
+	<section class='meta'>
+	<h2 class="title">
+  	<a href="/2017/01/25/gc/">
+    	垃圾回收GC
+    </a>
+  </h2>
+	<time>
+	  1月 25, 2017
+	</time>
+	
+    
+    <div class='cats'>
+        <a href="/categories/cs/">cs</a>
+    </div>
+
+	</section>
+	
+		<section class="toc-wrapper"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#历史"><span class="toc-number">1.</span> <span class="toc-text">历史</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#内存分配"><span class="toc-number">2.</span> <span class="toc-text">内存分配</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#垃圾回收GC"><span class="toc-number">3.</span> <span class="toc-text">垃圾回收GC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#引用计数"><span class="toc-number">3.1.</span> <span class="toc-text">引用计数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#跟踪式"><span class="toc-number">3.2.</span> <span class="toc-text">跟踪式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#标记清除"><span class="toc-number">3.2.1.</span> <span class="toc-text">标记清除</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#标记复制"><span class="toc-number">3.2.2.</span> <span class="toc-text">标记复制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#标记压缩"><span class="toc-number">3.2.3.</span> <span class="toc-text">标记压缩</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#分代回收"><span class="toc-number">3.3.</span> <span class="toc-text">分代回收</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#年轻代垃圾回收"><span class="toc-number">3.3.1.</span> <span class="toc-text">年轻代垃圾回收</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#年老代垃圾回收"><span class="toc-number">3.3.2.</span> <span class="toc-text">年老代垃圾回收</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Parallel-Scavenge"><span class="toc-number">3.4.</span> <span class="toc-text">Parallel Scavenge</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Concurrent-Mark-Sweep"><span class="toc-number">3.5.</span> <span class="toc-text">Concurrent Mark Sweep</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Garbage-First"><span class="toc-number">3.6.</span> <span class="toc-text">Garbage First</span></a></li></ol></li></ol></section>
+	
+	<section class="article typo">
+  	<div class="article-entry" itemprop="articleBody">
+    	<p>现代语言中，大多数都实现了垃圾回收功能，不再需要开发者自己来释放无用的内存资源，大大提高了开发效率。<br><a id="more"></a></p>
+<p><img src="/images/gc-1.jpg" alt=""></p>
+<h2 id="历史"><a href="#历史" class="headerlink" title="历史"></a>历史</h2><p>1960 年前后诞生于 MIT 的 <code>Lisp</code> 语言是第一种高度依赖于动态内存分配技术的语言。Lisp 中几乎所有数据都以“表”的形式出现，而“表”所占用的空间则是在堆中动态分配得到的。 Lisp 语言先天就具有的动态内存管理特性要求Lisp 语言的设计者必须解决堆中每一个内存块的自动释放问题，否则，Lisp 程序员就必然被程序中不计其数的 <code>free / delete</code> 语句淹没，这直接导致了垃圾收集技术的诞生和发展。</p>
+<p>在学校和工作中，我使用过<code>c/c++</code>这种需要开发者自己来维护内存，时时刻刻需要小心内存泄露的问题，也使用过<code>python</code>、<code>golang</code>、<code>js</code>以及<code>java</code>这种不需要关系内存资源的释放，让自己更加专注于程序的设计和开发，但是也带来了性能的损耗。</p>
+<p><code>垃圾回收GC</code>并不是万能的，如果你接受了它的便利，那么你也需要接受<code>GC</code>带来的性能开销。</p>
+<h2 id="内存分配"><a href="#内存分配" class="headerlink" title="内存分配"></a>内存分配</h2><p>内存分配大概分为三种：静态分配、局部分配以及动态分配。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">静态分配（ Static Allocation ）：</span><br><span class="line">静态变量和全局变量的分配形式。通常，它们无需释放和回收。</span><br><span class="line"></span><br><span class="line">自动分配（ Automatic Allocation ）：</span><br><span class="line">在栈中为局部变量分配内存的方法。栈中的内存可以随着代码块退出时的出栈操作被自动释放。</span><br><span class="line"></span><br><span class="line">动态分配（ Dynamic Allocation ）：</span><br><span class="line">在堆中动态分配内存空间以存储数据的方式。堆中的内存需要开发者自己来管理，谨慎对待每一个动态分配的对象，避免造成内存泄露。</span><br><span class="line">在软件开发中，如果你懒得释放内存，那么你也需要一台类似的机器人——这其实就是一个由特定算法实现的垃圾收集器。</span><br></pre></td></tr></table></figure></p>
+<p>因此，垃圾回收的目的是<code>回收动态分配的内存</code>。</p>
+<h2 id="垃圾回收GC"><a href="#垃圾回收GC" class="headerlink" title="垃圾回收GC"></a>垃圾回收GC</h2><p>垃圾回收技术主要包括：引用计数、跟踪式以及分代。</p>
+<h3 id="引用计数"><a href="#引用计数" class="headerlink" title="引用计数"></a>引用计数</h3><p><code>引用计数Reference Counting</code>为每个内存对象维护一个引用计数器,<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// 新的引用指向某对象时，该对象引用计数器加1</span><br><span class="line">if add refrence:</span><br><span class="line">    counter +=1</span><br><span class="line"></span><br><span class="line">// 对象的引用被销毁时，该对象引用计数器减1</span><br><span class="line">if remove refrence:</span><br><span class="line">   counter -= 1</span><br><span class="line"></span><br><span class="line">// 对象的计数器归零时，回收该对象所占用的内存资源</span><br><span class="line">if counter == 0:</span><br><span class="line">   free object</span><br></pre></td></tr></table></figure></p>
+<p>每个计数器只记录了其对应对象的局部信息-<code>被引用的次数</code>，而没有全局的应用信息。</p>
+<p>由于只维护局部信息，所以不需要扫描全局对象图就可以识别并释放死对象，但也因为缺乏全局对象图信息，所以无法处理<code>循环引用</code>的状况。</p>
+<blockquote>
+<p>循环引用？</p>
+</blockquote>
+<p>A引用B，B又引用了A，那么A和B引用计数器的值均为1，无法释放该资源。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">A &lt;- B</span><br><span class="line">B &lt;- A</span><br></pre></td></tr></table></figure></p>
+<p><code>优点 &amp; 缺点</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">优点</span><br><span class="line">- 每次创建和销毁都要更新引用计数值，会引起额外的开销</span><br><span class="line">- 计数简单，只需要记录自身被引用次数</span><br><span class="line">- 实时的垃圾回收，不会造成中断</span><br><span class="line"></span><br><span class="line">缺点</span><br><span class="line">- 无法处理循环引用</span><br><span class="line">- 多线程对同一对象计数更新产设个竞争</span><br></pre></td></tr></table></figure></p>
+<p><code>Python</code>使用了引用计数算法，为了解决循环引用的问题还设计了其他GC模块(<code>标记清除</code>和<code>分代收集</code>)。<br>此外，<code>Python</code>为了解决引用技术的性能问题还引入了内存池机制。</p>
+<h3 id="跟踪式"><a href="#跟踪式" class="headerlink" title="跟踪式"></a>跟踪式</h3><p><code>跟踪式垃圾回收</code>是比较常见的垃圾回收技术，主要原则是从程序栈的若干个根对象出发，构造一个可达链，对于那些不可达的内存对象，做回收。</p>
+<p> 如果一个内存对象有被程序中的至少一个变量引用（直接指向或间接指向），则认为该对象可达，否则认为该对象不可达，可以被垃圾回收。</p>
+<h4 id="标记清除"><a href="#标记清除" class="headerlink" title="标记清除"></a>标记清除</h4><p><code>标记清除Mark-Sweep</code>的基本思路是遍历以对象为节点、以引用为边构成的图，把所有可以访问到的对象打上标记，然后清扫一遍内存空间，把所有没标记的对象释放。</p>
+<p>具体过程分两步：</p>
+<ul>
+<li>从根（Root）开始遍历，被根引用了的对象标记为非垃圾对象，非垃圾对象引用的对象同样标记为非垃圾对象，以此递归直到标记完所有对象；</li>
+<li>再次从根节点开始，对已被标记为垃圾的对象清除释放。</li>
+</ul>
+<p><img src="/images/gc-2.png" alt=""></p>
+<p>如图，红色代表垃圾对象，黄色代表非垃圾对象，绿色代表未使用空间。</p>
+<blockquote>
+<p>缺点：内存碎片</p>
+</blockquote>
+<p>由于标记清除不需要移动对象的位置，直接回收垃圾对象必然会造成<code>内存碎片</code>。</p>
+<h4 id="标记复制"><a href="#标记复制" class="headerlink" title="标记复制"></a>标记复制</h4><p><code>标记复制 Mark-Copy</code>只需要对对象进行一次遍历。</p>
+<p>它的基本思想是利用空间换时间，从根开始开始遍历对象，如果对象仍然存在引用，就把它复制到新的内存空间中，一次遍历结束之后，所有存在于新空间的对象就是所有的非垃圾对象，可直接释放掉原有内存空间，不会造成内存碎片。</p>
+<p><img src="/images/gc-3.png" alt=""></p>
+<p>如图，红色代表垃圾对象，黄色代表非垃圾对象，绿色代表未使用空间。</p>
+<blockquote>
+<p>缺点：浪费内存</p>
+</blockquote>
+<p>标记复制更快速但是需要额外开辟一块用来复制的内存，对垃圾比例较大的情况占优势。</p>
+<p>此外，内存空间切换过程中需要暂停程序运行（也就是常说GC停顿）。</p>
+<h4 id="标记压缩"><a href="#标记压缩" class="headerlink" title="标记压缩"></a>标记压缩</h4><p><code>标记压缩Mark-Compact</code>是在标记清除算法的基础之上增加对象的移动，从而解决内存碎片的问题。</p>
+<p>在压缩阶段，由于要移动可达对象，那么需要考虑移动对象时的顺序，一般分为下面三种：</p>
+<ul>
+<li><p>任意顺序 - 即不考虑原先对象的排列顺序，也不考虑对象间的引用关系，随意的移动可达对象，这样可能会有内存访问的局部性问题。</p>
+</li>
+<li><p>线性顺序 - 在重新排列对象时，会考虑对象间的引用关系，比如A对象引用了B对象，那么就会尽可能的将A，B对象排列在一起。</p>
+</li>
+<li><p>滑动顺序 - 顾名思义，就是在重新排列对象时，将对象按照原先堆内存中的排列顺序滑动到堆的一端。</p>
+</li>
+</ul>
+<p>现在大多数的垃圾收集算法都是按照任意顺序或滑动顺序去实现的(由于线性顺序需要考虑对象的引用关系所以实现复杂)。</p>
+<p><code>Two-Finger 算法</code>数据移动过程类似快排，分别用两个指针指向内存的两端，分别向中心移动。如果右侧指针遇到垃圾数据直接回收，否则，移动左侧指针直到遇到可替换垃圾对象，然后替换左右指针的对象。</p>
+<p><img src="/images/gc-4.png" alt=""></p>
+<blockquote>
+<p>缺点：移动对象的代价</p>
+</blockquote>
+<p>为了避免内存碎片，移动对象需要遍历整个内存空间，还需要暂停程序更换映射地址空间。</p>
+<h3 id="分代回收"><a href="#分代回收" class="headerlink" title="分代回收"></a>分代回收</h3><p><code>分代回收</code>是根据对象的存活周期的不同将内存划分为几块。一般把java堆分为新生代和老年代，这样就可以根据各个年代的特点采用最适当的收集算法。</p>
+<p><img src="/images/gc-5.png" alt=""></p>
+<h4 id="年轻代垃圾回收"><a href="#年轻代垃圾回收" class="headerlink" title="年轻代垃圾回收"></a>年轻代垃圾回收</h4><p><img src="/images/gc-6.png" alt=""></p>
+<p>年轻代回收特点：</p>
+<ul>
+<li>新对象的内存分配都是先在Eden区域中进行的；</li>
+<li>当Eden区域的空间不足于分配新对象时，就会触发年轻代上的垃圾回收<code>minor gc</code>（minor garbage collection）；</li>
+<li>每个对象都有一个<code>年龄</code>，代表对象经历过的<code>minor gc</code>的次数；</li>
+<li>当触发<code>minor gc</code>后，所有存活的对象都会被拷贝到一个新的<code>survivor</code>区域，并且年龄增加1；当对象的年龄足够大，它会从survivor内存区域升级到老年代中。</li>
+</ul>
+<h4 id="年老代垃圾回收"><a href="#年老代垃圾回收" class="headerlink" title="年老代垃圾回收"></a>年老代垃圾回收</h4><p>当老年代内存区域（图中<code>Tenured</code>）无法容纳新对象时，这时候就会触发老年代的垃圾回收<code>major gc</code>（major garbage collection”）。</p>
+<blockquote>
+<p>垃圾回收算法<code>PS</code>和<code>CMS</code></p>
+</blockquote>
+<p>常用的垃圾回收算法有<code>Parallel Scavenge(PS)</code> 和<code>Concurrent Mark Sweep(CMS)</code>，它们的不同之处体现在年老代的垃圾回收过程中，而年轻代的垃圾回收过程在这两种垃圾回收器中基本上是一致的。<code>PS</code>在执行垃圾回收时使用了<code>多线程</code>来一起进行垃圾回收，这样可以提高垃圾回收的效率，<code>CMS</code>在进行垃圾回收时，应用程序可以同时运行。</p>
+<p>在年轻代中，每次垃圾收集时都发现有大批对象死去，只有少量存活，那就选用复制算法，只需要付出少量存活对象的复制成本就可以完成收集。而老年代中因为对象存活率高、没有额外空间对他进行分配担保，就必须使用“标记-整理”算法进行回收。</p>
+<h3 id="Parallel-Scavenge"><a href="#Parallel-Scavenge" class="headerlink" title="Parallel Scavenge"></a>Parallel Scavenge</h3><p><code>PS垃圾回收</code>是由<code>标记清除</code>和<code>标记压缩</code>算法组成。</p>
+<p>标记清除算法的一个缺陷就是它会引起内存碎片问题。继而有可能会引发连续的major gc。假设当前存在的内存碎片有10M，但最大的内存碎片只能容纳2M的对象，这个时候如果有一个3M的对象从Survivor区域升级到Tenured区域，那Tenured区域也没有办法存放这个3M的对象。结果就是不断的触发major gc，直到Out of Memory。所以，PS垃圾回收器在清除非可达对象后，还会进行一次compact，来消除内存碎片。</p>
+<h3 id="Concurrent-Mark-Sweep"><a href="#Concurrent-Mark-Sweep" class="headerlink" title="Concurrent Mark Sweep"></a>Concurrent Mark Sweep</h3><p><code>CMS</code>在进行垃圾收集时，应用程序是可以并行运行的，因此，它减少了垃圾收集时暂停应用程序的时间。<br>垃圾回收的四个阶段如下，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">1. Initial Mark阶段</span><br><span class="line">程序暂停运行`Stop-The-Word`，标记到根对象的第一层孩子节点即停止 ，然后程序恢复运行。由于只标记一层节点，所以暂停时间很短。</span><br><span class="line"></span><br><span class="line">2. Concurrent Mark阶段</span><br><span class="line">以Initial Mark阶段标记的节点为根对象，重新开始标记Tenured区域中的可达对象（不需要暂停应用程序，因此称为&quot;Concurrent Mark&quot;）。</span><br><span class="line">由于CMS垃圾回收器和应用程序同时运行，Concurrent Mark阶段它并不保证在Tenured区域的可达对象都被标记了（分配新对象）。</span><br><span class="line"></span><br><span class="line">3. Remark阶段</span><br><span class="line">暂停应用程序，确保所有的可达对象都被标记（Concurrent Mark阶段未标记的，`可多线程标记`）。</span><br><span class="line"></span><br><span class="line">4. Concurrent Sweep阶段</span><br><span class="line">恢复应用程序的执行，执行sweep来清除所有非可达对象所占用的内存空间。</span><br></pre></td></tr></table></figure></p>
+<p>与<code>PS</code>相比，<code>CS</code>垃圾回收算法可以减少程序暂停的时间。</p>
+<p><img src="/images/gc-7.png" alt=""></p>
+<h3 id="Garbage-First"><a href="#Garbage-First" class="headerlink" title="Garbage First"></a>Garbage First</h3><p>CMS垃圾收集器虽然减少了暂停应用程序的运行时间，但是由于它没有Compact阶段，它还是存在着内存碎片问题。于是，为了去除内存碎片问题，同时又保留CMS垃圾收集器低暂停时间的优点，JAVA7发布了一个新的垃圾收集器 - G1垃圾收集器。</p>
+<p><img src="/images/gc-8.png" alt=""></p>
+<p>G1垃圾收集器和CMS垃圾收集器有几点不同，最大的不同是内存的组织方式变了。Eden，Survivor和Tenured等内存区域不再是连续的了，而是变成了一个个大小一样的region - 每个region从1M到32M不等。</p>
+<p><code>G1</code>垃圾回收的四个阶段如下，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">1. Initial Mark阶段</span><br><span class="line">同CMS垃圾收集器的Initial Mark阶段一样，程序暂停运行`Stop-The-Word`，标记到根对象的第一层孩子节点即停止 ，然后程序恢复运行。</span><br><span class="line">由于只标记一层节点。但它不会单独暂停应用程序的执行，而是在G1触发minor gc是发生。</span><br><span class="line"></span><br><span class="line">2. Concurrent Mark阶段</span><br><span class="line">同CMS垃圾收集器的Concurrent Mark阶段一样，重新开始标记Tenured区域中的可达对象（不需要暂停应用程序）。</span><br><span class="line">但G1还会回收掉Tenured region中对象的存活率很小或者基本没有对象存活的内存区域（不需要等待clean up阶段，因此成为Garbage First），并计算每个 region的对象存活率以供clean up阶段使用 。</span><br><span class="line"></span><br><span class="line">3. Remark阶段 </span><br><span class="line">同CMS垃圾收集器的Remark阶段一样, 但G1采用一种叫做SATB(snapshot-at-the-begining)的算法能够在Remark阶段更快的标记可达对象。</span><br><span class="line"></span><br><span class="line">4. Clean up/Copy阶段</span><br><span class="line">与CMS中不同，它有一个Clean up/Copy阶段，在minor gc发生的同时G1会挑选出那些对象存活率低的region进行回收。</span><br></pre></td></tr></table></figure></p>
+<p>由于Initial Mark阶段和Clean up/Copy阶段都是跟minor gc同时发生的，相比于CMS，G1暂停应用程序的时间更少，从而提高了垃圾回收的效率。</p>
+
+  	</div>
+	  
+	  <div class="article-tags tags">
+      
+        <a href="/tags/gc/">gc</a>
+      
+	  </div>
+    
+		
+	
+		<div class="art-item-footer">
+				
+					<span class="art-item-left"><i class="icon icon-chevron-thin-left"></i>prev：<a href="/2017/03/27/flex/" rel="prev"  title="flex">
+						flex 
+					</a></span>
+				
+				
+					<span class="art-item-right">next：<a href="/2016/12/13/sso/" rel="next"  title="单点登录">
+						单点登录
+					</a><i class="icon icon-chevron-thin-right"></i></span>
+				
+		</div>
+	
+	</section>
+	
+</article>
+<script>
+	window.subData = {
+		title: '垃圾回收GC',
+		tools: true
+	}
+</script>
+
+      </div>
+      <aside class='l_side'>
+        
+  <section class='m_widget about'>
+
+<div class='header'>simyy</div>
+<div class='content'>
+<div class='desc'>Tempora mutantur, nos et mutamur in illis ...</div>
+</div>
+</section>
+
+  <section class='m_widget links'>
+<div class='header'>Links</div>
+<div class='content'>
+    <ul class="entry">
+    
+        <li><a class="flat-box" target="_blank" href="https://www.cnblogs.com/coder2012">
+            <div class='name'>cnblog</div>
+        </a></li>
+    
+        <li><a class="flat-box" target="_blank" href="https://qiuar.com">
+            <div class='name'>qiuar</div>
+        </a></li>
+    
+        <li><a class="flat-box" target="_blank" href="http://github.com/simyy">
+            <div class='name'>github</div>
+        </a></li>
+    
+    </ul>
+</div>
+</section>
+
+  <section class='m_widget categories'>
+<div class='header'>Categories</div>
+<div class='content'>
+    
+    <ul class="entry">
+    
+        <li><a class="flat-box" href="/categories/algorithm/"><div class='name'>algorithm</div><div class='badget'>12</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/c/"><div class='name'>c</div><div class='badget'>1</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/cache/"><div class='name'>cache</div><div class='badget'>9</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/cs/"><div class='name'>cs</div><div class='badget'>8</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/db/"><div class='name'>db</div><div class='badget'>8</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/fe/"><div class='name'>fe</div><div class='badget'>1</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/go/"><div class='name'>go</div><div class='badget'>2</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/java/"><div class='name'>java</div><div class='badget'>8</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/mq/"><div class='name'>mq</div><div class='badget'>6</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/php/"><div class='name'>php</div><div class='badget'>2</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/python/"><div class='name'>python</div><div class='badget'>20</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/web/"><div class='name'>web</div><div class='badget'>4</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/分布式/"><div class='name'>分布式</div><div class='badget'>1</div></a></li>
+    
+    </ul>
+    
+</div>
+</section>
+
+  
+<div class="m_widget tagcloud">
+    <div class="header">Tags</div>
+    <div class='content'>
+        <a href="/tags/algorithm/" style="font-size: 18.5px; color: #202020">algorithm</a> <a href="/tags/c/" style="font-size: 14px; color: #808080">c</a> <a href="/tags/css/" style="font-size: 14px; color: #808080">css</a> <a href="/tags/framework/" style="font-size: 16.25px; color: #505050">framework</a> <a href="/tags/gc/" style="font-size: 14px; color: #808080">gc</a> <a href="/tags/go/" style="font-size: 14.75px; color: #707070">go</a> <a href="/tags/java/" style="font-size: 19.25px; color: #101010">java</a> <a href="/tags/jetty/" style="font-size: 14px; color: #808080">jetty</a> <a href="/tags/linux/" style="font-size: 15.5px; color: #606060">linux</a> <a href="/tags/maven/" style="font-size: 14px; color: #808080">maven</a> <a href="/tags/memcache/" style="font-size: 15.5px; color: #606060">memcache</a> <a href="/tags/mysql/" style="font-size: 17.75px; color: #303030">mysql</a> <a href="/tags/orm/" style="font-size: 14.75px; color: #707070">orm</a> <a href="/tags/php/" style="font-size: 14.75px; color: #707070">php</a> <a href="/tags/python/" style="font-size: 20px; color: #000">python</a> <a href="/tags/rabbitmq/" style="font-size: 17.75px; color: #303030">rabbitmq</a> <a href="/tags/redis/" style="font-size: 17.75px; color: #303030">redis</a> <a href="/tags/rpc/" style="font-size: 14px; color: #808080">rpc</a> <a href="/tags/spider/" style="font-size: 14px; color: #808080">spider</a> <a href="/tags/spring/" style="font-size: 15.5px; color: #606060">spring</a> <a href="/tags/tcp/" style="font-size: 14.75px; color: #707070">tcp</a> <a href="/tags/web/" style="font-size: 14px; color: #808080">web</a> <a href="/tags/中文分词/" style="font-size: 14px; color: #808080">中文分词</a> <a href="/tags/分布式/" style="font-size: 14px; color: #808080">分布式</a> <a href="/tags/机器学习/" style="font-size: 17px; color: #404040">机器学习</a> <a href="/tags/编译原理/" style="font-size: 14.75px; color: #707070">编译原理</a>
+    </div>
+</div>
+
+
+
+      </aside>
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+  </div>
+  <footer id="footer" class="clearfix">
+
+	<div class="social-wrapper">
+  	
+      
+        <a href="https://github.com/simyy" class="social github"
+          target="_blank" rel="external">
+          <span class="icon icon-github"></span>
+        </a>
+      
+        <a href="/atom.xml" class="social rss"
+          target="_blank" rel="external">
+          <span class="icon icon-rss"></span>
+        </a>
+      
+    
+  </div>
+  
+  <div>Theme <a href='https://github.com/stkevintan/hexo-theme-material-flow' class="codename">MaterialFlow</a> designed by <a href="http://keyin.me/" target="_blank">Kevin Tan</a>.</div>
+  
+</footer>
+
+
+  <script>setLoadingBarProgress(80);</script>
+  
+
+<script src="//apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src='//cdn.bootcss.com/node-waves/0.7.5/waves.min.js'></script>
+<script src="//cdn.bootcss.com/scrollReveal.js/3.3.2/scrollreveal.min.js"></script>
+<script src="/js/jquery.fitvids.js"></script>
+<script>
+	var GOOGLE_CUSTOM_SEARCH_API_KEY = "";
+	var GOOGLE_CUSTOM_SEARCH_ENGINE_ID = "";
+	var ALGOLIA_API_KEY = "";
+	var ALGOLIA_APP_ID = "";
+	var ALGOLIA_INDEX_NAME = "";
+  var AZURE_SERVICE_NAME = "";
+  var AZURE_INDEX_NAME = "";
+  var AZURE_QUERY_KEY = "";
+  var BAIDU_API_ID = "";
+  var SEARCH_SERVICE = "hexo";
+  var ROOT = "/"||"/";
+  if(!ROOT.endsWith('/'))ROOT += '/';
+</script>
+<script src="/js/search.js"></script>
+<script src="/js/app.js"></script>
+
+
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>

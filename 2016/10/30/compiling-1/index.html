@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  
+  <title>编译原理（一）词法分析 | Simple Life</title>
+  <meta name="description" content="A blog of simyy" />
+  <meta name="keywords" content="" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="shortcut icon" href="/">
+  <link rel="alternate" href="/atom.xml" title="Simple Life">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="词法分析（Lexical analysis）是完成编译程序的第一个阶段的工作。">
+<meta name="keywords" content="编译原理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="编译原理（一）词法分析">
+<meta property="og:url" content="http://simyy.com/2016/10/30/compiling-1/index.html">
+<meta property="og:site_name" content="Simple Life">
+<meta property="og:description" content="词法分析（Lexical analysis）是完成编译程序的第一个阶段的工作。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://simyy.com/images/compoling-1.jpeg">
+<meta property="og:updated_time" content="2017-04-12T14:42:39.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="编译原理（一）词法分析">
+<meta name="twitter:description" content="词法分析（Lexical analysis）是完成编译程序的第一个阶段的工作。">
+<meta name="twitter:image" content="http://simyy.com/images/compoling-1.jpeg">
+    
+  <link href="https://fonts.googleapis.com/css?family=Inconsolata|Titillium+Web" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
+  <link href='//cdn.bootcss.com/node-waves/0.7.5/waves.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="/style.css">
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+</head>
+
+<body>
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+
+
+  <script>setLoadingBarProgress(20)</script> 
+  <header class="l_header">
+	<div class='wrapper'>
+		<div class="nav-main container container--flex">
+			<a class="logo flat-box" href='/' >
+				Simple Life
+			</a>
+			<div class='menu'>
+				<ul class='h-list'>
+					
+						<li>
+							<a class='flat-box nav-home' href='/'>
+								Home
+							</a>
+						</li>
+					
+						<li>
+							<a class='flat-box nav-archives' href='/archives'>
+								Archives
+							</a>
+						</li>
+					
+						<li>
+							<a class='flat-box nav-about' href='/about'>
+								About
+							</a>
+						</li>
+					
+				</ul>
+				<div class='underline'></div>
+			</div>
+			
+				<div class="m_search">
+					<form name="searchform" class="form u-search-form">
+						<input type="text" class="input u-search-input" placeholder="Search" />
+						<span class="icon icon-search"></span>
+					</form>
+				</div>
+			
+			<ul class='switcher h-list'>
+				
+					<li class='s-search'><a href='javascript:void(0)'><span class="icon icon-search flat-box"></span></a></li>
+				
+				<li class='s-menu'><a href='javascript:void(0)'><span class="icon icon-menu flat-box"></span></a></li>
+			</ul>
+		</div>
+		
+		<div class='nav-sub container container--flex'>
+			<a class="logo" class="flat-box" href='javascript:void(0)'>
+				Word of Forks
+			</a>
+
+			<ul class='switcher h-list'>
+				<li class='s-comment'><a href='javascript:void(0)'><span class="icon icon-chat_bubble_outline flat-box"></span></a></li>
+				<li class='s-top'><a href='javascript:void(0)'><span class="icon icon-arrow_upward flat-box"></span></a></li>
+				<li class='s-toc'><a href='javascript:void(0)'><span class="icon icon-format_list_numbered flat-box"></span></a></li>
+			</ul>
+		</div>
+	</div>
+</header>
+<aside class="menu-phone">
+	<nav>
+		
+			<a href="/" class="nav-home nav">
+				Home
+			</a>
+		
+			<a href="/archives" class="nav-archives nav">
+				Archives
+			</a>
+		
+			<a href="/about" class="nav-about nav">
+				About
+			</a>
+		
+	</nav>
+</aside>
+
+    <script>setLoadingBarProgress(40);</script>
+  <div class="l_body">
+    <div class='container clearfix'>
+      <div class='l_main'>
+        <article id="post-compiling-1"
+  class="post white-box article-type-post"
+  itemscope itemprop="blogPost">
+	<section class='meta'>
+	<h2 class="title">
+  	<a href="/2016/10/30/compiling-1/">
+    	编译原理（一）词法分析
+    </a>
+  </h2>
+	<time>
+	  10月 30, 2016
+	</time>
+	
+    
+    <div class='cats'>
+        <a href="/categories/cs/">cs</a>
+    </div>
+
+	</section>
+	
+		<section class="toc-wrapper"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#关键字"><span class="toc-number">1.</span> <span class="toc-text">关键字</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关键字识别"><span class="toc-number">2.</span> <span class="toc-text">关键字识别</span></a></li></ol></section>
+	
+	<section class="article typo">
+  	<div class="article-entry" itemprop="articleBody">
+    	<p>词法分析（Lexical analysis）是完成编译程序的第一个阶段的工作。<br><a id="more"></a><br>词法分析是从左到右一个字符一个字符地读入源程序，即对构成源程序的字符流进行扫描然后根据构词规则识别单词(也称单词符号或符号)。词法分析程序实现这个任务。词法分析程序可以使用lex等工具自动生成。</p>
+<h3 id="关键字"><a href="#关键字" class="headerlink" title="关键字"></a>关键字</h3><p>词法分析主要任务就是需要把由代码组成的字符串来识别出来，生成可以被识别的关键字序列。</p>
+<p><img src="/images/compoling-1.jpeg" alt="图片1"></p>
+<p>本文只实现了5种关键字类型，其中<code>IGN</code>是可悲忽略的字符，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># 关键字类型</span><br><span class="line">class TOKENTYPE(object):</span><br><span class="line">    IGN = 0 # ignore</span><br><span class="line">    OPT = 1 # oprate</span><br><span class="line">    SCP = 1 # reserved</span><br><span class="line">    INT = 2 # int</span><br><span class="line">    STR = 3 # string</span><br></pre></td></tr></table></figure></p>
+<p>对于不同的关键字需要对应的正则表达式来匹配该数据，并且需要预设关键字的优先级，例如，乘号的优先级高于加号，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># 关键字定义</span><br><span class="line">class TokenRegex(object):</span><br><span class="line">    def __init__(self, regex, name,type=TOKENTYPE.OPT, priority=1):</span><br><span class="line">        self.regex = regex</span><br><span class="line">        self.name = name</span><br><span class="line">        self.type = type</span><br><span class="line">        self.priority = priority</span><br><span class="line">        self.value = None</span><br></pre></td></tr></table></figure></p>
+<p>关键字定义如下，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">_TokenRegexs = (</span><br><span class="line">    TokenRegex(r&apos;\=&apos;, &apos;eq&apos;),</span><br><span class="line">    TokenRegex(r&apos;\+&apos;, &apos;add&apos;),</span><br><span class="line">    TokenRegex(r&apos;\-&apos;, &apos;sub&apos;),</span><br><span class="line">    TokenRegex(r&apos;\*&apos;, &apos;mux&apos;, priority=2),</span><br><span class="line">    TokenRegex(r&apos;\/&apos;, &apos;div&apos;, priority=2),</span><br><span class="line">    TokenRegex(r&apos;\(&apos;, &apos;(&apos;, type=TOKENTYPE.SCP, priority=3),</span><br><span class="line">    TokenRegex(r&apos;\)&apos;, &apos;)&apos;, type=TOKENTYPE.SCP, priority=3),</span><br><span class="line">    TokenRegex(r&apos;\&#123;&apos;, &apos;&#123;&apos;, type=TOKENTYPE.SCP, priority=3),</span><br><span class="line">    TokenRegex(r&apos;\&#125;&apos;, &apos;&#125;&apos;, type=TOKENTYPE.SCP, priority=3),</span><br><span class="line">    TokenRegex(r&apos;if&apos;, &apos;_if&apos;),</span><br><span class="line">    TokenRegex(r&apos;else&apos;, &apos;_else&apos;),</span><br><span class="line">    TokenRegex(r&apos;;&apos;, &apos;end&apos;),</span><br><span class="line">    TokenRegex(r&apos;[0-9]+&apos;, &apos;int&apos;,  type=TOKENTYPE.INT),</span><br><span class="line">    TokenRegex(r&apos;[a-zA-Z][a-zA-Z0-9_]*&apos;, &apos;str&apos;, type=TOKENTYPE.STR),</span><br><span class="line">    TokenRegex(r&apos;\n&apos;, &apos;enter&apos;, type=TOKENTYPE.IGN),</span><br><span class="line">    TokenRegex(r&apos; &apos;, &apos;blank&apos;, type=TOKENTYPE.IGN),</span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
+<p>此外，还需要定义特殊关键子匹配规则，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">TOKEN_SCP_MATCH = &#123;</span><br><span class="line">    &apos;(&apos;:  &apos;)&apos;,</span><br><span class="line">    &apos;&#123;&apos;:  &apos;&#125;&apos;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>递归遍历输入字符，生成对应的关键字链表，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">def lex(characters):</span><br><span class="line">    pos = 0 </span><br><span class="line">    length = len(characters)</span><br><span class="line">    while pos &lt; length:</span><br><span class="line">        for token_regex in _TokenRegexs:</span><br><span class="line">            regex = re.compile(token_regex.regex)</span><br><span class="line">            r = regex.match(characters, pos)</span><br><span class="line">            if r:</span><br><span class="line">                if token_regex.type is not TOKENTYPE.IGN:</span><br><span class="line">                    yield Token(r.group(0), token_regex)</span><br><span class="line">                pos = r.end(0)</span><br><span class="line">                break</span><br><span class="line">        else:</span><br><span class="line">            print &apos;char:&apos;, characters[pos]</span><br><span class="line">            sys.stderr.write(&apos;Illgal character: %s\n&apos; % characters[pos])</span><br><span class="line">            sys.exit(1)</span><br></pre></td></tr></table></figure></p>
+<h3 id="关键字识别"><a href="#关键字识别" class="headerlink" title="关键字识别"></a>关键字识别</h3><p>关键字识别单元，用来存储每一个关键字的信息<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">class Token(object):</span><br><span class="line">    def __init__(self, value, token_regex):</span><br><span class="line">        self.value = int(value) if value.isdigit() else value</span><br><span class="line">        self.name = token_regex.name</span><br><span class="line">        self.type = token_regex.type</span><br><span class="line">        self.priority = token_regex.priority</span><br><span class="line"></span><br><span class="line">    def __repr__(self):</span><br><span class="line">        return &apos;&lt;Token(\&apos;%s\&apos;) %s %s&gt;&apos; % (self.name, self.value, self.priority)</span><br><span class="line"></span><br><span class="line">    def is_end(self):</span><br><span class="line">        return True if self.name == &apos;end&apos; else False</span><br></pre></td></tr></table></figure></p>
+
+  	</div>
+	  
+	  <div class="article-tags tags">
+      
+        <a href="/tags/编译原理/">编译原理</a>
+      
+	  </div>
+    
+		
+	
+		<div class="art-item-footer">
+				
+					<span class="art-item-left"><i class="icon icon-chevron-thin-left"></i>prev：<a href="/2016/11/14/compiling-2/" rel="prev"  title="编译原理（二）语法分析">
+						编译原理（二）语法分析 
+					</a></span>
+				
+				
+					<span class="art-item-right">next：<a href="/2016/10/27/simhash/" rel="next"  title="SimHash算法">
+						SimHash算法
+					</a><i class="icon icon-chevron-thin-right"></i></span>
+				
+		</div>
+	
+	</section>
+	
+</article>
+<script>
+	window.subData = {
+		title: '编译原理（一）词法分析',
+		tools: true
+	}
+</script>
+
+      </div>
+      <aside class='l_side'>
+        
+  <section class='m_widget about'>
+
+<div class='header'>simyy</div>
+<div class='content'>
+<div class='desc'>Tempora mutantur, nos et mutamur in illis ...</div>
+</div>
+</section>
+
+  <section class='m_widget links'>
+<div class='header'>Links</div>
+<div class='content'>
+    <ul class="entry">
+    
+        <li><a class="flat-box" target="_blank" href="https://www.cnblogs.com/coder2012">
+            <div class='name'>cnblog</div>
+        </a></li>
+    
+        <li><a class="flat-box" target="_blank" href="https://qiuar.com">
+            <div class='name'>qiuar</div>
+        </a></li>
+    
+        <li><a class="flat-box" target="_blank" href="http://github.com/simyy">
+            <div class='name'>github</div>
+        </a></li>
+    
+    </ul>
+</div>
+</section>
+
+  <section class='m_widget categories'>
+<div class='header'>Categories</div>
+<div class='content'>
+    
+    <ul class="entry">
+    
+        <li><a class="flat-box" href="/categories/algorithm/"><div class='name'>algorithm</div><div class='badget'>12</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/c/"><div class='name'>c</div><div class='badget'>1</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/cache/"><div class='name'>cache</div><div class='badget'>9</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/cs/"><div class='name'>cs</div><div class='badget'>8</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/db/"><div class='name'>db</div><div class='badget'>8</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/fe/"><div class='name'>fe</div><div class='badget'>1</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/go/"><div class='name'>go</div><div class='badget'>2</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/java/"><div class='name'>java</div><div class='badget'>8</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/mq/"><div class='name'>mq</div><div class='badget'>6</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/php/"><div class='name'>php</div><div class='badget'>2</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/python/"><div class='name'>python</div><div class='badget'>20</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/web/"><div class='name'>web</div><div class='badget'>4</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/分布式/"><div class='name'>分布式</div><div class='badget'>1</div></a></li>
+    
+    </ul>
+    
+</div>
+</section>
+
+  
+<div class="m_widget tagcloud">
+    <div class="header">Tags</div>
+    <div class='content'>
+        <a href="/tags/algorithm/" style="font-size: 18.5px; color: #202020">algorithm</a> <a href="/tags/c/" style="font-size: 14px; color: #808080">c</a> <a href="/tags/css/" style="font-size: 14px; color: #808080">css</a> <a href="/tags/framework/" style="font-size: 16.25px; color: #505050">framework</a> <a href="/tags/gc/" style="font-size: 14px; color: #808080">gc</a> <a href="/tags/go/" style="font-size: 14.75px; color: #707070">go</a> <a href="/tags/java/" style="font-size: 19.25px; color: #101010">java</a> <a href="/tags/jetty/" style="font-size: 14px; color: #808080">jetty</a> <a href="/tags/linux/" style="font-size: 15.5px; color: #606060">linux</a> <a href="/tags/maven/" style="font-size: 14px; color: #808080">maven</a> <a href="/tags/memcache/" style="font-size: 15.5px; color: #606060">memcache</a> <a href="/tags/mysql/" style="font-size: 17.75px; color: #303030">mysql</a> <a href="/tags/orm/" style="font-size: 14.75px; color: #707070">orm</a> <a href="/tags/php/" style="font-size: 14.75px; color: #707070">php</a> <a href="/tags/python/" style="font-size: 20px; color: #000">python</a> <a href="/tags/rabbitmq/" style="font-size: 17.75px; color: #303030">rabbitmq</a> <a href="/tags/redis/" style="font-size: 17.75px; color: #303030">redis</a> <a href="/tags/rpc/" style="font-size: 14px; color: #808080">rpc</a> <a href="/tags/spider/" style="font-size: 14px; color: #808080">spider</a> <a href="/tags/spring/" style="font-size: 15.5px; color: #606060">spring</a> <a href="/tags/tcp/" style="font-size: 14.75px; color: #707070">tcp</a> <a href="/tags/web/" style="font-size: 14px; color: #808080">web</a> <a href="/tags/中文分词/" style="font-size: 14px; color: #808080">中文分词</a> <a href="/tags/分布式/" style="font-size: 14px; color: #808080">分布式</a> <a href="/tags/机器学习/" style="font-size: 17px; color: #404040">机器学习</a> <a href="/tags/编译原理/" style="font-size: 14.75px; color: #707070">编译原理</a>
+    </div>
+</div>
+
+
+
+      </aside>
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+  </div>
+  <footer id="footer" class="clearfix">
+
+	<div class="social-wrapper">
+  	
+      
+        <a href="https://github.com/simyy" class="social github"
+          target="_blank" rel="external">
+          <span class="icon icon-github"></span>
+        </a>
+      
+        <a href="/atom.xml" class="social rss"
+          target="_blank" rel="external">
+          <span class="icon icon-rss"></span>
+        </a>
+      
+    
+  </div>
+  
+  <div>Theme <a href='https://github.com/stkevintan/hexo-theme-material-flow' class="codename">MaterialFlow</a> designed by <a href="http://keyin.me/" target="_blank">Kevin Tan</a>.</div>
+  
+</footer>
+
+
+  <script>setLoadingBarProgress(80);</script>
+  
+
+<script src="//apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src='//cdn.bootcss.com/node-waves/0.7.5/waves.min.js'></script>
+<script src="//cdn.bootcss.com/scrollReveal.js/3.3.2/scrollreveal.min.js"></script>
+<script src="/js/jquery.fitvids.js"></script>
+<script>
+	var GOOGLE_CUSTOM_SEARCH_API_KEY = "";
+	var GOOGLE_CUSTOM_SEARCH_ENGINE_ID = "";
+	var ALGOLIA_API_KEY = "";
+	var ALGOLIA_APP_ID = "";
+	var ALGOLIA_INDEX_NAME = "";
+  var AZURE_SERVICE_NAME = "";
+  var AZURE_INDEX_NAME = "";
+  var AZURE_QUERY_KEY = "";
+  var BAIDU_API_ID = "";
+  var SEARCH_SERVICE = "hexo";
+  var ROOT = "/"||"/";
+  if(!ROOT.endsWith('/'))ROOT += '/';
+</script>
+<script src="/js/search.js"></script>
+<script src="/js/app.js"></script>
+
+
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>

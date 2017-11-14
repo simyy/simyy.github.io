@@ -1,0 +1,592 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <url>
+    <loc>http://simyy.com/2017/05/20/distributed-transaction/</loc>
+    
+    <lastmod>2017-05-20T09:47:54.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2017/04/16/java-threadlocal/</loc>
+    
+    <lastmod>2017-04-16T07:23:09.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/10/30/compiling-1/</loc>
+    
+    <lastmod>2017-04-12T14:42:39.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2017/04/12/java-thread/</loc>
+    
+    <lastmod>2017-04-11T16:47:32.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2017/04/08/java-exception/</loc>
+    
+    <lastmod>2017-04-08T14:31:11.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/06/17/ml-svm-1/</loc>
+    
+    <lastmod>2017-04-08T09:36:56.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/04/26/block-sync/</loc>
+    
+    <lastmod>2017-04-08T09:35:18.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/03/22/btree/</loc>
+    
+    <lastmod>2017-04-08T09:35:13.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/11/14/compiling-2/</loc>
+    
+    <lastmod>2017-04-08T09:35:07.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2017/01/25/gc/</loc>
+    
+    <lastmod>2017-04-08T09:35:02.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2014/09/04/hash-basic/</loc>
+    
+    <lastmod>2017-04-08T09:34:57.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2014/09/17/hash-consistent/</loc>
+    
+    <lastmod>2017-04-08T09:34:54.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/07/13/kmeans/</loc>
+    
+    <lastmod>2017-04-08T09:34:49.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2013/06/01/linux-memory/</loc>
+    
+    <lastmod>2017-04-08T09:34:47.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/07/12/linux-zero-copy/</loc>
+    
+    <lastmod>2017-04-08T09:34:43.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/06/24/logistic/</loc>
+    
+    <lastmod>2017-04-08T09:34:39.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/06/18/ml-svm-2/</loc>
+    
+    <lastmod>2017-04-08T09:34:31.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/06/25/regression/</loc>
+    
+    <lastmod>2017-04-08T09:33:59.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/10/27/simhash/</loc>
+    
+    <lastmod>2017-04-08T09:33:52.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/09/22/simulate-anneal/</loc>
+    
+    <lastmod>2017-04-08T09:33:48.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/11/27/simWS-tire-tree/</loc>
+    
+    <lastmod>2017-04-08T09:33:44.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/10/27/soft-coding/</loc>
+    
+    <lastmod>2017-04-08T09:33:40.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/08/18/sqlalchemy/</loc>
+    
+    <lastmod>2017-04-08T09:33:13.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/08/19/sqlalchemy2/</loc>
+    
+    <lastmod>2017-04-08T09:33:11.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/12/13/sso/</loc>
+    
+    <lastmod>2017-04-08T09:33:06.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/01/18/tcp-status/</loc>
+    
+    <lastmod>2017-04-08T09:33:02.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/05/31/tcp-term/</loc>
+    
+    <lastmod>2017-04-08T09:32:52.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/07/02/db-lock/</loc>
+    
+    <lastmod>2017-04-08T09:31:08.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2017/03/27/flex/</loc>
+    
+    <lastmod>2017-04-08T09:30:58.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/10/15/go-reflect/</loc>
+    
+    <lastmod>2017-04-08T09:30:50.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/09/17/golang-project-import/</loc>
+    
+    <lastmod>2017-04-08T09:30:47.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2017/04/08/java-anotion-log/</loc>
+    
+    <lastmod>2017-04-08T09:30:35.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2017/03/30/java-object/</loc>
+    
+    <lastmod>2017-04-08T09:30:30.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/06/25/jetty/</loc>
+    
+    <lastmod>2017-04-08T09:30:22.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2013/06/23/malloc-and-free-in-c/</loc>
+    
+    <lastmod>2017-04-08T09:29:43.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/05/17/maven/</loc>
+    
+    <lastmod>2017-04-08T09:29:38.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/02/09/memcache-event-model/</loc>
+    
+    <lastmod>2017-04-08T09:29:28.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/04/26/memcache-memory-management/</loc>
+    
+    <lastmod>2017-04-08T09:29:25.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/02/07/memcache-summary/</loc>
+    
+    <lastmod>2017-04-08T09:29:23.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/04/15/MyISAM-InnoDB/</loc>
+    
+    <lastmod>2017-04-08T09:29:03.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/08/22/mysql-auto-increment/</loc>
+    
+    <lastmod>2017-04-08T09:28:59.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/08/08/mysql-null/</loc>
+    
+    <lastmod>2017-04-08T09:28:54.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/10/28/mysql-procedure/</loc>
+    
+    <lastmod>2017-04-08T09:28:48.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/09/22/Nested-Set-Model/</loc>
+    
+    <lastmod>2017-04-08T09:28:43.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/03/09/php-hello/</loc>
+    
+    <lastmod>2017-04-08T09:28:31.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/03/11/php-Laravel/</loc>
+    
+    <lastmod>2017-04-08T09:28:21.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/12/31/python-%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/</loc>
+    
+    <lastmod>2017-04-08T09:28:10.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2014/10/22/python-deamon/</loc>
+    
+    <lastmod>2017-04-08T09:28:06.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2014/11/09/python-decorator/</loc>
+    
+    <lastmod>2017-04-08T09:28:01.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2014/12/04/python-file-operate/</loc>
+    
+    <lastmod>2017-04-08T09:27:56.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/08/09/python-iter-gen/</loc>
+    
+    <lastmod>2017-04-08T09:27:51.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2014/11/01/python-list/</loc>
+    
+    <lastmod>2017-04-08T09:27:46.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/05/27/python-module-init/</loc>
+    
+    <lastmod>2017-04-08T09:27:42.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/05/27/python-name-space/</loc>
+    
+    <lastmod>2017-04-08T09:27:36.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/05/24/python-object/</loc>
+    
+    <lastmod>2017-04-08T09:27:31.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/04/16/python-propety/</loc>
+    
+    <lastmod>2017-04-08T09:27:26.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/03/05/python-set-get-del-call-attr/</loc>
+    
+    <lastmod>2017-04-08T09:27:22.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/04/18/python-sort/</loc>
+    
+    <lastmod>2017-04-08T09:27:16.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/06/03/python-thread/</loc>
+    
+    <lastmod>2017-04-08T09:27:11.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/05/29/python-virtualenv/</loc>
+    
+    <lastmod>2017-04-08T09:27:06.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2014/10/22/python-webpy-session/</loc>
+    
+    <lastmod>2017-04-08T09:27:00.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/04/13/python-xx/</loc>
+    
+    <lastmod>2017-04-08T09:26:51.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/11/24/python-yield/</loc>
+    
+    <lastmod>2017-04-08T09:26:39.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/03/14/rabbitmq-hello-world/</loc>
+    
+    <lastmod>2017-04-08T09:26:34.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/03/16/rabbitmq-publish-subscribe/</loc>
+    
+    <lastmod>2017-04-08T09:26:32.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/04/26/rabbitmq-remote-access/</loc>
+    
+    <lastmod>2017-04-08T09:26:29.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/03/16/rabbitmq-routing/</loc>
+    
+    <lastmod>2017-04-08T09:26:27.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/03/16/rabbitmq-topics/</loc>
+    
+    <lastmod>2017-04-08T09:26:24.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/03/15/rabbitmq-work-queues/</loc>
+    
+    <lastmod>2017-04-08T09:26:19.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/04/08/redis-advance-usage/</loc>
+    
+    <lastmod>2017-04-08T09:26:09.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/12/03/redis-dict/</loc>
+    
+    <lastmod>2017-04-08T09:26:04.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/04/04/redis-install-base-op/</loc>
+    
+    <lastmod>2017-04-08T09:26:00.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/12/03/redis-sds/</loc>
+    
+    <lastmod>2017-04-08T09:25:55.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/12/06/redis-skiplist/</loc>
+    
+    <lastmod>2017-04-08T09:25:50.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/04/07/redis-summary/</loc>
+    
+    <lastmod>2017-04-08T09:25:44.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/08/22/rpc-thrift-install/</loc>
+    
+    <lastmod>2017-04-08T09:25:33.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2017/04/03/schedule/</loc>
+    
+    <lastmod>2017-04-08T09:25:20.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2015/04/26/simfish-framework/</loc>
+    
+    <lastmod>2017-04-08T09:25:12.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/10/24/spider-selenium/</loc>
+    
+    <lastmod>2017-04-08T09:24:35.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/10/17/spring-annotion/</loc>
+    
+    <lastmod>2017-04-08T09:24:14.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/10/10/spring-bean/</loc>
+    
+    <lastmod>2017-04-08T09:24:07.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/2016/05/19/spring-mvc/</loc>
+    
+    <lastmod>2017-04-08T09:23:58.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/categories/index.html</loc>
+    
+    <lastmod>2016-04-07T14:39:43.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://simyy.com/tags/index.html</loc>
+    
+    <lastmod>2016-04-03T10:24:36.000Z</lastmod>
+    
+  </url>
+  
+</urlset>

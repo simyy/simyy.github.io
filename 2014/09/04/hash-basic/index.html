@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  
+  <title>哈希算法（一） | Simple Life</title>
+  <meta name="description" content="A blog of simyy" />
+  <meta name="keywords" content="" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="shortcut icon" href="/">
+  <link rel="alternate" href="/atom.xml" title="Simple Life">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="本文介绍基本的哈希算法。">
+<meta name="keywords" content="algorithm">
+<meta property="og:type" content="article">
+<meta property="og:title" content="哈希算法（一）">
+<meta property="og:url" content="http://simyy.com/2014/09/04/hash-basic/index.html">
+<meta property="og:site_name" content="Simple Life">
+<meta property="og:description" content="本文介绍基本的哈希算法。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-04-08T09:34:57.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="哈希算法（一）">
+<meta name="twitter:description" content="本文介绍基本的哈希算法。">
+    
+  <link href="https://fonts.googleapis.com/css?family=Inconsolata|Titillium+Web" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
+  <link href='//cdn.bootcss.com/node-waves/0.7.5/waves.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="/style.css">
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+</head>
+
+<body>
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+
+
+  <script>setLoadingBarProgress(20)</script> 
+  <header class="l_header">
+	<div class='wrapper'>
+		<div class="nav-main container container--flex">
+			<a class="logo flat-box" href='/' >
+				Simple Life
+			</a>
+			<div class='menu'>
+				<ul class='h-list'>
+					
+						<li>
+							<a class='flat-box nav-home' href='/'>
+								Home
+							</a>
+						</li>
+					
+						<li>
+							<a class='flat-box nav-archives' href='/archives'>
+								Archives
+							</a>
+						</li>
+					
+						<li>
+							<a class='flat-box nav-about' href='/about'>
+								About
+							</a>
+						</li>
+					
+				</ul>
+				<div class='underline'></div>
+			</div>
+			
+				<div class="m_search">
+					<form name="searchform" class="form u-search-form">
+						<input type="text" class="input u-search-input" placeholder="Search" />
+						<span class="icon icon-search"></span>
+					</form>
+				</div>
+			
+			<ul class='switcher h-list'>
+				
+					<li class='s-search'><a href='javascript:void(0)'><span class="icon icon-search flat-box"></span></a></li>
+				
+				<li class='s-menu'><a href='javascript:void(0)'><span class="icon icon-menu flat-box"></span></a></li>
+			</ul>
+		</div>
+		
+		<div class='nav-sub container container--flex'>
+			<a class="logo" class="flat-box" href='javascript:void(0)'>
+				Word of Forks
+			</a>
+
+			<ul class='switcher h-list'>
+				<li class='s-comment'><a href='javascript:void(0)'><span class="icon icon-chat_bubble_outline flat-box"></span></a></li>
+				<li class='s-top'><a href='javascript:void(0)'><span class="icon icon-arrow_upward flat-box"></span></a></li>
+				<li class='s-toc'><a href='javascript:void(0)'><span class="icon icon-format_list_numbered flat-box"></span></a></li>
+			</ul>
+		</div>
+	</div>
+</header>
+<aside class="menu-phone">
+	<nav>
+		
+			<a href="/" class="nav-home nav">
+				Home
+			</a>
+		
+			<a href="/archives" class="nav-archives nav">
+				Archives
+			</a>
+		
+			<a href="/about" class="nav-about nav">
+				About
+			</a>
+		
+	</nav>
+</aside>
+
+    <script>setLoadingBarProgress(40);</script>
+  <div class="l_body">
+    <div class='container clearfix'>
+      <div class='l_main'>
+        <article id="post-hash-basic"
+  class="post white-box article-type-post"
+  itemscope itemprop="blogPost">
+	<section class='meta'>
+	<h2 class="title">
+  	<a href="/2014/09/04/hash-basic/">
+    	哈希算法（一）
+    </a>
+  </h2>
+	<time>
+	  9月 4, 2014
+	</time>
+	
+    
+    <div class='cats'>
+        <a href="/categories/algorithm/">algorithm</a>
+    </div>
+
+	</section>
+	
+		<section class="toc-wrapper"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#基本概念"><span class="toc-number">1.</span> <span class="toc-text">基本概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Hash的特点"><span class="toc-number">2.</span> <span class="toc-text">Hash的特点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Hash算法"><span class="toc-number">3.</span> <span class="toc-text">Hash算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#问题"><span class="toc-number">4.</span> <span class="toc-text">问题</span></a></li></ol></section>
+	
+	<section class="article typo">
+  	<div class="article-entry" itemprop="articleBody">
+    	<p>本文介绍基本的哈希算法。<br><a id="more"></a><br>哈希是大家比较常见一个词语，在编程中也经常用到，但是大多数人都是知其然而不知其所以然，再加上这几天想写一个一致性哈希算法，突然想想对哈希也不是很清楚，所以，抽点时间总结下Hash知识。本文参考了很多博文，感谢大家的无私分享。</p>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p><code>Hash</code>，一般翻译做“散列”，也有直接音译为“哈希”的。那么哈希函数的是什么样的？大概就是 <code>value = hash(key)</code>，我们希望key和value之间是唯一的映射关系。</p>
+<p>大家使用的最多的就是哈希表（Hash table，也叫散列表），是根据关键码值(Key value)而直接进行访问的数据结构，通过把关键码值映射到表中一个位置来访问记录，以加快查找的速度，这个映射函数叫做哈希函数或散列函数。</p>
+<p>实际中的Hash主要有两种应用：加密和压缩。</p>
+<p>在加密方面，Hash哈希是把一些不同长度的信息转化成杂乱的128位的编码,这些编码值叫做HASH值，最广泛应用的Hash算法有MD4、MD5、SHA1。</p>
+<p>在压缩方面，Hash哈希是指把一个大范围映射到一个小范围，往往是为了节省空间，使得数据容易保存。</p>
+<h2 id="Hash的特点"><a href="#Hash的特点" class="headerlink" title="Hash的特点"></a>Hash的特点</h2><p>主要原理就是把大范围映射到小范围，因此输入范围必须和小范围相当或者比它更小，否则增加冲突。</p>
+<p>Hash函数逼近单向函数，所以可以用来对数据进行加密。</p>
+<p>单项函数：如果某个函数在给定输入的时候，很容易计算出其结果来；而当给定结果的时候，很难计算出输入来。</p>
+<p>不同的应用对Hash函数有着不同的要求：用于加密的Hash函数主要考虑它和单项函数的差距，而用于查找的Hash函数主要考虑它映射到小范围的冲突率。</p>
+<h2 id="Hash算法"><a href="#Hash算法" class="headerlink" title="Hash算法"></a>Hash算法</h2><p><code>Hash</code>的产生方式大体可以分为三种基本方法：<code>加法、乘法和移位</code>。</p>
+<p>加法哈希是通过遍历数据中的元素然后每次对某个初始值进行加操作，其中加的值和这个数据的一个元素相关。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">/********************************</span><br><span class="line"> *加法哈希</span><br><span class="line"> *@key   输入字符串</span><br><span class="line"> *@prime 素数</span><br><span class="line"> ********************************/</span><br><span class="line">int additiveHash(string key, int prime)</span><br><span class="line">&#123;</span><br><span class="line">    int hash, i;</span><br><span class="line">    for(hash = key.length(), i = 0; i &lt; key.length(); ++i)</span><br><span class="line">    &#123; </span><br><span class="line">        hash += int(key.at(i));</span><br><span class="line">    &#125;</span><br><span class="line">    return (hash%prime);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>乘法哈希是通过遍历数据中的元素然后每次对初始值进行乘法操作，其中乘的值无需和数据有关系。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">/********************************</span><br><span class="line"> *乘法哈希</span><br><span class="line"> *@key   输入字符串</span><br><span class="line"> *@prime 素数</span><br><span class="line"> ********************************/</span><br><span class="line">int bernstein(string key)</span><br><span class="line">&#123;</span><br><span class="line">    int hash, i;</span><br><span class="line">    for(hash = 0, i = 0; i &lt; key.length(); ++i)</span><br><span class="line">    &#123;</span><br><span class="line">        hash = 33*hash + int(key.at(i));</span><br><span class="line">    &#125;</span><br><span class="line">    return hash;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/********************************</span><br><span class="line"> *32位FNV算法(乘法)</span><br><span class="line"> *@key   输入字符串</span><br><span class="line"> *@prime 素数</span><br><span class="line"> ********************************/</span><br><span class="line">int M_SHIFT = 0;</span><br><span class="line">int M_MASK = 0x8765fed1;</span><br><span class="line">int FNVHash(string key)</span><br><span class="line">&#123;</span><br><span class="line">    int hash = (int)2166136261L;</span><br><span class="line">    for(int i = 0; i &lt; key.length(); ++i)</span><br><span class="line">    &#123;</span><br><span class="line">        hash = (hash * 16777619)^int(key.at(i));</span><br><span class="line">    &#125;</span><br><span class="line">    if(M_SHIFT == 0)</span><br><span class="line">        return hash;</span><br><span class="line">    return (hash ^ (hash &gt;&gt; M_SHIFT)) &amp; M_MASK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在JAVA中，哈希函数使用的就是乘法哈希：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * JAVA自己带的算法</span><br><span class="line"> */</span><br><span class="line">public static int java(String str) &#123;</span><br><span class="line">    int h = 0;</span><br><span class="line">    int off = 0;</span><br><span class="line">    int len = str.length();</span><br><span class="line">    for (int i = 0; i &lt; len; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        h = 31 * h + str.charAt(off++);</span><br><span class="line">    &#125;</span><br><span class="line">    return h;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>移位哈希是通过遍历数据中的元素然后每次对初始值进行移位操作。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">/********************************</span><br><span class="line"> *旋转哈希（移位）</span><br><span class="line"> *@key   输入字符串</span><br><span class="line"> *@prime 素数</span><br><span class="line"> ********************************/</span><br><span class="line">int rotatingHash(string key, int prime)</span><br><span class="line">&#123;</span><br><span class="line">    int hash, i;</span><br><span class="line">    for(hash = key.length(), i = 0; i &lt; key.length(); ++i)</span><br><span class="line">    &#123;</span><br><span class="line">        hash = (hash &lt;&lt; 4)^(hash &gt;&gt; 28)^int(key.at(i));</span><br><span class="line">    &#125;</span><br><span class="line">    return (hash%prime);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>实际情况下，很多哈希函数都是包含加法、乘法和移位操作来实现的，例如MD5。</p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>为什么prime的取值是素数？ 有科学依据么？ 有待验证</p>
+<p>有人是这样说的取素数，可以降低碰撞的概率。但是并没有很好的说明原因，如果哪位有想法希望能留下您的想法，分享给大家。</p>
+
+  	</div>
+	  
+	  <div class="article-tags tags">
+      
+        <a href="/tags/algorithm/">algorithm</a>
+      
+	  </div>
+    
+		
+	
+		<div class="art-item-footer">
+				
+					<span class="art-item-left"><i class="icon icon-chevron-thin-left"></i>prev：<a href="/2014/09/17/hash-consistent/" rel="prev"  title="哈希算法（二）一致性哈希">
+						哈希算法（二）一致性哈希 
+					</a></span>
+				
+				
+					<span class="art-item-right">next：<a href="/2013/06/23/malloc-and-free-in-c/" rel="next"  title="C语言中的内存分配与释放">
+						C语言中的内存分配与释放
+					</a><i class="icon icon-chevron-thin-right"></i></span>
+				
+		</div>
+	
+	</section>
+	
+</article>
+<script>
+	window.subData = {
+		title: '哈希算法（一）',
+		tools: true
+	}
+</script>
+
+      </div>
+      <aside class='l_side'>
+        
+  <section class='m_widget about'>
+
+<div class='header'>simyy</div>
+<div class='content'>
+<div class='desc'>Tempora mutantur, nos et mutamur in illis ...</div>
+</div>
+</section>
+
+  <section class='m_widget links'>
+<div class='header'>Links</div>
+<div class='content'>
+    <ul class="entry">
+    
+        <li><a class="flat-box" target="_blank" href="https://www.cnblogs.com/coder2012">
+            <div class='name'>cnblog</div>
+        </a></li>
+    
+        <li><a class="flat-box" target="_blank" href="https://qiuar.com">
+            <div class='name'>qiuar</div>
+        </a></li>
+    
+        <li><a class="flat-box" target="_blank" href="http://github.com/simyy">
+            <div class='name'>github</div>
+        </a></li>
+    
+    </ul>
+</div>
+</section>
+
+  <section class='m_widget categories'>
+<div class='header'>Categories</div>
+<div class='content'>
+    
+    <ul class="entry">
+    
+        <li><a class="flat-box" href="/categories/algorithm/"><div class='name'>algorithm</div><div class='badget'>12</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/c/"><div class='name'>c</div><div class='badget'>1</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/cache/"><div class='name'>cache</div><div class='badget'>9</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/cs/"><div class='name'>cs</div><div class='badget'>8</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/db/"><div class='name'>db</div><div class='badget'>8</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/fe/"><div class='name'>fe</div><div class='badget'>1</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/go/"><div class='name'>go</div><div class='badget'>2</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/java/"><div class='name'>java</div><div class='badget'>8</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/mq/"><div class='name'>mq</div><div class='badget'>6</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/php/"><div class='name'>php</div><div class='badget'>2</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/python/"><div class='name'>python</div><div class='badget'>20</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/web/"><div class='name'>web</div><div class='badget'>4</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/分布式/"><div class='name'>分布式</div><div class='badget'>1</div></a></li>
+    
+    </ul>
+    
+</div>
+</section>
+
+  
+<div class="m_widget tagcloud">
+    <div class="header">Tags</div>
+    <div class='content'>
+        <a href="/tags/algorithm/" style="font-size: 18.5px; color: #202020">algorithm</a> <a href="/tags/c/" style="font-size: 14px; color: #808080">c</a> <a href="/tags/css/" style="font-size: 14px; color: #808080">css</a> <a href="/tags/framework/" style="font-size: 16.25px; color: #505050">framework</a> <a href="/tags/gc/" style="font-size: 14px; color: #808080">gc</a> <a href="/tags/go/" style="font-size: 14.75px; color: #707070">go</a> <a href="/tags/java/" style="font-size: 19.25px; color: #101010">java</a> <a href="/tags/jetty/" style="font-size: 14px; color: #808080">jetty</a> <a href="/tags/linux/" style="font-size: 15.5px; color: #606060">linux</a> <a href="/tags/maven/" style="font-size: 14px; color: #808080">maven</a> <a href="/tags/memcache/" style="font-size: 15.5px; color: #606060">memcache</a> <a href="/tags/mysql/" style="font-size: 17.75px; color: #303030">mysql</a> <a href="/tags/orm/" style="font-size: 14.75px; color: #707070">orm</a> <a href="/tags/php/" style="font-size: 14.75px; color: #707070">php</a> <a href="/tags/python/" style="font-size: 20px; color: #000">python</a> <a href="/tags/rabbitmq/" style="font-size: 17.75px; color: #303030">rabbitmq</a> <a href="/tags/redis/" style="font-size: 17.75px; color: #303030">redis</a> <a href="/tags/rpc/" style="font-size: 14px; color: #808080">rpc</a> <a href="/tags/spider/" style="font-size: 14px; color: #808080">spider</a> <a href="/tags/spring/" style="font-size: 15.5px; color: #606060">spring</a> <a href="/tags/tcp/" style="font-size: 14.75px; color: #707070">tcp</a> <a href="/tags/web/" style="font-size: 14px; color: #808080">web</a> <a href="/tags/中文分词/" style="font-size: 14px; color: #808080">中文分词</a> <a href="/tags/分布式/" style="font-size: 14px; color: #808080">分布式</a> <a href="/tags/机器学习/" style="font-size: 17px; color: #404040">机器学习</a> <a href="/tags/编译原理/" style="font-size: 14.75px; color: #707070">编译原理</a>
+    </div>
+</div>
+
+
+
+      </aside>
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+  </div>
+  <footer id="footer" class="clearfix">
+
+	<div class="social-wrapper">
+  	
+      
+        <a href="https://github.com/simyy" class="social github"
+          target="_blank" rel="external">
+          <span class="icon icon-github"></span>
+        </a>
+      
+        <a href="/atom.xml" class="social rss"
+          target="_blank" rel="external">
+          <span class="icon icon-rss"></span>
+        </a>
+      
+    
+  </div>
+  
+  <div>Theme <a href='https://github.com/stkevintan/hexo-theme-material-flow' class="codename">MaterialFlow</a> designed by <a href="http://keyin.me/" target="_blank">Kevin Tan</a>.</div>
+  
+</footer>
+
+
+  <script>setLoadingBarProgress(80);</script>
+  
+
+<script src="//apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src='//cdn.bootcss.com/node-waves/0.7.5/waves.min.js'></script>
+<script src="//cdn.bootcss.com/scrollReveal.js/3.3.2/scrollreveal.min.js"></script>
+<script src="/js/jquery.fitvids.js"></script>
+<script>
+	var GOOGLE_CUSTOM_SEARCH_API_KEY = "";
+	var GOOGLE_CUSTOM_SEARCH_ENGINE_ID = "";
+	var ALGOLIA_API_KEY = "";
+	var ALGOLIA_APP_ID = "";
+	var ALGOLIA_INDEX_NAME = "";
+  var AZURE_SERVICE_NAME = "";
+  var AZURE_INDEX_NAME = "";
+  var AZURE_QUERY_KEY = "";
+  var BAIDU_API_ID = "";
+  var SEARCH_SERVICE = "hexo";
+  var ROOT = "/"||"/";
+  if(!ROOT.endsWith('/'))ROOT += '/';
+</script>
+<script src="/js/search.js"></script>
+<script src="/js/app.js"></script>
+
+
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>

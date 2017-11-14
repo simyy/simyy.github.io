@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  
+  <title>python yield关键字 | Simple Life</title>
+  <meta name="description" content="A blog of simyy" />
+  <meta name="keywords" content="" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="shortcut icon" href="/">
+  <link rel="alternate" href="/atom.xml" title="Simple Life">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="yield的功能类似于return，但是不同之处在于它返回的是生成器。">
+<meta name="keywords" content="python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python yield关键字">
+<meta property="og:url" content="http://simyy.com/2015/11/24/python-yield/index.html">
+<meta property="og:site_name" content="Simple Life">
+<meta property="og:description" content="yield的功能类似于return，但是不同之处在于它返回的是生成器。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-04-08T09:26:39.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="python yield关键字">
+<meta name="twitter:description" content="yield的功能类似于return，但是不同之处在于它返回的是生成器。">
+    
+  <link href="https://fonts.googleapis.com/css?family=Inconsolata|Titillium+Web" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
+  <link href='//cdn.bootcss.com/node-waves/0.7.5/waves.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="/style.css">
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+</head>
+
+<body>
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+
+
+  <script>setLoadingBarProgress(20)</script> 
+  <header class="l_header">
+	<div class='wrapper'>
+		<div class="nav-main container container--flex">
+			<a class="logo flat-box" href='/' >
+				Simple Life
+			</a>
+			<div class='menu'>
+				<ul class='h-list'>
+					
+						<li>
+							<a class='flat-box nav-home' href='/'>
+								Home
+							</a>
+						</li>
+					
+						<li>
+							<a class='flat-box nav-archives' href='/archives'>
+								Archives
+							</a>
+						</li>
+					
+						<li>
+							<a class='flat-box nav-about' href='/about'>
+								About
+							</a>
+						</li>
+					
+				</ul>
+				<div class='underline'></div>
+			</div>
+			
+				<div class="m_search">
+					<form name="searchform" class="form u-search-form">
+						<input type="text" class="input u-search-input" placeholder="Search" />
+						<span class="icon icon-search"></span>
+					</form>
+				</div>
+			
+			<ul class='switcher h-list'>
+				
+					<li class='s-search'><a href='javascript:void(0)'><span class="icon icon-search flat-box"></span></a></li>
+				
+				<li class='s-menu'><a href='javascript:void(0)'><span class="icon icon-menu flat-box"></span></a></li>
+			</ul>
+		</div>
+		
+		<div class='nav-sub container container--flex'>
+			<a class="logo" class="flat-box" href='javascript:void(0)'>
+				Word of Forks
+			</a>
+
+			<ul class='switcher h-list'>
+				<li class='s-comment'><a href='javascript:void(0)'><span class="icon icon-chat_bubble_outline flat-box"></span></a></li>
+				<li class='s-top'><a href='javascript:void(0)'><span class="icon icon-arrow_upward flat-box"></span></a></li>
+				<li class='s-toc'><a href='javascript:void(0)'><span class="icon icon-format_list_numbered flat-box"></span></a></li>
+			</ul>
+		</div>
+	</div>
+</header>
+<aside class="menu-phone">
+	<nav>
+		
+			<a href="/" class="nav-home nav">
+				Home
+			</a>
+		
+			<a href="/archives" class="nav-archives nav">
+				Archives
+			</a>
+		
+			<a href="/about" class="nav-about nav">
+				About
+			</a>
+		
+	</nav>
+</aside>
+
+    <script>setLoadingBarProgress(40);</script>
+  <div class="l_body">
+    <div class='container clearfix'>
+      <div class='l_main'>
+        <article id="post-python-yield"
+  class="post white-box article-type-post"
+  itemscope itemprop="blogPost">
+	<section class='meta'>
+	<h2 class="title">
+  	<a href="/2015/11/24/python-yield/">
+    	python yield关键字
+    </a>
+  </h2>
+	<time>
+	  11月 24, 2015
+	</time>
+	
+    
+    <div class='cats'>
+        <a href="/categories/python/">python</a>
+    </div>
+
+	</section>
+	
+		<section class="toc-wrapper"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#生成器"><span class="toc-number">1.</span> <span class="toc-text">生成器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#基本操作"><span class="toc-number">1.1.</span> <span class="toc-text">基本操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#应用"><span class="toc-number">1.2.</span> <span class="toc-text">应用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#生成器源码分析"><span class="toc-number">2.</span> <span class="toc-text">生成器源码分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#调用栈"><span class="toc-number">2.1.</span> <span class="toc-text">调用栈</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#生成器源码分析-1"><span class="toc-number">2.2.</span> <span class="toc-text">生成器源码分析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#生成器的创建"><span class="toc-number">2.2.1.</span> <span class="toc-text">生成器的创建</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#send与next"><span class="toc-number">2.2.2.</span> <span class="toc-text">send与next</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#字节码的执行"><span class="toc-number">2.2.3.</span> <span class="toc-text">字节码的执行</span></a></li></ol></li></ol></li></ol></section>
+	
+	<section class="article typo">
+  	<div class="article-entry" itemprop="articleBody">
+    	<p><code>yield</code>的功能类似于<code>return</code>，但是不同之处在于它返回的是<code>生成器</code>。<br><a id="more"></a></p>
+<h2 id="生成器"><a href="#生成器" class="headerlink" title="生成器"></a>生成器</h2><p>生成器是通过一个或多个<code>yield</code>表达式构成的函数，每一个生成器都是一个迭代器（但是迭代器不一定是生成器）。</p>
+<p>如果一个函数包含<code>yield</code>关键字，这个函数就会变为一个生成器。</p>
+<p>生成器并不会一次返回所有结果，而是每次遇到<code>yield</code>关键字后返回相应结果，并保留函数当前的运行状态，等待下一次的调用。</p>
+<p>由于生成器也是一个迭代器，那么它就应该支持<code>next</code>方法来获取下一个值。</p>
+<h3 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># 通过`yield`来创建生成器</span><br><span class="line">def func():</span><br><span class="line">   for i in xrange(10);</span><br><span class="line">        yield i</span><br><span class="line"></span><br><span class="line"># 通过列表来创建生成器</span><br><span class="line">[i for i in xrange(10)]</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"># 调用如下</span><br><span class="line">&gt;&gt;&gt; f = func()</span><br><span class="line">&gt;&gt;&gt; f # 此时生成器还没有运行</span><br><span class="line">&lt;generator object func at 0x7fe01a853820&gt;</span><br><span class="line">&gt;&gt;&gt; f.next() # 当i=0时，遇到yield关键字，直接返回</span><br><span class="line">0</span><br><span class="line">&gt;&gt;&gt; f.next() # 继续上一次执行的位置，进入下一层循环</span><br><span class="line">1</span><br><span class="line">...</span><br><span class="line">&gt;&gt;&gt; f.next()</span><br><span class="line">9</span><br><span class="line">&gt;&gt;&gt; f.next() # 当执行完最后一次循环后，结束yield语句，生成StopIteration异常</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File &quot;&lt;stdin&gt;&quot;, line 1, in &lt;module&gt;</span><br><span class="line">StopIteration</span><br><span class="line">&gt;&gt;&gt;</span><br></pre></td></tr></table></figure>
+<p>除了<code>next</code>函数，生成器还支持<code>send</code>函数。该函数可以向生成器传递参数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; def func():</span><br><span class="line">...     n = 0</span><br><span class="line">...     while 1:</span><br><span class="line">...         n = yield n #可以通过send函数向n赋值</span><br><span class="line">... </span><br><span class="line">&gt;&gt;&gt; f = func()</span><br><span class="line">&gt;&gt;&gt; f.next() # 默认情况下n为0</span><br><span class="line">0</span><br><span class="line">&gt;&gt;&gt; f.send(1) #n赋值1</span><br><span class="line">1</span><br><span class="line">&gt;&gt;&gt; f.send(2)</span><br><span class="line">2</span><br><span class="line">&gt;&gt;&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h3><p>最经典的例子，生成无限序列。</p>
+<p>常规的解决方法是，生成一个满足要求的很大的列表，这个列表需要保存在内存中，很明显内存限制了这个问题。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">def get_primes(start):</span><br><span class="line">    for element in magical_infinite_range(start):</span><br><span class="line">        if is_prime(element):</span><br><span class="line">            return element</span><br></pre></td></tr></table></figure>
+<p>如果使用生成器就不需要返回整个列表，每次都只是返回一个数据，避免了内存的限制问题。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">def get_primes(number):</span><br><span class="line">    while True:</span><br><span class="line">        if is_prime(number):</span><br><span class="line">            yield number</span><br><span class="line">        number += 1</span><br></pre></td></tr></table></figure>
+<h2 id="生成器源码分析"><a href="#生成器源码分析" class="headerlink" title="生成器源码分析"></a>生成器源码分析</h2><p>生成器的源码在<code>Objects/genobject.c</code>。</p>
+<h3 id="调用栈"><a href="#调用栈" class="headerlink" title="调用栈"></a>调用栈</h3><p>在解释生成器之前，需要讲解一下Python虚拟机的调用原理。</p>
+<p>Python虚拟机有一个栈帧的调用栈，其中栈帧的是<code>PyFrameObject</code>，位于<code>Include/frameobject.h</code>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">typedef struct _frame &#123;</span><br><span class="line">    PyObject_VAR_HEAD</span><br><span class="line">    struct _frame *f_back;	/* previous frame, or NULL */</span><br><span class="line">    PyCodeObject *f_code;	/* code segment */</span><br><span class="line">    PyObject *f_builtins;	/* builtin symbol table (PyDictObject) */</span><br><span class="line">    PyObject *f_globals;	/* global symbol table (PyDictObject) */</span><br><span class="line">    PyObject *f_locals;		/* local symbol table (any mapping) */</span><br><span class="line">    PyObject **f_valuestack;	/* points after the last local */</span><br><span class="line">    /* Next free slot in f_valuestack.  Frame creation sets to f_valuestack.</span><br><span class="line">       Frame evaluation usually NULLs it, but a frame that yields sets it</span><br><span class="line">       to the current stack top. */</span><br><span class="line">    PyObject **f_stacktop;</span><br><span class="line">    PyObject *f_trace;		/* Trace function */</span><br><span class="line"></span><br><span class="line">    /* If an exception is raised in this frame, the next three are used to</span><br><span class="line">     * record the exception info (if any) originally in the thread state.  See</span><br><span class="line">     * comments before set_exc_info() -- it&apos;s not obvious.</span><br><span class="line">     * Invariant:  if _type is NULL, then so are _value and _traceback.</span><br><span class="line">     * Desired invariant:  all three are NULL, or all three are non-NULL.  That</span><br><span class="line">     * one isn&apos;t currently true, but &quot;should be&quot;.</span><br><span class="line">     */</span><br><span class="line">    PyObject *f_exc_type, *f_exc_value, *f_exc_traceback;</span><br><span class="line"></span><br><span class="line">    PyThreadState *f_tstate;</span><br><span class="line">    int f_lasti;		/* Last instruction if called */</span><br><span class="line">    /* Call PyFrame_GetLineNumber() instead of reading this field</span><br><span class="line">       directly.  As of 2.3 f_lineno is only valid when tracing is</span><br><span class="line">       active (i.e. when f_trace is set).  At other times we use</span><br><span class="line">       PyCode_Addr2Line to calculate the line from the current</span><br><span class="line">       bytecode index. */</span><br><span class="line">    int f_lineno;		/* Current line number */</span><br><span class="line">    int f_iblock;		/* index in f_blockstack */</span><br><span class="line">    PyTryBlock f_blockstack[CO_MAXBLOCKS]; /* for try and loop blocks */</span><br><span class="line">    PyObject *f_localsplus[1];	/* locals+stack, dynamically sized */</span><br><span class="line">&#125; PyFrameObject;</span><br></pre></td></tr></table></figure>
+<p>栈帧保存了给出代码的的信息和上下文，其中包含最后执行的指令，全局和局部命名空间，异常状态等信息。<code>f_valueblock</code>保存了数据，<code>b_blockstack</code>保存了异常和循环控制方法。</p>
+<p>举一个例子来说明，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">def foo():</span><br><span class="line">    x = 1</span><br><span class="line">    def bar(y):</span><br><span class="line">        z = y + 2  # &lt;--- (3) ... and the interpreter is here.</span><br><span class="line">        return z</span><br><span class="line">    return bar(x)  # &lt;--- (2) ... which is returning a call to bar ...</span><br><span class="line">foo()              # &lt;--- (1) We&apos;re in the middle of a call to foo ...</span><br></pre></td></tr></table></figure>
+<p>那么，相应的调用栈如下，一个py文件，一个类，一个函数都是一个代码块，对应者一个Frame，保存着上下文环境以及字节码指令。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">c   ---------------------------</span><br><span class="line">a  | bar Frame                 | -&gt; block stack: []</span><br><span class="line">l  |     (newest)              | -&gt; data stack: [1, 2]</span><br><span class="line">l   ---------------------------</span><br><span class="line">   | foo Frame                 | -&gt; block stack: []</span><br><span class="line">s  |                           | -&gt; data stack: [&lt;Function foo.&lt;locals&gt;.bar at 0x10d389680&gt;, 1]</span><br><span class="line">t   ---------------------------</span><br><span class="line">a  | main (module) Frame       | -&gt; block stack: []</span><br><span class="line">c  |       (oldest)            | -&gt; data stack: [&lt;Function foo at 0x10d3540e0&gt;]</span><br><span class="line">k   ---------------------------</span><br></pre></td></tr></table></figure>
+<p>每一个栈帧都拥有自己的数据栈和block栈，独立的数据栈和block栈使得解释器可以中断和恢复栈帧（生成器正式利用这点）。</p>
+<p>Python代码首先被编译为字节码，再由Python虚拟机来执行。一般来说，一条Python语句对应着多条字节码（由于每条字节码对应着一条C语句，而不是一个机器指令，所以不能按照字节码的数量来判断代码性能）。</p>
+<p>调用<code>dis</code>模块可以分析字节码，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">from dis import dis</span><br><span class="line"></span><br><span class="line">dis(foo)</span><br><span class="line"></span><br><span class="line">  5           0 LOAD_CONST               1 (1) # 加载常量1</span><br><span class="line">              3 STORE_FAST               0 (x) # x赋值为1</span><br><span class="line"></span><br><span class="line">  6           6 LOAD_CONST               2 (&lt;code object bar at 0x7f3cdee3a030, file &quot;t1.py&quot;, line 6&gt;) # 加载常量2</span><br><span class="line">              9 MAKE_FUNCTION            0 # 创建函数</span><br><span class="line">             12 STORE_FAST               1 (bar) </span><br><span class="line"></span><br><span class="line">  9          15 LOAD_FAST                1 (bar) </span><br><span class="line">             18 LOAD_FAST                0 (x)</span><br><span class="line">             21 CALL_FUNCTION            1  # 调用函数</span><br><span class="line">             24 RETURN_VALUE</span><br></pre></td></tr></table></figure>
+<p>其中，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">第一行为代码行号；</span><br><span class="line">第二行为偏移地址；</span><br><span class="line">第三行为字节码指令；</span><br><span class="line">第四行为指令参数；</span><br><span class="line">第五行为参数解释。</span><br></pre></td></tr></table></figure>
+<h3 id="生成器源码分析-1"><a href="#生成器源码分析-1" class="headerlink" title="生成器源码分析"></a>生成器源码分析</h3><p>由了上面对于调用栈的理解，就可以很容易的明白生成器的具体实现。</p>
+<p>生成器的源码位于<code>object/genobject.c</code>。</p>
+<h4 id="生成器的创建"><a href="#生成器的创建" class="headerlink" title="生成器的创建"></a>生成器的创建</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">PyObject *</span><br><span class="line">PyGen_New(PyFrameObject *f)</span><br><span class="line">&#123;</span><br><span class="line">    PyGenObject *gen = PyObject_GC_New(PyGenObject, &amp;PyGen_Type); # 创建生成器对象</span><br><span class="line">    if (gen == NULL) &#123;</span><br><span class="line">        Py_DECREF(f);</span><br><span class="line">        return NULL;</span><br><span class="line">    &#125;</span><br><span class="line">    gen-&gt;gi_frame = f; # 赋予代码块</span><br><span class="line">    Py_INCREF(f-&gt;f_code); # 引用计数+1</span><br><span class="line">    gen-&gt;gi_code = (PyObject *)(f-&gt;f_code);</span><br><span class="line">    gen-&gt;gi_running = 0; # 0表示为执行，也就是生成器的初始状态</span><br><span class="line">    gen-&gt;gi_weakreflist = NULL;</span><br><span class="line">    _PyObject_GC_TRACK(gen); # GC跟踪</span><br><span class="line">    return (PyObject *)gen;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="send与next"><a href="#send与next" class="headerlink" title="send与next"></a>send与next</h4><p><code>next</code>与<code>send</code>函数，如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">static PyObject *</span><br><span class="line">gen_iternext(PyGenObject *gen)</span><br><span class="line">&#123;</span><br><span class="line">    return gen_send_ex(gen, NULL, 0);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">static PyObject *</span><br><span class="line">gen_send(PyGenObject *gen, PyObject *arg)</span><br><span class="line">&#123;</span><br><span class="line">    return gen_send_ex(gen, arg, 0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从上面的代码中可以看到，<code>send</code>和<code>next</code>都是调用的同一函数<code>gen_send_ex</code>，区别在于是否带有参数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line">static PyObject *</span><br><span class="line">gen_send_ex(PyGenObject *gen, PyObject *arg, int exc)</span><br><span class="line">&#123;</span><br><span class="line">    PyThreadState *tstate = PyThreadState_GET();</span><br><span class="line">    PyFrameObject *f = gen-&gt;gi_frame;</span><br><span class="line">    PyObject *result;</span><br><span class="line"></span><br><span class="line">    if (gen-&gt;gi_running) &#123; # 判断生成器是否已经运行</span><br><span class="line">        PyErr_SetString(PyExc_ValueError,</span><br><span class="line">                        &quot;generator already executing&quot;);</span><br><span class="line">        return NULL;</span><br><span class="line">    &#125;</span><br><span class="line">    if (f==NULL || f-&gt;f_stacktop == NULL) &#123; # 如果代码块为空或调用栈为空，则抛出StopIteration异常</span><br><span class="line">        /* Only set exception if called from send() */</span><br><span class="line">        if (arg &amp;&amp; !exc)</span><br><span class="line">            PyErr_SetNone(PyExc_StopIteration);</span><br><span class="line">        return NULL;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if (f-&gt;f_lasti == -1) &#123; # f_lasti=1 代表首次执行</span><br><span class="line">        if (arg &amp;&amp; arg != Py_None) &#123; # 首次执行不允许带有参数</span><br><span class="line">            PyErr_SetString(PyExc_TypeError,</span><br><span class="line">                            &quot;can&apos;t send non-None value to a &quot;</span><br><span class="line">                            &quot;just-started generator&quot;);</span><br><span class="line">            return NULL;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        /* Push arg onto the frame&apos;s value stack */</span><br><span class="line">        result = arg ? arg : Py_None;</span><br><span class="line">        Py_INCREF(result); # 该参数引用计数+1</span><br><span class="line">        *(f-&gt;f_stacktop++) = result; # 参数压栈</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /* Generators always return to their most recent caller, not</span><br><span class="line">     * necessarily their creator. */</span><br><span class="line">    f-&gt;f_tstate = tstate;</span><br><span class="line">    Py_XINCREF(tstate-&gt;frame);</span><br><span class="line">    assert(f-&gt;f_back == NULL);</span><br><span class="line">    f-&gt;f_back = tstate-&gt;frame;</span><br><span class="line"></span><br><span class="line">    gen-&gt;gi_running = 1; # 修改生成器执行状态</span><br><span class="line">    result = PyEval_EvalFrameEx(f, exc); # 执行字节码</span><br><span class="line">    gen-&gt;gi_running = 0; # 恢复为未执行状态</span><br><span class="line"></span><br><span class="line">    /* Don&apos;t keep the reference to f_back any longer than necessary.  It</span><br><span class="line">     * may keep a chain of frames alive or it could create a reference</span><br><span class="line">     * cycle. */</span><br><span class="line">    assert(f-&gt;f_back == tstate-&gt;frame);</span><br><span class="line">    Py_CLEAR(f-&gt;f_back);</span><br><span class="line">    /* Clear the borrowed reference to the thread state */</span><br><span class="line">    f-&gt;f_tstate = NULL;</span><br><span class="line"></span><br><span class="line">    /* If the generator just returned (as opposed to yielding), signal</span><br><span class="line">     * that the generator is exhausted. */</span><br><span class="line">    if (result == Py_None &amp;&amp; f-&gt;f_stacktop == NULL) &#123;</span><br><span class="line">        Py_DECREF(result);</span><br><span class="line">        result = NULL;</span><br><span class="line">        /* Set exception if not called by gen_iternext() */</span><br><span class="line">        if (arg)</span><br><span class="line">            PyErr_SetNone(PyExc_StopIteration);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if (!result || f-&gt;f_stacktop == NULL) &#123;</span><br><span class="line">        /* generator can&apos;t be rerun, so release the frame */</span><br><span class="line">        Py_DECREF(f);</span><br><span class="line">        gen-&gt;gi_frame = NULL;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="字节码的执行"><a href="#字节码的执行" class="headerlink" title="字节码的执行"></a>字节码的执行</h4><p><code>PyEval_EvalFrameEx</code>函数的功能为执行字节码并返回结果。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"># 主要流程如下，</span><br><span class="line">for (;;) &#123;</span><br><span class="line">   switch(opcode) &#123; # opcode为操作码，对应着各种操作</span><br><span class="line">        case NOP:</span><br><span class="line">            goto  fast_next_opcode;</span><br><span class="line">        ...</span><br><span class="line">        ...</span><br><span class="line">        case YIELD_VALUE: # 如果操作码是yield</span><br><span class="line">            retval = POP(); </span><br><span class="line">            f-&gt;f_stacktop = stack_pointer;</span><br><span class="line">            why = WHY_YIELD;</span><br><span class="line">            goto fast_yield; # 利用goto跳出循环</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fast_yield:</span><br><span class="line">    ... </span><br><span class="line">return vetval; # 返回结果</span><br></pre></td></tr></table></figure>
+<p>举一个例子，<code>f_back</code>上一个Frame，<code>f_lasti</code>上一次执行的指令的偏移量，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">import sys</span><br><span class="line">from dis import dis</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def func():</span><br><span class="line">    f = sys._getframe(0)</span><br><span class="line">    print f.f_lasti</span><br><span class="line">    print f.f_back</span><br><span class="line">    yield 1</span><br><span class="line"></span><br><span class="line">    print f.f_lasti</span><br><span class="line">    print f.f_back</span><br><span class="line">    yield 2</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">a = func()</span><br><span class="line">dis(func)</span><br><span class="line">a.next()</span><br><span class="line">a.next()</span><br></pre></td></tr></table></figure></p>
+<p>结果如下，其中第三行的英文为操作码，对应着上面的<code>opcode</code>，每次switch都是在不同的<code>opcode</code>之间进行选择。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">  6           0 LOAD_GLOBAL              0 (sys)</span><br><span class="line">              3 LOAD_ATTR                1 (_getframe)</span><br><span class="line">              6 LOAD_CONST               1 (0)</span><br><span class="line">              9 CALL_FUNCTION            1</span><br><span class="line">             12 STORE_FAST               0 (f)</span><br><span class="line"></span><br><span class="line">  7          15 LOAD_FAST                0 (f)</span><br><span class="line">             18 LOAD_ATTR                2 (f_lasti) </span><br><span class="line">             21 PRINT_ITEM          </span><br><span class="line">             22 PRINT_NEWLINE       </span><br><span class="line"></span><br><span class="line">  8          23 LOAD_FAST                0 (f)</span><br><span class="line">             26 LOAD_ATTR                3 (f_back)</span><br><span class="line">             29 PRINT_ITEM          </span><br><span class="line">             30 PRINT_NEWLINE       </span><br><span class="line"></span><br><span class="line">  9          31 LOAD_CONST               2 (1)</span><br><span class="line">             34 YIELD_VALUE     # 此时操作码为YIELD_VALUE，直接跳转上述goto语句，此时f_lasti为当前指令，f_back为当前frame</span><br><span class="line">             35 POP_TOP             </span><br><span class="line"></span><br><span class="line"> 11          36 LOAD_FAST                0 (f)</span><br><span class="line">             39 LOAD_ATTR                2 (f_lasti)</span><br><span class="line">             42 PRINT_ITEM          </span><br><span class="line">             43 PRINT_NEWLINE       </span><br><span class="line"></span><br><span class="line"> 12          44 LOAD_FAST                0 (f)</span><br><span class="line">             47 LOAD_ATTR                3 (f_back)</span><br><span class="line">             50 PRINT_ITEM          </span><br><span class="line">             51 PRINT_NEWLINE       </span><br><span class="line"></span><br><span class="line"> 13          52 LOAD_CONST               3 (2)</span><br><span class="line">             55 YIELD_VALUE         </span><br><span class="line">             56 POP_TOP             </span><br><span class="line">             57 LOAD_CONST               0 (None)</span><br><span class="line">             60 RETURN_VALUE        </span><br><span class="line">18</span><br><span class="line">&lt;frame object at 0x7fa75fcebc20&gt; #和下面的frame相同，属于同一个frame，也就是说在同一个函数（命名空间）内，frame是同一个。</span><br><span class="line">39</span><br><span class="line">&lt;frame object at 0x7fa75fcebc20&gt;</span><br></pre></td></tr></table></figure></p>
+
+  	</div>
+	  
+	  <div class="article-tags tags">
+      
+        <a href="/tags/python/">python</a>
+      
+	  </div>
+    
+		
+	
+		<div class="art-item-footer">
+				
+					<span class="art-item-left"><i class="icon icon-chevron-thin-left"></i>prev：<a href="/2015/12/31/python-单元测试/" rel="prev"  title="python-单元测试">
+						python-单元测试 
+					</a></span>
+				
+				
+					<span class="art-item-right">next：<a href="/2015/10/28/mysql-procedure/" rel="next"  title="mysql存储过程">
+						mysql存储过程
+					</a><i class="icon icon-chevron-thin-right"></i></span>
+				
+		</div>
+	
+	</section>
+	
+</article>
+<script>
+	window.subData = {
+		title: 'python yield关键字',
+		tools: true
+	}
+</script>
+
+      </div>
+      <aside class='l_side'>
+        
+  <section class='m_widget about'>
+
+<div class='header'>simyy</div>
+<div class='content'>
+<div class='desc'>Tempora mutantur, nos et mutamur in illis ...</div>
+</div>
+</section>
+
+  <section class='m_widget links'>
+<div class='header'>Links</div>
+<div class='content'>
+    <ul class="entry">
+    
+        <li><a class="flat-box" target="_blank" href="https://www.cnblogs.com/coder2012">
+            <div class='name'>cnblog</div>
+        </a></li>
+    
+        <li><a class="flat-box" target="_blank" href="https://qiuar.com">
+            <div class='name'>qiuar</div>
+        </a></li>
+    
+        <li><a class="flat-box" target="_blank" href="http://github.com/simyy">
+            <div class='name'>github</div>
+        </a></li>
+    
+    </ul>
+</div>
+</section>
+
+  <section class='m_widget categories'>
+<div class='header'>Categories</div>
+<div class='content'>
+    
+    <ul class="entry">
+    
+        <li><a class="flat-box" href="/categories/algorithm/"><div class='name'>algorithm</div><div class='badget'>12</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/c/"><div class='name'>c</div><div class='badget'>1</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/cache/"><div class='name'>cache</div><div class='badget'>9</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/cs/"><div class='name'>cs</div><div class='badget'>8</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/db/"><div class='name'>db</div><div class='badget'>8</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/fe/"><div class='name'>fe</div><div class='badget'>1</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/go/"><div class='name'>go</div><div class='badget'>2</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/java/"><div class='name'>java</div><div class='badget'>8</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/mq/"><div class='name'>mq</div><div class='badget'>6</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/php/"><div class='name'>php</div><div class='badget'>2</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/python/"><div class='name'>python</div><div class='badget'>20</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/web/"><div class='name'>web</div><div class='badget'>4</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/分布式/"><div class='name'>分布式</div><div class='badget'>1</div></a></li>
+    
+    </ul>
+    
+</div>
+</section>
+
+  
+<div class="m_widget tagcloud">
+    <div class="header">Tags</div>
+    <div class='content'>
+        <a href="/tags/algorithm/" style="font-size: 18.5px; color: #202020">algorithm</a> <a href="/tags/c/" style="font-size: 14px; color: #808080">c</a> <a href="/tags/css/" style="font-size: 14px; color: #808080">css</a> <a href="/tags/framework/" style="font-size: 16.25px; color: #505050">framework</a> <a href="/tags/gc/" style="font-size: 14px; color: #808080">gc</a> <a href="/tags/go/" style="font-size: 14.75px; color: #707070">go</a> <a href="/tags/java/" style="font-size: 19.25px; color: #101010">java</a> <a href="/tags/jetty/" style="font-size: 14px; color: #808080">jetty</a> <a href="/tags/linux/" style="font-size: 15.5px; color: #606060">linux</a> <a href="/tags/maven/" style="font-size: 14px; color: #808080">maven</a> <a href="/tags/memcache/" style="font-size: 15.5px; color: #606060">memcache</a> <a href="/tags/mysql/" style="font-size: 17.75px; color: #303030">mysql</a> <a href="/tags/orm/" style="font-size: 14.75px; color: #707070">orm</a> <a href="/tags/php/" style="font-size: 14.75px; color: #707070">php</a> <a href="/tags/python/" style="font-size: 20px; color: #000">python</a> <a href="/tags/rabbitmq/" style="font-size: 17.75px; color: #303030">rabbitmq</a> <a href="/tags/redis/" style="font-size: 17.75px; color: #303030">redis</a> <a href="/tags/rpc/" style="font-size: 14px; color: #808080">rpc</a> <a href="/tags/spider/" style="font-size: 14px; color: #808080">spider</a> <a href="/tags/spring/" style="font-size: 15.5px; color: #606060">spring</a> <a href="/tags/tcp/" style="font-size: 14.75px; color: #707070">tcp</a> <a href="/tags/web/" style="font-size: 14px; color: #808080">web</a> <a href="/tags/中文分词/" style="font-size: 14px; color: #808080">中文分词</a> <a href="/tags/分布式/" style="font-size: 14px; color: #808080">分布式</a> <a href="/tags/机器学习/" style="font-size: 17px; color: #404040">机器学习</a> <a href="/tags/编译原理/" style="font-size: 14.75px; color: #707070">编译原理</a>
+    </div>
+</div>
+
+
+
+      </aside>
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+  </div>
+  <footer id="footer" class="clearfix">
+
+	<div class="social-wrapper">
+  	
+      
+        <a href="https://github.com/simyy" class="social github"
+          target="_blank" rel="external">
+          <span class="icon icon-github"></span>
+        </a>
+      
+        <a href="/atom.xml" class="social rss"
+          target="_blank" rel="external">
+          <span class="icon icon-rss"></span>
+        </a>
+      
+    
+  </div>
+  
+  <div>Theme <a href='https://github.com/stkevintan/hexo-theme-material-flow' class="codename">MaterialFlow</a> designed by <a href="http://keyin.me/" target="_blank">Kevin Tan</a>.</div>
+  
+</footer>
+
+
+  <script>setLoadingBarProgress(80);</script>
+  
+
+<script src="//apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src='//cdn.bootcss.com/node-waves/0.7.5/waves.min.js'></script>
+<script src="//cdn.bootcss.com/scrollReveal.js/3.3.2/scrollreveal.min.js"></script>
+<script src="/js/jquery.fitvids.js"></script>
+<script>
+	var GOOGLE_CUSTOM_SEARCH_API_KEY = "";
+	var GOOGLE_CUSTOM_SEARCH_ENGINE_ID = "";
+	var ALGOLIA_API_KEY = "";
+	var ALGOLIA_APP_ID = "";
+	var ALGOLIA_INDEX_NAME = "";
+  var AZURE_SERVICE_NAME = "";
+  var AZURE_INDEX_NAME = "";
+  var AZURE_QUERY_KEY = "";
+  var BAIDU_API_ID = "";
+  var SEARCH_SERVICE = "hexo";
+  var ROOT = "/"||"/";
+  if(!ROOT.endsWith('/'))ROOT += '/';
+</script>
+<script src="/js/search.js"></script>
+<script src="/js/app.js"></script>
+
+
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>

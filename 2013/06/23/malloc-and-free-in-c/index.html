@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  
+  <title>C语言中的内存分配与释放 | Simple Life</title>
+  <meta name="description" content="A blog of simyy" />
+  <meta name="keywords" content="" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="shortcut icon" href="/">
+  <link rel="alternate" href="/atom.xml" title="Simple Life">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="对C语言一直都是抱着学习的态度，很多都不懂，今天突然被问道C语言的内存分配问题，说了一些自己知道的，但感觉回答的并不完善，所以才有这篇笔记，总结一下C语言中内存分配的主要内容。">
+<meta name="keywords" content="c">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C语言中的内存分配与释放">
+<meta property="og:url" content="http://simyy.com/2013/06/23/malloc-and-free-in-c/index.html">
+<meta property="og:site_name" content="Simple Life">
+<meta property="og:description" content="对C语言一直都是抱着学习的态度，很多都不懂，今天突然被问道C语言的内存分配问题，说了一些自己知道的，但感觉回答的并不完善，所以才有这篇笔记，总结一下C语言中内存分配的主要内容。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-04-08T09:29:43.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="C语言中的内存分配与释放">
+<meta name="twitter:description" content="对C语言一直都是抱着学习的态度，很多都不懂，今天突然被问道C语言的内存分配问题，说了一些自己知道的，但感觉回答的并不完善，所以才有这篇笔记，总结一下C语言中内存分配的主要内容。">
+    
+  <link href="https://fonts.googleapis.com/css?family=Inconsolata|Titillium+Web" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
+  <link href='//cdn.bootcss.com/node-waves/0.7.5/waves.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="/style.css">
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+</head>
+
+<body>
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+
+
+  <script>setLoadingBarProgress(20)</script> 
+  <header class="l_header">
+	<div class='wrapper'>
+		<div class="nav-main container container--flex">
+			<a class="logo flat-box" href='/' >
+				Simple Life
+			</a>
+			<div class='menu'>
+				<ul class='h-list'>
+					
+						<li>
+							<a class='flat-box nav-home' href='/'>
+								Home
+							</a>
+						</li>
+					
+						<li>
+							<a class='flat-box nav-archives' href='/archives'>
+								Archives
+							</a>
+						</li>
+					
+						<li>
+							<a class='flat-box nav-about' href='/about'>
+								About
+							</a>
+						</li>
+					
+				</ul>
+				<div class='underline'></div>
+			</div>
+			
+				<div class="m_search">
+					<form name="searchform" class="form u-search-form">
+						<input type="text" class="input u-search-input" placeholder="Search" />
+						<span class="icon icon-search"></span>
+					</form>
+				</div>
+			
+			<ul class='switcher h-list'>
+				
+					<li class='s-search'><a href='javascript:void(0)'><span class="icon icon-search flat-box"></span></a></li>
+				
+				<li class='s-menu'><a href='javascript:void(0)'><span class="icon icon-menu flat-box"></span></a></li>
+			</ul>
+		</div>
+		
+		<div class='nav-sub container container--flex'>
+			<a class="logo" class="flat-box" href='javascript:void(0)'>
+				Word of Forks
+			</a>
+
+			<ul class='switcher h-list'>
+				<li class='s-comment'><a href='javascript:void(0)'><span class="icon icon-chat_bubble_outline flat-box"></span></a></li>
+				<li class='s-top'><a href='javascript:void(0)'><span class="icon icon-arrow_upward flat-box"></span></a></li>
+				<li class='s-toc'><a href='javascript:void(0)'><span class="icon icon-format_list_numbered flat-box"></span></a></li>
+			</ul>
+		</div>
+	</div>
+</header>
+<aside class="menu-phone">
+	<nav>
+		
+			<a href="/" class="nav-home nav">
+				Home
+			</a>
+		
+			<a href="/archives" class="nav-archives nav">
+				Archives
+			</a>
+		
+			<a href="/about" class="nav-about nav">
+				About
+			</a>
+		
+	</nav>
+</aside>
+
+    <script>setLoadingBarProgress(40);</script>
+  <div class="l_body">
+    <div class='container clearfix'>
+      <div class='l_main'>
+        <article id="post-malloc-and-free-in-c"
+  class="post white-box article-type-post"
+  itemscope itemprop="blogPost">
+	<section class='meta'>
+	<h2 class="title">
+  	<a href="/2013/06/23/malloc-and-free-in-c/">
+    	C语言中的内存分配与释放
+    </a>
+  </h2>
+	<time>
+	  6月 23, 2013
+	</time>
+	
+    
+    <div class='cats'>
+        <a href="/categories/c/">c</a>
+    </div>
+
+	</section>
+	
+		<section class="toc-wrapper"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#相关问题"><span class="toc-number">1.</span> <span class="toc-text">相关问题　</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#内存分配"><span class="toc-number">2.</span> <span class="toc-text">内存分配</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#malloc原理"><span class="toc-number">2.1.</span> <span class="toc-text">malloc原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#分类"><span class="toc-number">2.2.</span> <span class="toc-text">分类</span></a></li></ol></li></ol></section>
+	
+	<section class="article typo">
+  	<div class="article-entry" itemprop="articleBody">
+    	<p>对C语言一直都是抱着学习的态度，很多都不懂，今天突然被问道C语言的内存分配问题，说了一些自己知道的，但感觉回答的并不完善，所以才有这篇笔记，总结一下C语言中内存分配的主要内容。<br><a id="more"></a></p>
+<h2 id="相关问题"><a href="#相关问题" class="headerlink" title="相关问题　"></a>相关问题　</h2><p>刚刚在一篇博文看到一个简单的问题：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//code1</span></span><br><span class="line"><span class="function"><span class="keyword">char</span>* <span class="title">toStr</span><span class="params">()</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> *s = <span class="string">"abcdefghijkl"</span>;</span><br><span class="line">    <span class="keyword">return</span> s;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; toStr() &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//code2</span></span><br><span class="line"><span class="function"><span class="keyword">char</span>* <span class="title">toStr</span><span class="params">()</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> s[] = <span class="string">"abcdefghijkl"</span>;</span><br><span class="line">    <span class="keyword">return</span> s;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; toStr() &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>两段代码都很简单，输出一段字符，类型不同，一个是char*字符串，一个是char[]数据。</p>
+<p>结果你知道吗? 这个我确实知道，相信大部分人也都回知道，必然有一个不好使，或者两个都不好使！！！都对就没意思了~</p>
+<p>结果：第一个正确输出，第二个输出乱码。</p>
+<p>原因在于局部变量的作用域和内存分配的问题，第一char*是指向一个常量，作用域为函数内部，被分配在程序的常量区，直到整个程序结束才被销毁，所以在程序结束前常量还是存在的。而第二个是数组存放的，作用域为函数内部，被分配在栈中，就会在函数调用结束后被释放掉，这时你再调用，肯定就错误了。</p>
+<h2 id="内存分配"><a href="#内存分配" class="headerlink" title="内存分配"></a>内存分配</h2><pre><code>什么是局部变量、全局变量和静态变量？
+</code></pre><p>顾名思义，局部变量就是在一个有限的范围内的变量，作用域是有限的，对于程序来说，在一个函数体内部声明的普通变量都是局部变量，局部变量会在栈上申请空间，函数结束后，申请的空间会自动释放。而全局变量是在函数体外申请的，会被存放在全局（静态区）上，知道程序结束后才会被结束，这样它的作用域就是整个程序。静态变量和全局变量的存储方式相同，在函数体内声明为static就可以使此变量像全局变量一样使用，不用担心函数结束而被释放。</p>
+<p>相关函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">malloc</span><span class="params">(<span class="keyword">size_t</span> size)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">free</span><span class="params">(<span class="keyword">void</span> *p)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*一般这样用</span></span><br><span class="line"><span class="comment">Struct elem *p;</span></span><br><span class="line"><span class="comment">p = (struct elem*)malloc(sizeof(struct elem))</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">void free(p)</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+<h3 id="malloc原理"><a href="#malloc原理" class="headerlink" title="malloc原理"></a>malloc原理</h3><p>malloc函数的实质体现在，它有一个将可用的内存块连接为一个长长的列表的所谓空闲链表。调用malloc函数时，它沿连接表寻找一个大到足以满足用户请求所需要的内存块。然后，将该内存块一分为二（一块的大小与用户请求的大小相等，另一块的大小就是剩下的字节）。接下来，将分配给用户的那块内存传给用户，并将剩下的那块（如果有的话）返回到连接表上。调用free函数时，它将用户释放的内存块连接到空闲链上。到最后，空闲链会被切成很多的小内存片段，如果这时用户申请一个大的内存片段，那么空闲链上可能没有可以满足用户要求的片段了。于是，malloc函数请求延时，并开始在空闲链上翻箱倒柜地检查各内存片段，对它们进行整理，将相邻的小空闲块合并成较大的内存块。如果无法获得符合要求的内存块，malloc函数会返回NULL指针，因此在调用malloc动态申请内存块时，一定要进行返回值的判断。</p>
+<h3 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h3><ul>
+<li>栈区（stack）—由编译器自动分配释放，存放函数的参数值，局部变量的值等。其操作方式类似于数据结构中的栈。</li>
+<li>堆区（heap）—一般由程序员分配释放，若程序员不释放，程序结束时可能由OS回收。注意它与数据结构中的堆是两回事，分配方式倒是类似于链表</li>
+<li>全局区（静态区）（static）—全局变量和静态变量的存储是放在一块的，初始化的全局变量和静态变量在一块区域，未初始化的全局变量和未初始化的静态变量在相邻的另一块区域。  程序结束后由系统释放。</li>
+<li>常量区—常量字符串就是放在这里的，直到程序结束后由系统释放。上面的问题就在这里！！！<br>代码区—存放函数体的二进制代码。</li>
+</ul>
+<p>直接搬运的代码，确实很好！！容易理解</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//main.cpp    </span></span><br><span class="line"><span class="keyword">int</span> a = <span class="number">0</span>; <span class="comment">//全局初始化区</span></span><br><span class="line"><span class="keyword">char</span> *p1; <span class="comment">//全局未初始化区</span></span><br><span class="line">    </span><br><span class="line">main()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">int</span> b; <span class="comment">//栈</span></span><br><span class="line">    <span class="keyword">char</span> s[] = <span class="string">"abc"</span>; <span class="comment">//栈</span></span><br><span class="line">    <span class="keyword">char</span> *p2; <span class="comment">//栈</span></span><br><span class="line">    <span class="keyword">char</span> *p3 = <span class="string">"123456"</span>; <span class="comment">//123456\\0在常量区，p3在栈上。</span></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">int</span> c =<span class="number">0</span>;<span class="comment">//全局（静态）初始化区</span></span><br><span class="line">    p1 = (<span class="keyword">char</span> *)<span class="built_in">malloc</span>(<span class="number">10</span>);    </span><br><span class="line">    p2 = (<span class="keyword">char</span> *)<span class="built_in">malloc</span>(<span class="number">20</span>);<span class="comment">//分配得来得10和20字节的区域就在堆区。</span></span><br><span class="line">    <span class="built_in">strcpy</span>(p1, <span class="string">"123456"</span>); <span class="comment">//123456\\0放在常量区，编译器可能会将它与p3所指向的"123456"优化成一个地方。        </span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此外，还有realloc(重新分配内存)、calloc（初始化为0）、alloca（在栈上申请内存，自动释放）等。</p>
+
+  	</div>
+	  
+	  <div class="article-tags tags">
+      
+        <a href="/tags/c/">c</a>
+      
+	  </div>
+    
+		
+	
+		<div class="art-item-footer">
+				
+					<span class="art-item-left"><i class="icon icon-chevron-thin-left"></i>prev：<a href="/2014/09/04/hash-basic/" rel="prev"  title="哈希算法（一）">
+						哈希算法（一） 
+					</a></span>
+				
+				
+					<span class="art-item-right">next：<a href="/2013/06/01/linux-memory/" rel="next"  title="Linux内核设计与实现笔记（二） 内存管理、进程地址空间">
+						Linux内核设计与实现笔记（二） 内存管理、进程地址空间
+					</a><i class="icon icon-chevron-thin-right"></i></span>
+				
+		</div>
+	
+	</section>
+	
+</article>
+<script>
+	window.subData = {
+		title: 'C语言中的内存分配与释放',
+		tools: true
+	}
+</script>
+
+      </div>
+      <aside class='l_side'>
+        
+  <section class='m_widget about'>
+
+<div class='header'>simyy</div>
+<div class='content'>
+<div class='desc'>Tempora mutantur, nos et mutamur in illis ...</div>
+</div>
+</section>
+
+  <section class='m_widget links'>
+<div class='header'>Links</div>
+<div class='content'>
+    <ul class="entry">
+    
+        <li><a class="flat-box" target="_blank" href="https://www.cnblogs.com/coder2012">
+            <div class='name'>cnblog</div>
+        </a></li>
+    
+        <li><a class="flat-box" target="_blank" href="https://qiuar.com">
+            <div class='name'>qiuar</div>
+        </a></li>
+    
+        <li><a class="flat-box" target="_blank" href="http://github.com/simyy">
+            <div class='name'>github</div>
+        </a></li>
+    
+    </ul>
+</div>
+</section>
+
+  <section class='m_widget categories'>
+<div class='header'>Categories</div>
+<div class='content'>
+    
+    <ul class="entry">
+    
+        <li><a class="flat-box" href="/categories/algorithm/"><div class='name'>algorithm</div><div class='badget'>12</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/c/"><div class='name'>c</div><div class='badget'>1</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/cache/"><div class='name'>cache</div><div class='badget'>9</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/cs/"><div class='name'>cs</div><div class='badget'>8</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/db/"><div class='name'>db</div><div class='badget'>8</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/fe/"><div class='name'>fe</div><div class='badget'>1</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/go/"><div class='name'>go</div><div class='badget'>2</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/java/"><div class='name'>java</div><div class='badget'>8</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/mq/"><div class='name'>mq</div><div class='badget'>6</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/php/"><div class='name'>php</div><div class='badget'>2</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/python/"><div class='name'>python</div><div class='badget'>20</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/web/"><div class='name'>web</div><div class='badget'>4</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/分布式/"><div class='name'>分布式</div><div class='badget'>1</div></a></li>
+    
+    </ul>
+    
+</div>
+</section>
+
+  
+<div class="m_widget tagcloud">
+    <div class="header">Tags</div>
+    <div class='content'>
+        <a href="/tags/algorithm/" style="font-size: 18.5px; color: #202020">algorithm</a> <a href="/tags/c/" style="font-size: 14px; color: #808080">c</a> <a href="/tags/css/" style="font-size: 14px; color: #808080">css</a> <a href="/tags/framework/" style="font-size: 16.25px; color: #505050">framework</a> <a href="/tags/gc/" style="font-size: 14px; color: #808080">gc</a> <a href="/tags/go/" style="font-size: 14.75px; color: #707070">go</a> <a href="/tags/java/" style="font-size: 19.25px; color: #101010">java</a> <a href="/tags/jetty/" style="font-size: 14px; color: #808080">jetty</a> <a href="/tags/linux/" style="font-size: 15.5px; color: #606060">linux</a> <a href="/tags/maven/" style="font-size: 14px; color: #808080">maven</a> <a href="/tags/memcache/" style="font-size: 15.5px; color: #606060">memcache</a> <a href="/tags/mysql/" style="font-size: 17.75px; color: #303030">mysql</a> <a href="/tags/orm/" style="font-size: 14.75px; color: #707070">orm</a> <a href="/tags/php/" style="font-size: 14.75px; color: #707070">php</a> <a href="/tags/python/" style="font-size: 20px; color: #000">python</a> <a href="/tags/rabbitmq/" style="font-size: 17.75px; color: #303030">rabbitmq</a> <a href="/tags/redis/" style="font-size: 17.75px; color: #303030">redis</a> <a href="/tags/rpc/" style="font-size: 14px; color: #808080">rpc</a> <a href="/tags/spider/" style="font-size: 14px; color: #808080">spider</a> <a href="/tags/spring/" style="font-size: 15.5px; color: #606060">spring</a> <a href="/tags/tcp/" style="font-size: 14.75px; color: #707070">tcp</a> <a href="/tags/web/" style="font-size: 14px; color: #808080">web</a> <a href="/tags/中文分词/" style="font-size: 14px; color: #808080">中文分词</a> <a href="/tags/分布式/" style="font-size: 14px; color: #808080">分布式</a> <a href="/tags/机器学习/" style="font-size: 17px; color: #404040">机器学习</a> <a href="/tags/编译原理/" style="font-size: 14.75px; color: #707070">编译原理</a>
+    </div>
+</div>
+
+
+
+      </aside>
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+  </div>
+  <footer id="footer" class="clearfix">
+
+	<div class="social-wrapper">
+  	
+      
+        <a href="https://github.com/simyy" class="social github"
+          target="_blank" rel="external">
+          <span class="icon icon-github"></span>
+        </a>
+      
+        <a href="/atom.xml" class="social rss"
+          target="_blank" rel="external">
+          <span class="icon icon-rss"></span>
+        </a>
+      
+    
+  </div>
+  
+  <div>Theme <a href='https://github.com/stkevintan/hexo-theme-material-flow' class="codename">MaterialFlow</a> designed by <a href="http://keyin.me/" target="_blank">Kevin Tan</a>.</div>
+  
+</footer>
+
+
+  <script>setLoadingBarProgress(80);</script>
+  
+
+<script src="//apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src='//cdn.bootcss.com/node-waves/0.7.5/waves.min.js'></script>
+<script src="//cdn.bootcss.com/scrollReveal.js/3.3.2/scrollreveal.min.js"></script>
+<script src="/js/jquery.fitvids.js"></script>
+<script>
+	var GOOGLE_CUSTOM_SEARCH_API_KEY = "";
+	var GOOGLE_CUSTOM_SEARCH_ENGINE_ID = "";
+	var ALGOLIA_API_KEY = "";
+	var ALGOLIA_APP_ID = "";
+	var ALGOLIA_INDEX_NAME = "";
+  var AZURE_SERVICE_NAME = "";
+  var AZURE_INDEX_NAME = "";
+  var AZURE_QUERY_KEY = "";
+  var BAIDU_API_ID = "";
+  var SEARCH_SERVICE = "hexo";
+  var ROOT = "/"||"/";
+  if(!ROOT.endsWith('/'))ROOT += '/';
+</script>
+<script src="/js/search.js"></script>
+<script src="/js/app.js"></script>
+
+
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>

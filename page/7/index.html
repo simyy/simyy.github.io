@@ -48,54 +48,6 @@
     <div id="main">
       
   
-    <article id="post-memcache-memory-management" class="post">
-	<footer class="entry-meta-header">
-		<span class="meta-elements date">
-			<a href="/2015/04/26/memcache-memory-management/" class="article-date">
-  <time datetime="2015-04-26T10:46:10.000Z" itemprop="datePublished">2015-04-26</time>
-</a>
-
-		</span>
-        <span class="tags">
-	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/memcache/">memcache</a></li></ul>
-
-		</span>
-		<!--span class="meta-elements author">simyy</span-->
-		<div class="commentscount">
-			
-		</div>
-	</footer>
-	
-	<header class="entry-header">
-		
-  
-    <h1 itemprop="name" class="entry-title">
-      <a class="article-title" href="/2015/04/26/memcache-memory-management/">memcache 内存管理</a>
-    </h1>
-  
-
-	</header>
-	<div class="entry-content">
-		
-			<p>memcached使用预申请的方式来管理内存的分配，从而避免内存碎片化的问题。如果采用mallo和free来动态的申请和销毁内存，必然会产生大量的内存碎片。<br>
-			
-				</p><p class="article-more-link">
-					<a href="/2015/04/26/memcache-memory-management/#more">Read More</a>
-				</p>
-      
-    
-	</div>
-	
-</article>
-
-
-	<hr class="article-devider">
-
-
-
-
-  
     <article id="post-simfish-framework" class="post">
 	<footer class="entry-meta-header">
 		<span class="meta-elements date">
@@ -514,6 +466,54 @@
 			
 				</p><p class="article-more-link">
 					<a href="/2015/03/16/rabbitmq-publish-subscribe/#more">Read More</a>
+				</p>
+      
+    
+	</div>
+	
+</article>
+
+
+	<hr class="article-devider">
+
+
+
+
+  
+    <article id="post-rabbitmq-work-queues" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2015/03/15/rabbitmq-work-queues/" class="article-date">
+  <time datetime="2015-03-15T04:32:10.000Z" itemprop="datePublished">2015-03-15</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rabbitmq/">rabbitmq</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 itemprop="name" class="entry-title">
+      <a class="article-title" href="/2015/03/15/rabbitmq-work-queues/">RabbitMQ Work Queues</a>
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+			<p>RabbitMQ使用Work Queues的主要目的是为了避免资源使用密集的任务，它不同于定时任务处理的方式，而是把任务封装为消息添加到队列中。而消息队列正是共享于多个工作者中使用，它们可以随意pop出数据进行处理。<br>
+			
+				</p><p class="article-more-link">
+					<a href="/2015/03/15/rabbitmq-work-queues/#more">Read More</a>
 				</p>
       
     

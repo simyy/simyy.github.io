@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>TCP状态 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="介绍TCP状态。">
+<meta name="keywords" content="tcp">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TCP状态">
+<meta property="og:url" content="http://simyy.cn/2016/01/18/tcp-status/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="介绍TCP状态。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://simyy.cn/images/tcp-status-1.png">
+<meta property="og:updated_time" content="2017-04-08T09:33:02.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="TCP状态">
+<meta name="twitter:description" content="介绍TCP状态。">
+<meta name="twitter:image" content="http://simyy.cn/images/tcp-status-1.png">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-tcp-status" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2016/01/18/tcp-status/" class="article-date">
+  <time datetime="2016-01-18T13:15:43.000Z" itemprop="datePublished">2016-01-18</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tcp/">tcp</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      TCP状态
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>介绍TCP状态。<br><a id="more"></a></p>
+<h2 id="TCP状态图"><a href="#TCP状态图" class="headerlink" title="TCP状态图"></a>TCP状态图</h2><blockquote>
+<p>TCP连接中包含不同的状态，如何通过状态来判断程序问题尤为重要。</p>
+</blockquote>
+<p><img src="/images/tcp-status-1.png" alt="tcp连接"></p>
+<h3 id="三次握手"><a href="#三次握手" class="headerlink" title="三次握手"></a>三次握手</h3><p>图中的<code>connection</code>部分为三次握手。</p>
+<h3 id="四次握手"><a href="#四次握手" class="headerlink" title="四次握手"></a>四次握手</h3><p>图中的<code>close</code>部分为四次握手。</p>
+<h3 id="CLOSE-WAIT"><a href="#CLOSE-WAIT" class="headerlink" title="CLOSE_WAIT"></a>CLOSE_WAIT</h3><p>服务器接受到FIN关闭请求后为<code>CLOSE_WAIT</code>状态。<br>默认情况下，<code>CLOSE_WAIT</code>状态会至少维持2小时的状态。<br>由于<code>CLOSE_WAIT</code>状态后应该发送ACK请求，状态会变为<code>LAST_ACK</code>，但如果由太多的<code>CLOSE_WAIT</code>状态，则服务器出现错误。</p>
+<h3 id="TIME-WAIT"><a href="#TIME-WAIT" class="headerlink" title="TIME_WAIT"></a>TIME_WAIT</h3><p>客户端在接受到服务器的FIN关闭请求后为<code>TIME_WAIT</code>状态，最后会自动切换到<code>CLOSE</code>状态。<br>当服务器主动关闭链接时形成<code>TIME_WAIT</code>状态，会持续2个MSL(Max Segment Lifetime)，默认为4分钟。</p>
+<p><code>TIME_WAIT</code>状态下的socket不能被回收使用，具体现象是对于一个处理大量短连接的服务器，如果由于服务器主动关闭客户端的连接，将导致服务器产生大量处于<code>TIME_WAIT</code>状态的socket，严重影响服务器的处理能力。</p>
+<h3 id="AWK和NETSTAT命令"><a href="#AWK和NETSTAT命令" class="headerlink" title="AWK和NETSTAT命令"></a>AWK和NETSTAT命令</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"># -n表示-net</span><br><span class="line">netstat -n </span><br><span class="line"></span><br><span class="line"># -v用于定义参数</span><br><span class="line"> netstat  -net | awk -v i=0,j=0 &apos;&#123;if ($6==&quot;ESTABLISHED&quot;) &#123;i++&#125;; if ($6 == &quot;CLOSE_WAIT&quot;) &#123;j++&#125;; print i, j, prit $6&#125;&apos;</span><br><span class="line"></span><br><span class="line"># 最佳用法如下:</span><br><span class="line"># 1. 使用正则/xxx/来匹配行</span><br><span class="line"># 2. $NF代表最后一列的数据，命令中定义了一个字典，最后一列数据作为key</span><br><span class="line"># 3. 每次匹配都会让value递增</span><br><span class="line"># 4. END表示结束</span><br><span class="line"># 5. 最后的&#123;&#125;用来打印key,value</span><br><span class="line">netstat -n | awk &apos;/^tcp/ &#123;++S[$NF]&#125; END &#123;for (a in S) print a, S[a]&#125;&apos;</span><br></pre></td></tr></table></figure>
+<p>那么，如何对结果进行排序呢？<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 利用管道</span><br><span class="line">netstat -n | awk &apos;/^tcp/ &#123;++S[$NF]&#125; END &#123;for (a in S) print a, S[a] | &quot;sort -r -n -k2&quot;&#125;&apos;</span><br><span class="line"></span><br><span class="line"># 其中，sort为外部命令，-r代表从大到小（倒序），-n代表按照数字排序，-k2代表按照第2行排序。</span><br></pre></td></tr></table></figure></p>
+<p>此外，也可以使用<code>asort</code>来实现结果排序。</p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2016/03/22/btree/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Btree 索引
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/12/31/python-单元测试/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          python-单元测试
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2018 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

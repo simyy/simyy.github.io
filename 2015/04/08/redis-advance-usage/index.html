@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>redis（二）高级用法 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="介绍redis高级用法。">
+<meta name="keywords" content="redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis（二）高级用法">
+<meta property="og:url" content="http://simyy.cn/2015/04/08/redis-advance-usage/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="介绍redis高级用法。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-04-08T09:26:09.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="redis（二）高级用法">
+<meta name="twitter:description" content="介绍redis高级用法。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-redis-advance-usage" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2015/04/08/redis-advance-usage/" class="article-date">
+  <time datetime="2015-04-07T16:49:45.000Z" itemprop="datePublished">2015-04-08</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/">redis</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      redis（二）高级用法
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>介绍redis高级用法。<br><a id="more"></a></p>
+<h2 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h2><p>redis的事务是一组命令的集合。事务同命令一样都是redis的最小执行单元，一个事务中的命令要么执行要么都不执行。</p>
+<p>首先需要multi命令来开始事务，用exec命令来执行事务。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; multi</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; hset user:1 name xiaoming</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; hset user:1 name daxiong</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; exec</span><br><span class="line">1) (integer) 0</span><br><span class="line">2) (integer) 0</span><br><span class="line">127.0.0.1:6379&gt; hgetall user:1</span><br><span class="line">1) &quot;name&quot;</span><br><span class="line">2) &quot;daxiong&quot;</span><br><span class="line">3) &quot;score&quot;</span><br><span class="line">4) &quot;61&quot;</span><br></pre></td></tr></table></figure></p>
+<p>multi代表事务的开始，返回ok表示成功；</p>
+<p>exec代表事务的执行，返回各个命令的执行结果；</p>
+<p>在multi和exec中间添加需要执行的命令。</p>
+<p>在multi开始后，所有命令都不会执行，而是全部暂时保存起来，在执行exec命令后会按照命令保存的顺序依次执行各个命令。</p>
+<p>如果事务执行过程中存在失败的情况下（某一个命令执行失败后其他命令会继续执行），需要开发人员自行处理后果。</p>
+<p>注意：redis不支持回滚操作，导致redis的错误异常需要开发人员处理。</p>
+<h2 id="watch"><a href="#watch" class="headerlink" title="watch"></a>watch</h2><p>watch命令可以监控一个或多个键值的变化，一旦其中一个键被改变，之后的事务就不会执行，而且监控会一直持续到exec命令。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set key 1</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; watch key</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; set key 2</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; multi</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; set key 3</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; exec</span><br><span class="line">(nil)</span><br><span class="line">127.0.0.1:6379&gt; get key</span><br><span class="line">&quot;2&quot;</span><br></pre></td></tr></table></figure></p>
+<h3 id="生存时间"><a href="#生存时间" class="headerlink" title="生存时间"></a>生存时间</h3><p>（1）设置key的超时时间，超时后redis会自动删除给key值，类似于memcache中的超时时间。<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">expire     key     seconds</span><br><span class="line">//设置成功返回1，失败返回0</span><br><span class="line">127.0.0.1:6379&gt; set session:aabb uid1122</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; expire session:aabb 300</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; del session:aabb</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; expire session:aabb 300</span><br><span class="line">(integer) 0</span><br><span class="line"> </span><br><span class="line">127.0.0.1:6379&gt; expire session:aabb 300</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; ttl session:aabb </span><br><span class="line">(integer) 290</span><br></pre></td></tr></table></figure></p>
+<p>（2）查询剩余超时时间<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ttl     key</span><br><span class="line">127.0.0.1:6379&gt; expire session:aabb 300</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; ttl session:aabb </span><br><span class="line">(integer) 290</span><br></pre></td></tr></table></figure></p>
+<p>（3）取消超时时间<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; get session:aabb</span><br><span class="line">&quot;300&quot;</span><br><span class="line">127.0.0.1:6379&gt; ttl session:aabb </span><br><span class="line">(integer) 280</span><br><span class="line">127.0.0.1:6379&gt; persist session:aabb</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; ttl session:aabb</span><br><span class="line">(integer) -1</span><br></pre></td></tr></table></figure></p>
+<p>（4）如果使用设置相关的命令，会取消该键的超时间</p>
+<h2 id="缓存数据"><a href="#缓存数据" class="headerlink" title="缓存数据"></a>缓存数据</h2><p>在某些情况下，需要缓存一部分网站数据，而网站数据由需要持续的更新（假如需要两个小时更新一次），那么可以采用redis进行缓存这部分数据，设置数据的超时时间为2小时，每当有请求访问的时候首先到redis中查找该数据是否存在，如果存在直接读取，如果不存在的话重新从数据库中读取该数据加载到redis中。</p>
+<p>在缓存数据的时候需要考虑到被缓存数据的大小，如果缓存数据较大，会占用过多的内存资源，有必要在配置文件中限制内存的使用大小（maxmemory）。</p>
+<p>当超过maxmemory的限制后，redis会根据maxmemory-policy参数指定的策略（包括LRU等算法）来删除不需要的键。</p>
+<h2 id="排序"><a href="#排序" class="headerlink" title="排序"></a>排序</h2><p>sort命令支持对集合类型、类表类型、有序集合类型进行排序。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; lpush list 1 2 6 3 4 9 8</span><br><span class="line">(integer) 7</span><br><span class="line">127.0.0.1:6379&gt; sort list</span><br><span class="line">1) &quot;1&quot;</span><br><span class="line">2) &quot;2&quot;</span><br><span class="line">3) &quot;3&quot;</span><br><span class="line">4) &quot;4&quot;</span><br><span class="line">5) &quot;6&quot;</span><br><span class="line">6) &quot;8&quot;</span><br><span class="line">7) &quot;9&quot;</span><br></pre></td></tr></table></figure></p>
+<p>可以对有序集合的值进行排序：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; zadd set 50 2 40 3 20 1 60 5</span><br><span class="line">(integer) 4</span><br><span class="line">127.0.0.1:6379&gt; sort set</span><br><span class="line">1) &quot;1&quot;</span><br><span class="line">2) &quot;2&quot;</span><br><span class="line">3) &quot;3&quot;</span><br><span class="line">4) &quot;5&quot;</span><br></pre></td></tr></table></figure></p>
+<p>sort命令可以添加desc来实现倒序排序<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; sort set desc</span><br><span class="line">1) &quot;5&quot;</span><br><span class="line">2) &quot;3&quot;</span><br><span class="line">3) &quot;2&quot;</span><br><span class="line">4) &quot;1&quot;</span><br></pre></td></tr></table></figure></p>
+<h2 id="BY参数"><a href="#BY参数" class="headerlink" title="BY参数"></a>BY参数</h2><p>很多时候我们需要根据ID对应的对象的某一个属性进行排序，那么如何才能把多个不同的数据进行关联查询呢？<br>（1）首先，向userids中添加三个用户id<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; lpush userids 1 2 3</span><br><span class="line">(integer) 3</span><br></pre></td></tr></table></figure></p>
+<p>（2）其次，分别对三个用户添加分数<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set user_score_1 50</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; set user_score_2 30</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; set user_score_3 70</span><br><span class="line">OK</span><br></pre></td></tr></table></figure></p>
+<p>（3）最后，使用sort、by命令来对对用户按照默认情况以及分数的递增和递减进行排序。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; sort userids</span><br><span class="line">1) &quot;1&quot;</span><br><span class="line">2) &quot;2&quot;</span><br><span class="line">3) &quot;3&quot;</span><br><span class="line">127.0.0.1:6379&gt; sort userids by user_score_*</span><br><span class="line">1) &quot;2&quot;</span><br><span class="line">2) &quot;1&quot;</span><br><span class="line">3) &quot;3&quot;</span><br><span class="line">127.0.0.1:6379&gt; sort userids by user_score_* desc</span><br><span class="line">1) &quot;3&quot;</span><br><span class="line">2) &quot;1&quot;</span><br><span class="line">3) &quot;2&quot;</span><br></pre></td></tr></table></figure></p>
+<h2 id="GET参数"><a href="#GET参数" class="headerlink" title="GET参数"></a>GET参数</h2><p>get参数并不影响排序，它的作用是使sort命令返回的结果不再是元素自身的值，而是get参数中指定的键值，同by参数一样，支持字符串类型和散列类型的键。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; sort userids by user_score_* get user_name_*</span><br><span class="line">1) &quot;xiaoming&quot;</span><br><span class="line">2) &quot;daxiong&quot;</span><br><span class="line">3) &quot;xiaohong&quot;</span><br><span class="line">127.0.0.1:6379&gt; sort userids by user_score_* desc get user_name_*</span><br><span class="line">1) &quot;xiaohong&quot;</span><br><span class="line">2) &quot;daxiong&quot;</span><br><span class="line">3) &quot;xiaoming&quot;</span><br></pre></td></tr></table></figure></p>
+<h2 id="STORE参数"><a href="#STORE参数" class="headerlink" title="STORE参数"></a>STORE参数</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">store参数用于结果保存。</span><br><span class="line"> </span><br><span class="line">sort命令是redis的复杂命令之一，使用不好会造成性能的瓶颈。</span><br><span class="line"> </span><br><span class="line">sort命令的时间复杂度是O（n+mlog(m)），其中n是排序列表（集合和有序集合）中元素的个数，m是返回元素的个数。Redis在排序前会建立一个长度为n的的容器来存储待排序元素，虽然是一个临时的过程，但是多个较大数据的排序操作则会严重影响系统的性能。</span><br><span class="line"> </span><br><span class="line">因此，在开发中需要注意：</span><br><span class="line">（1）尽可能减少排序键中的元素个数，降低n</span><br><span class="line">（2）使用Limit参数只获取需要的数据，降低n</span><br><span class="line">（3）如果要排序的数据量较大，尽可能使用store名来缓存结果。</span><br></pre></td></tr></table></figure>
+<h2 id="任务队列"><a href="#任务队列" class="headerlink" title="任务队列"></a>任务队列</h2><p>任务队列一般适用于生产者和消费者之间通信的，那么在redis中很容易想到使用列表类型来实现任务队列，具体方法是创建一个任务队列，生产者主动lpush数据，而消费者去rpop数据，保持一个先进先出的循序。<br>但是这样存在一个问题，消费者需要主动去请求数据，周期性的请求会造成资源的浪费，因此，redis提供了一个brpop的命令来解决这个问题。<br>BRPOP     key     timeout<br>brpop命令接收两个参数，第一个参数key为键值，第二个参数timeout为超时时间。BRPOP命令取数据时候，如果暂时不存在数据，该命令会一直阻塞直到达到超时时间。如果timeout设置为0，那么就会无限等待下去。<br>优先级队列</p>
+<p>基于任务队列，如何实现优先级队列呢？</p>
+<p>那么可以选择多个任务队列，而每个任务队列的任务优先级是不同的。</p>
+<p>redis提供了下面的命令，会从左边第一个key开始读下去知道返回一个数据。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brpop key [key...] timetout</span><br></pre></td></tr></table></figure></p>
+<h2 id="发布-订阅模式"><a href="#发布-订阅模式" class="headerlink" title="发布/订阅模式"></a>发布/订阅模式</h2><p>redis提供了rabitmq类似的发布订阅模式，通过生产者使用下面的命令来发布消息，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUBLISH     CHANNEL     MESSAGE</span><br></pre></td></tr></table></figure></p>
+<p>消费者通过下面的消息来订阅消息，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SUBSCRIBE     CHANNEL     MESSAGE</span><br></pre></td></tr></table></figure></p>
+<p>生产者：<br><strong>向channel.test发布消息</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; publish channel.test hello</span><br><span class="line">(integer) 0 #返回0表明订阅者为0，没有发布消息</span><br><span class="line">127.0.0.1:6379&gt; publish channel.test hello</span><br><span class="line">(integer) 1 #返回n表明订阅者为n，成功发布给1个消费者</span><br></pre></td></tr></table></figure></p>
+<p>消费者：<br><strong>订阅channel.test消息</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; subscribe channel.test </span><br><span class="line">Reading messages... (press Ctrl-C to quit)</span><br><span class="line">1) &quot;subscribe&quot;</span><br><span class="line">2) &quot;channel.test&quot;</span><br><span class="line">3) (integer) 1</span><br><span class="line">#接收到来自channel.test的消息</span><br><span class="line">1) &quot;message&quot;</span><br><span class="line">2) &quot;channel.test&quot;</span><br><span class="line">3) &quot;hello&quot;</span><br></pre></td></tr></table></figure></p>
+<h2 id="管道"><a href="#管道" class="headerlink" title="管道"></a>管道</h2><p>redis的底层通信协议对管道提供了支持。通过管道可以一次性发送多条命令并在执行完后一次性将结果返回，当一组命令中每条命令都不依赖之前命令的执行结果时就可以将这组命令一起通过管道发出。管道通过减少客户端与redis的通信次数来实现降低往返实验累计值的目的。<br>节省空间</p>
+<p>（1）精简键名和键值<br>（2）redis为每种数据类型提供了两种内部编码。例如散列类型的存储是通过散列表来实现的，redis会根据数据的多少来选择编码类型，当数据较少的时候会采用紧凑但性能稍差的内部编码方式，而数据变多时会把编码方式改为散列表。</p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2015/04/13/python-xx/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Python _、__和__xx__的区别
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/04/04/redis-install-base-op/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          redis（一） 安装以及基本数据类型操作
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2018 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>python propety | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="在2.6版本中，添加了一种新的类成员函数的访问方式–property。">
+<meta name="keywords" content="python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python propety">
+<meta property="og:url" content="http://simyy.cn/2015/04/16/python-propety/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="在2.6版本中，添加了一种新的类成员函数的访问方式–property。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-04-08T09:27:26.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="python propety">
+<meta name="twitter:description" content="在2.6版本中，添加了一种新的类成员函数的访问方式–property。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-python-propety" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2015/04/16/python-propety/" class="article-date">
+  <time datetime="2015-04-16T15:50:11.000Z" itemprop="datePublished">2015-04-16</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      python propety
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>在2.6版本中，添加了一种新的类成员函数的访问方式–property。<br><a id="more"></a></p>
+<h2 id="原型"><a href="#原型" class="headerlink" title="原型"></a>原型</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">class property([fget[, fset[, fdel[, doc]]]])</span><br><span class="line">fget：获取属性</span><br><span class="line"></span><br><span class="line">fset：设置属性</span><br><span class="line"></span><br><span class="line">fdel：删除属性</span><br><span class="line"></span><br><span class="line">doc：属性含义</span><br></pre></td></tr></table></figure>
+<h2 id="用法"><a href="#用法" class="headerlink" title="用法"></a>用法</h2><h3 id="让成员函数通过属性方式调用"><a href="#让成员函数通过属性方式调用" class="headerlink" title="让成员函数通过属性方式调用"></a>让成员函数通过属性方式调用</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">C</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        self._x = <span class="keyword">None</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">getx</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> self._x</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">setx</span><span class="params">(self, value)</span>:</span></span><br><span class="line">        self._x = value</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">delx</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">del</span> self._x</span><br><span class="line">    x = property(getx, setx, delx, <span class="string">"I'm the 'x' property."</span>)</span><br><span class="line">a = C()</span><br><span class="line"><span class="keyword">print</span> C.x.__doc__ <span class="comment">#打印doc</span></span><br><span class="line"><span class="keyword">print</span> a.x <span class="comment">#调用a.getx()</span></span><br><span class="line"></span><br><span class="line">a.x = <span class="number">100</span> <span class="comment">#调用a.setx()</span></span><br><span class="line"><span class="keyword">print</span> a.x</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    <span class="keyword">del</span> a.x <span class="comment">#调用a.delx()</span></span><br><span class="line">    <span class="keyword">print</span> a.x <span class="comment">#已被删除，报错</span></span><br><span class="line"><span class="keyword">except</span> Exception, e:</span><br><span class="line">    <span class="keyword">print</span> e</span><br></pre></td></tr></table></figure>
+<p>输出结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">I&apos;m the &apos;x&apos; property.</span><br><span class="line">None</span><br><span class="line">100</span><br><span class="line">&apos;C&apos; object has no attribute &apos;_x&apos;</span><br></pre></td></tr></table></figure>
+<h3 id="利用property装饰器，让成员函数称为只读的"><a href="#利用property装饰器，让成员函数称为只读的" class="headerlink" title="利用property装饰器，让成员函数称为只读的"></a>利用property装饰器，让成员函数称为只读的</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Parrot</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        self._voltage = <span class="number">100000</span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">voltage</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""Get the current voltage."""</span></span><br><span class="line">        <span class="keyword">return</span> self._voltage</span><br><span class="line"></span><br><span class="line">a = Parrot()</span><br><span class="line"><span class="keyword">print</span> a.voltage <span class="comment">#通过属性调用voltage函数</span></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    <span class="keyword">print</span> a.voltage() <span class="comment">#不允许调用函数，为只读的</span></span><br><span class="line"><span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">    <span class="keyword">print</span> e</span><br></pre></td></tr></table></figure>
+<p>输出结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">100000</span><br><span class="line">&apos;int&apos; object is not callable</span><br></pre></td></tr></table></figure>
+<h3 id="利用property装饰器实现property函数的功能"><a href="#利用property装饰器实现property函数的功能" class="headerlink" title="利用property装饰器实现property函数的功能"></a>利用property装饰器实现property函数的功能</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">C</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        self._x = <span class="keyword">None</span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">x</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""I'm the 'x' property."""</span></span><br><span class="line">        <span class="keyword">return</span> self._x</span><br><span class="line"></span><br><span class="line"><span class="meta">    @x.setter</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">x</span><span class="params">(self, value)</span>:</span></span><br><span class="line">        self._x = value</span><br><span class="line"></span><br><span class="line"><span class="meta">    @x.deleter</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">x</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">del</span> self._x</span><br></pre></td></tr></table></figure>
+<h2 id="其他应用"><a href="#其他应用" class="headerlink" title="其他应用"></a>其他应用</h2><h3 id="bottle源码中的应用"><a href="#bottle源码中的应用" class="headerlink" title="bottle源码中的应用"></a>bottle源码中的应用</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Request</span><span class="params">(threading.local)</span>:</span></span><br><span class="line">    <span class="string">""" Represents a single request using thread-local namespace. """</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">method</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">''' Returns the request method (GET,POST,PUT,DELETE,...) '''</span></span><br><span class="line">        <span class="keyword">return</span> self._environ.get(<span class="string">'REQUEST_METHOD'</span>, <span class="string">'GET'</span>).upper()</span><br><span class="line"></span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">query_string</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">''' Content of QUERY_STRING '''</span></span><br><span class="line">        <span class="keyword">return</span> self._environ.get(<span class="string">'QUERY_STRING'</span>, <span class="string">''</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">input_length</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">''' Content of CONTENT_LENGTH '''</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="keyword">return</span> int(self._environ.get(<span class="string">'CONTENT_LENGTH'</span>, <span class="string">'0'</span>))</span><br><span class="line">        <span class="keyword">except</span> ValueError:</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">COOKIES</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""Returns a dict with COOKIES."""</span></span><br><span class="line">        <span class="keyword">if</span> self._COOKIES <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            raw_dict = Cookie.SimpleCookie(self._environ.get(<span class="string">'HTTP_COOKIE'</span>,<span class="string">''</span>))</span><br><span class="line">            self._COOKIES = &#123;&#125;</span><br><span class="line">            <span class="keyword">for</span> cookie <span class="keyword">in</span> raw_dict.values():</span><br><span class="line">                self._COOKIES[cookie.key] = cookie.value</span><br><span class="line">        <span class="keyword">return</span> self._COOKIES</span><br></pre></td></tr></table></figure>
+<h3 id="在django-model中的应用，实现连表查询"><a href="#在django-model中的应用，实现连表查询" class="headerlink" title="在django model中的应用，实现连表查询"></a>在django model中的应用，实现连表查询</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.db <span class="keyword">import</span> models</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span><span class="params">(models.Model)</span>:</span></span><br><span class="line">     name = models.CharField(max_length=<span class="number">30</span>)</span><br><span class="line">     tel = models.CharField(max_length=<span class="number">30</span>)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Score</span><span class="params">(models.Model)</span>:</span></span><br><span class="line">      pid = models.IntegerField()</span><br><span class="line">      score = models.IntegerField()</span><br><span class="line">      </span><br><span class="line">      <span class="function"><span class="keyword">def</span> <span class="title">get_person_name</span><span class="params">()</span>:</span></span><br><span class="line">            <span class="keyword">return</span> Person.objects.get(id=pid)</span><br><span class="line"></span><br><span class="line">       name = property(get_person_name) <span class="comment">#name称为Score表的属性，通过与Person表联合查询获取name</span></span><br></pre></td></tr></table></figure>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2015/04/18/python-sort/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          python sort
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/04/13/python-xx/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          Python _、__和__xx__的区别
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2018 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

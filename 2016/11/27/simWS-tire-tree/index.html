@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>tire tree算法 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="tire tree称为查找树或字典树，插入和查询的复杂度为O(K)（K为被插入或查询的关键字长度）。">
+<meta name="keywords" content="algorithm,中文分词">
+<meta property="og:type" content="article">
+<meta property="og:title" content="tire tree算法">
+<meta property="og:url" content="http://simyy.cn/2016/11/27/simWS-tire-tree/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="tire tree称为查找树或字典树，插入和查询的复杂度为O(K)（K为被插入或查询的关键字长度）。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://simyy.cn/images/tire-tree-1.png">
+<meta property="og:updated_time" content="2017-04-08T09:33:44.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="tire tree算法">
+<meta name="twitter:description" content="tire tree称为查找树或字典树，插入和查询的复杂度为O(K)（K为被插入或查询的关键字长度）。">
+<meta name="twitter:image" content="http://simyy.cn/images/tire-tree-1.png">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-simWS-tire-tree" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2016/11/27/simWS-tire-tree/" class="article-date">
+  <time datetime="2016-11-27T08:39:58.000Z" itemprop="datePublished">2016-11-27</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/algorithm/">algorithm</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/中文分词/">中文分词</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      tire tree算法
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>tire tree称为查找树或字典树，插入和查询的复杂度为O(K)（K为被插入或查询的关键字长度）。<br><a id="more"></a></p>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>tire tree的基本性质如下，</p>
+<ul>
+<li>根节点不包含任何字符</li>
+<li>除根节点外每一个节点都仅包含一个字符</li>
+<li>树的每一条路径的所有节点连接起来代表一个被添加的字符串</li>
+</ul>
+<p><img src="/images/tire-tree-1.png" alt=""></p>
+<p>tire tree的核心思想是空间换时间，并利用字符串的公共前缀来降低查询时间的开销以及节约存储空间。</p>
+<p>如图所示，“故事”和“故乡”拥有共同的前缀“故”，所以“故”只需要存储一次，达到了节约存储空间的目的。</p>
+<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><h3 id="统计词频"><a href="#统计词频" class="headerlink" title="统计词频"></a>统计词频</h3><p>对于哈希和堆来说，tire tree的公共前缀可以有效降低内存空间，当需要统计的数据越多时，这个压缩的效果越明显。</p>
+<h3 id="前缀匹配"><a href="#前缀匹配" class="headerlink" title="前缀匹配"></a>前缀匹配</h3><p>由于tire tree是按照前缀匹配来存储字符串的，那么查询字符串的复杂度只是O(K)，K为字符串的长度，因此，可以用来加载分词的词库。</p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>这里使用go来实现简单的tire树，完整代码：<a href="https://github.com/yxd123/simWS/blob/master/tire/tire.go。" target="_blank" rel="noopener">https://github.com/yxd123/simWS/blob/master/tire/tire.go。</a></p>
+<h3 id="节点的定义"><a href="#节点的定义" class="headerlink" title="节点的定义"></a>节点的定义</h3><p>树的节点需要包含节点值、子节点指针、节点状态。</p>
+<ul>
+<li>节点值：当前节点存储的值</li>
+<li>子节点指针：当前节点的子节点的指针（记录了当前节点的所有子节点）</li>
+<li>节点状态：记录当前节点是否为代表字符串的结尾（用于判断以当前节点为结尾的字符串是否被添加过）</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">type Node struct &#123;</span><br><span class="line">    value     byte //当前节点存储的值</span><br><span class="line">    nextNodes []*Node // 子节点指针</span><br><span class="line">    nextNums  int  //子节点个数</span><br><span class="line">    flag      bool //是否为结尾字符</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="节点的添加"><a href="#节点的添加" class="headerlink" title="节点的添加"></a>节点的添加</h3><p>节点的添加需要考虑几种情况：</p>
+<ul>
+<li>是否为公共前缀</li>
+<li>是否为结尾字符</li>
+</ul>
+<p><code>values</code>代表需要添加的字符串，<code>place</code>代表当前需要处理的字符位置，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">func (t *Node) add(values []byte, place int) &#123;</span><br><span class="line">    // 达到字符串的末尾</span><br><span class="line">    if place &gt;= len(values) &#123;</span><br><span class="line">        t.flag = true</span><br><span class="line">        return</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">   //如果没有子节点，需要添加新节点</span><br><span class="line">    if t.nextNodes == nil &#123;</span><br><span class="line">        log.Println(&quot;new nextNodes&quot;)</span><br><span class="line">        t.nextNodes = make([]*Node, 0, 26)</span><br><span class="line">        t.nextNums = 0</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if t.nextNums &gt; 0 &#123;</span><br><span class="line">        for _, node := range t.nextNodes &#123;</span><br><span class="line">            // 如果子节点中包含待添加字符，则递归添加下一节点</span><br><span class="line">            if node.value == values[place] &#123;</span><br><span class="line">                log.Println(&quot;duplicate byte:&quot;, string(node.value))</span><br><span class="line">                node.add(values, place + 1)</span><br><span class="line">                return</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 子节点无待添加字符，则添加新的子节点</span><br><span class="line">    node := NewNode(values[place])</span><br><span class="line">    node.add(values, place + 1)</span><br><span class="line">    t.nextNodes = append(t.nextNodes, node)</span><br><span class="line">    t.nextNums += 1</span><br><span class="line">    log.Println(&quot;add new Node:&quot;, string(node.value), t.nextNums)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="节点的查找"><a href="#节点的查找" class="headerlink" title="节点的查找"></a>节点的查找</h3><p>节点的查找和添加类似，都是从树的根节点开始，递归到目的节点。</p>
+<p>节点的查找需要注意结尾标记。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">func (t *Node) find(values []byte, place int) bool &#123;</span><br><span class="line">    //如果没有子节点，则未查到</span><br><span class="line">    if t == nil || t.nextNums == 0 &#123;</span><br><span class="line">        log.Println(&quot;can&apos;t cmp&quot;, string(values[place]), &quot;nextNums:&quot;, string(t.value), t.nextNums)</span><br><span class="line">        return false</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    for _, node := range t.nextNodes &#123;</span><br><span class="line">        log.Println(&quot;cmp:&quot;, string(node.value), string(values[place]))</span><br><span class="line">        // 找到待查找字符</span><br><span class="line">        if node.value == values[place] &#123;</span><br><span class="line">            //当前待查找字符为结尾，则找到目标字符串</span><br><span class="line">            if place == len(values) - 1 &#123;</span><br><span class="line">                return node.flag</span><br><span class="line">            &#125;</span><br><span class="line">            // 非结尾字符串，递归查找下一字符</span><br><span class="line">            return node.find(values, place + 1)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return false</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2016/12/03/redis-sds/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          redis 字符串
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/11/14/compiling-2/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          编译原理（二）语法分析
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2018 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

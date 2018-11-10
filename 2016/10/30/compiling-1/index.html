@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>编译原理（一）词法分析 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="词法分析（Lexical analysis）是完成编译程序的第一个阶段的工作。">
+<meta name="keywords" content="编译原理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="编译原理（一）词法分析">
+<meta property="og:url" content="http://simyy.cn/2016/10/30/compiling-1/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="词法分析（Lexical analysis）是完成编译程序的第一个阶段的工作。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://simyy.cn/images/compoling-1.jpeg">
+<meta property="og:updated_time" content="2017-04-12T14:42:39.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="编译原理（一）词法分析">
+<meta name="twitter:description" content="词法分析（Lexical analysis）是完成编译程序的第一个阶段的工作。">
+<meta name="twitter:image" content="http://simyy.cn/images/compoling-1.jpeg">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-compiling-1" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2016/10/30/compiling-1/" class="article-date">
+  <time datetime="2016-10-30T04:06:20.000Z" itemprop="datePublished">2016-10-30</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/编译原理/">编译原理</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      编译原理（一）词法分析
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>词法分析（Lexical analysis）是完成编译程序的第一个阶段的工作。<br><a id="more"></a><br>词法分析是从左到右一个字符一个字符地读入源程序，即对构成源程序的字符流进行扫描然后根据构词规则识别单词(也称单词符号或符号)。词法分析程序实现这个任务。词法分析程序可以使用lex等工具自动生成。</p>
+<h3 id="关键字"><a href="#关键字" class="headerlink" title="关键字"></a>关键字</h3><p>词法分析主要任务就是需要把由代码组成的字符串来识别出来，生成可以被识别的关键字序列。</p>
+<p><img src="/images/compoling-1.jpeg" alt="图片1"></p>
+<p>本文只实现了5种关键字类型，其中<code>IGN</code>是可悲忽略的字符，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># 关键字类型</span><br><span class="line">class TOKENTYPE(object):</span><br><span class="line">    IGN = 0 # ignore</span><br><span class="line">    OPT = 1 # oprate</span><br><span class="line">    SCP = 1 # reserved</span><br><span class="line">    INT = 2 # int</span><br><span class="line">    STR = 3 # string</span><br></pre></td></tr></table></figure></p>
+<p>对于不同的关键字需要对应的正则表达式来匹配该数据，并且需要预设关键字的优先级，例如，乘号的优先级高于加号，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># 关键字定义</span><br><span class="line">class TokenRegex(object):</span><br><span class="line">    def __init__(self, regex, name,type=TOKENTYPE.OPT, priority=1):</span><br><span class="line">        self.regex = regex</span><br><span class="line">        self.name = name</span><br><span class="line">        self.type = type</span><br><span class="line">        self.priority = priority</span><br><span class="line">        self.value = None</span><br></pre></td></tr></table></figure></p>
+<p>关键字定义如下，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">_TokenRegexs = (</span><br><span class="line">    TokenRegex(r&apos;\=&apos;, &apos;eq&apos;),</span><br><span class="line">    TokenRegex(r&apos;\+&apos;, &apos;add&apos;),</span><br><span class="line">    TokenRegex(r&apos;\-&apos;, &apos;sub&apos;),</span><br><span class="line">    TokenRegex(r&apos;\*&apos;, &apos;mux&apos;, priority=2),</span><br><span class="line">    TokenRegex(r&apos;\/&apos;, &apos;div&apos;, priority=2),</span><br><span class="line">    TokenRegex(r&apos;\(&apos;, &apos;(&apos;, type=TOKENTYPE.SCP, priority=3),</span><br><span class="line">    TokenRegex(r&apos;\)&apos;, &apos;)&apos;, type=TOKENTYPE.SCP, priority=3),</span><br><span class="line">    TokenRegex(r&apos;\&#123;&apos;, &apos;&#123;&apos;, type=TOKENTYPE.SCP, priority=3),</span><br><span class="line">    TokenRegex(r&apos;\&#125;&apos;, &apos;&#125;&apos;, type=TOKENTYPE.SCP, priority=3),</span><br><span class="line">    TokenRegex(r&apos;if&apos;, &apos;_if&apos;),</span><br><span class="line">    TokenRegex(r&apos;else&apos;, &apos;_else&apos;),</span><br><span class="line">    TokenRegex(r&apos;;&apos;, &apos;end&apos;),</span><br><span class="line">    TokenRegex(r&apos;[0-9]+&apos;, &apos;int&apos;,  type=TOKENTYPE.INT),</span><br><span class="line">    TokenRegex(r&apos;[a-zA-Z][a-zA-Z0-9_]*&apos;, &apos;str&apos;, type=TOKENTYPE.STR),</span><br><span class="line">    TokenRegex(r&apos;\n&apos;, &apos;enter&apos;, type=TOKENTYPE.IGN),</span><br><span class="line">    TokenRegex(r&apos; &apos;, &apos;blank&apos;, type=TOKENTYPE.IGN),</span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
+<p>此外，还需要定义特殊关键子匹配规则，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">TOKEN_SCP_MATCH = &#123;</span><br><span class="line">    &apos;(&apos;:  &apos;)&apos;,</span><br><span class="line">    &apos;&#123;&apos;:  &apos;&#125;&apos;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>递归遍历输入字符，生成对应的关键字链表，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">def lex(characters):</span><br><span class="line">    pos = 0 </span><br><span class="line">    length = len(characters)</span><br><span class="line">    while pos &lt; length:</span><br><span class="line">        for token_regex in _TokenRegexs:</span><br><span class="line">            regex = re.compile(token_regex.regex)</span><br><span class="line">            r = regex.match(characters, pos)</span><br><span class="line">            if r:</span><br><span class="line">                if token_regex.type is not TOKENTYPE.IGN:</span><br><span class="line">                    yield Token(r.group(0), token_regex)</span><br><span class="line">                pos = r.end(0)</span><br><span class="line">                break</span><br><span class="line">        else:</span><br><span class="line">            print &apos;char:&apos;, characters[pos]</span><br><span class="line">            sys.stderr.write(&apos;Illgal character: %s\n&apos; % characters[pos])</span><br><span class="line">            sys.exit(1)</span><br></pre></td></tr></table></figure></p>
+<h3 id="关键字识别"><a href="#关键字识别" class="headerlink" title="关键字识别"></a>关键字识别</h3><p>关键字识别单元，用来存储每一个关键字的信息<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">class Token(object):</span><br><span class="line">    def __init__(self, value, token_regex):</span><br><span class="line">        self.value = int(value) if value.isdigit() else value</span><br><span class="line">        self.name = token_regex.name</span><br><span class="line">        self.type = token_regex.type</span><br><span class="line">        self.priority = token_regex.priority</span><br><span class="line"></span><br><span class="line">    def __repr__(self):</span><br><span class="line">        return &apos;&lt;Token(\&apos;%s\&apos;) %s %s&gt;&apos; % (self.name, self.value, self.priority)</span><br><span class="line"></span><br><span class="line">    def is_end(self):</span><br><span class="line">        return True if self.name == &apos;end&apos; else False</span><br></pre></td></tr></table></figure></p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2016/11/14/compiling-2/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          编译原理（二）语法分析
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/10/27/simhash/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          SimHash算法
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2018 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

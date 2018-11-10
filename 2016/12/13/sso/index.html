@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>单点登录 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="单点登录全称Single Sign On（简称SSO），是指在多系统中用户只需要登录一个系统，便可在其他所有系统中得到授权而无需再次登录。">
+<meta name="keywords" content="web">
+<meta property="og:type" content="article">
+<meta property="og:title" content="单点登录">
+<meta property="og:url" content="http://simyy.cn/2016/12/13/sso/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="单点登录全称Single Sign On（简称SSO），是指在多系统中用户只需要登录一个系统，便可在其他所有系统中得到授权而无需再次登录。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-04-08T09:33:06.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="单点登录">
+<meta name="twitter:description" content="单点登录全称Single Sign On（简称SSO），是指在多系统中用户只需要登录一个系统，便可在其他所有系统中得到授权而无需再次登录。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-sso" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2016/12/13/sso/" class="article-date">
+  <time datetime="2016-12-12T16:51:05.000Z" itemprop="datePublished">2016-12-13</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/web/">web</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      单点登录
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>单点登录全称Single Sign On（简称SSO），是指在多系统中用户只需要登录一个系统，便可在其他所有系统中得到授权而无需再次登录。<br><a id="more"></a></p>
+<h2 id="传统方法"><a href="#传统方法" class="headerlink" title="传统方法"></a>传统方法</h2><p>对于小型站点来说，可以直接通过cookie和session在多个页面下实现登录状态的共享。<br>session常被保存在redis/memcache集群中，以便提高访问效率。<br><strong>使用cookie和session有哪些问题？</strong><br>cookie不安全，需要通过加密算法来处理；<br>使用cookie不能跨域。</p>
+<h2 id="单点登录"><a href="#单点登录" class="headerlink" title="单点登录"></a>单点登录</h2><p>主要思想是设计一个独立于各个系统的登录系统，也即是说要把用户登录的权限验证统一管理。</p>
+<h3 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h3><p>单点登录需要一个独立的认证中心，只有认证中心能接受用户的用户名密码等安全信息，其他系统不提供登录入口，只接受认证中心的间接授权。</p>
+<h3 id="认证步骤"><a href="#认证步骤" class="headerlink" title="认证步骤"></a>认证步骤</h3><p>通过SSO认证登录，然后把授权信息发送给各个系统，具体步骤如下：</p>
+<ul>
+<li>用户登录某一系统，未登录则跳转到sso认证中心</li>
+<li>用户在sso输入用户名密码，认证通过，生成授权令牌</li>
+<li>sso把授权令牌发送到各个子系统和用户</li>
+<li>用户重新访问原有系统， 通过验证授权令牌，登入系统</li>
+<li><h3 id="注销步骤"><a href="#注销步骤" class="headerlink" title="注销步骤"></a>注销步骤</h3>由于单点登录的状态是统一管理的，那么用户在任何一个系统中注销登录状态的同时需要保证其他系统的授权令牌同时失效，具体步骤如下：</li>
+<li>用户在某一个系统注销登录</li>
+<li>注销信息会传递给sso认证中心</li>
+<li>认证中心再通知各个系统销毁授权令牌</li>
+</ul>
+<h3 id="系统特点"><a href="#系统特点" class="headerlink" title="系统特点"></a>系统特点</h3><ul>
+<li>sso需要保存一份全局的用户登录状态（也就是授权令牌和登录用户的关系）；</li>
+<li>sso作为登录状态的唯一管理者，每次授权和销毁都需要同步最新的授权令牌的状态到各个子系统；</li>
+<li>sso和其他系统之间需要建立一套数据同步机制。</li>
+</ul>
+<h3 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h3><p><strong>大量授权请求如何处理？</strong><br>大量授权请求会带来大量的授权数据，由于授权数据的临时性，可将这些授权信息存储的缓存系统中，常见memcache/redis等；<br>大量的授权请求会产生大量的授权令牌的生成，常见的授权令牌都需要加密处理，必然影响系统性能，可通过预生成授权令牌的方式来降低批量生成令牌造成的资源竞争。</p>
+<p><strong>全局和局部的授权令牌如何同步处理？</strong><br>SSO和系统发生认证和注销操作都需要同步给系统中的每一个系统；<br>授权令牌采用按时间过期的方式，定期更新授权令牌到各个子系统；<br>至少保证登录注销的信息传递到SSO认证中心。</p>
+<h3 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h3><p>常见的单点登录包括一些网站或应用的微信认证登录、QQ认证登录、微博认证登录；<br>淘宝、360、微博、网易、美团的登录认证方式。</p>
+<h2 id="其他类似系统"><a href="#其他类似系统" class="headerlink" title="其他类似系统"></a>其他类似系统</h2><p>全局唯一ID生成器（不仅仅是UUID），可参考微信消息的唯一ID的生成方式</p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2017/01/25/gc/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          垃圾回收GC
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/12/06/redis-skiplist/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          redis 跳跃表
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2018 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

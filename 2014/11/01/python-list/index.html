@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>python 序列 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="序列list是python中最基本的数据结构，序列都可以进行的操作包括索引，切片，加，乘，检查成员。">
+<meta name="keywords" content="python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python 序列">
+<meta property="og:url" content="http://simyy.cn/2014/11/01/python-list/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="序列list是python中最基本的数据结构，序列都可以进行的操作包括索引，切片，加，乘，检查成员。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-04-08T09:27:46.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="python 序列">
+<meta name="twitter:description" content="序列list是python中最基本的数据结构，序列都可以进行的操作包括索引，切片，加，乘，检查成员。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-python-list" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2014/11/01/python-list/" class="article-date">
+  <time datetime="2014-11-01T09:33:11.000Z" itemprop="datePublished">2014-11-01</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      python 序列
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>序列<code>list</code>是python中最基本的数据结构，序列都可以进行的操作包括索引，切片，加，乘，检查成员。<br><a id="more"></a><br>列表生成式即List Comprehensions，是Python内置的非常简单却强大的可以用来创建list的生成式。</p>
+<h2 id="一个循环"><a href="#一个循环" class="headerlink" title="一个循环"></a>一个循环</h2><p>在C语言等其他语言中，for循环一般是这样的</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">x = list()</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">10</span>)</span><br><span class="line">    x.append(x)</span><br><span class="line">```　　</span><br><span class="line"></span><br><span class="line">如果python也这么写，那么真该看下python的基础教程了~</span><br><span class="line"></span><br><span class="line">```python</span><br><span class="line">x = [x <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">10</span>)]</span><br></pre></td></tr></table></figure>
+<p>　　<br>在上面的例子中，不仅可以嵌套for，甚至可以嵌套if语句</p>
+<p>再看看，原来是什么样子<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x = [x for x in range(10) if x &gt; 5]</span><br></pre></td></tr></table></figure></p>
+<p>　　</p>
+<h2 id="两个循环呢？"><a href="#两个循环呢？" class="headerlink" title="两个循环呢？"></a>两个循环呢？</h2><p>原来可能是这样的？</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">x = list()</span><br><span class="line">for i in range(10):</span><br><span class="line">    for j in range(10):</span><br><span class="line">    	x.append(i + j)</span><br><span class="line">```　　</span><br><span class="line"></span><br><span class="line">现在可以这样了！！！</span><br></pre></td></tr></table></figure>
+<p>x = [x + y for x in range(10) for y in range(10)]<br><code>`</code></p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2014/11/09/python-decorator/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          python 装饰器
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2014/10/22/python-deamon/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          python 守护进程
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2018 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

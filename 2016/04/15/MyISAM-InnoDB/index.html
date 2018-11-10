@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>MyISAM与InnoDB对比 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="总结myisam与innodb的区别。">
+<meta name="keywords" content="mysql">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MyISAM与InnoDB对比">
+<meta property="og:url" content="http://simyy.cn/2016/04/15/MyISAM-InnoDB/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="总结myisam与innodb的区别。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-04-08T09:29:03.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MyISAM与InnoDB对比">
+<meta name="twitter:description" content="总结myisam与innodb的区别。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-MyISAM-InnoDB" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2016/04/15/MyISAM-InnoDB/" class="article-date">
+  <time datetime="2016-04-15T08:31:49.000Z" itemprop="datePublished">2016-04-15</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      MyISAM与InnoDB对比
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>总结myisam与innodb的区别。<br><a id="more"></a></p>
+<h2 id="MyISAM"><a href="#MyISAM" class="headerlink" title="MyISAM"></a>MyISAM</h2><p><code>MyISAM</code>使用<code>B+tree</code>作为索引结构，叶节点存放的是<code>数据地址</code>。</p>
+<p><code>MyISAM</code>不支持事务和外键。</p>
+<p><code>MyISAM</code>是表锁，对数据库写操作时会锁住整个表，效率低。</p>
+<p><code>MyISAM</code>支持全文索引。</p>
+<p><code>MyISAM</code>设计结构简单，适合<code>read密集</code>的表。</p>
+<p><code>MyISAM</code>支持索引压缩，可以加载更多索引。</p>
+<h2 id="InnoDB"><a href="#InnoDB" class="headerlink" title="InnoDB"></a>InnoDB</h2><p><code>InnoDB</code>同样使用<code>B+tree</code>作为索引结构，但是叶节点存储的是<code>完整的数据</code>。</p>
+<p><code>InnoDB</code>支持事务和外键，在发生故障时可以通过事务日志来回复数据库。</p>
+<p><code>InnoDB</code>是行锁，只锁定一行数据，因此写操作很快。</p>
+<p><code>InnoDB</code>不支持全文索引。</p>
+<p><code>InnoDB</code>对于<code>write和update密集</code>的性能更好（由于行级锁的原因）。</p>
+<blockquote>
+<p>参考：<a href="http://stackoverflow.com/questions/15678406/when-to-use-myisam-and-innodb" target="_blank" rel="noopener">http://stackoverflow.com/questions/15678406/when-to-use-myisam-and-innodb</a></p>
+</blockquote>
+<h2 id="区别"><a href="#区别" class="headerlink" title="区别"></a>区别</h2><ul>
+<li><p>叶节点数据存放的不同，指针和完整数据</p>
+</li>
+<li><p>是否支持事务和外键</p>
+</li>
+<li><p>设计的区别，适合读密集还是写密集</p>
+</li>
+<li><p>锁的区别，表锁和行锁(如果<code>InnoDB</code>不能确定扫描范围，则需要对全表锁定)</p>
+</li>
+<li><p>是否支持全文索引</p>
+</li>
+<li><p><code>select count(*)</code>的区别，<code>MyISAM</code>保存行数(如果由<code>where</code>则扫描全表)，而<code>InnoDB</code>扫描全表</p>
+</li>
+</ul>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2016/04/26/block-sync/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          同步、异步、阻塞、非阻塞
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/04/07/redis-summary/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          redis总结
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2018 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

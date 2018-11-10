@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>sqlalchemy(二)高级用法 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="本文将介绍sqlalchemy的高级用法。">
+<meta name="keywords" content="python,orm">
+<meta property="og:type" content="article">
+<meta property="og:title" content="sqlalchemy(二)高级用法">
+<meta property="og:url" content="http://simyy.cn/2015/08/19/sqlalchemy2/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="本文将介绍sqlalchemy的高级用法。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-04-08T09:33:11.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="sqlalchemy(二)高级用法">
+<meta name="twitter:description" content="本文将介绍sqlalchemy的高级用法。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-sqlalchemy2" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2015/08/19/sqlalchemy2/" class="article-date">
+  <time datetime="2015-08-19T05:48:34.000Z" itemprop="datePublished">2015-08-19</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/orm/">orm</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      sqlalchemy(二)高级用法
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>本文将介绍sqlalchemy的高级用法。<br><a id="more"></a></p>
+<h2 id="外键以及relationship"><a href="#外键以及relationship" class="headerlink" title="外键以及relationship"></a>外键以及relationship</h2><p>首先创建数据库，在这里一个user对应多个address，因此需要在address上增加user_id这个外键（一对多）。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># encoding: utf-8</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> sqlalchemy <span class="keyword">import</span> create_engine</span><br><span class="line"><span class="keyword">from</span> sqlalchemy <span class="keyword">import</span> Column</span><br><span class="line"><span class="keyword">from</span> sqlalchemy <span class="keyword">import</span> Integer</span><br><span class="line"><span class="keyword">from</span> sqlalchemy <span class="keyword">import</span> String</span><br><span class="line"><span class="keyword">from</span> sqlalchemy <span class="keyword">import</span> ForeignKey</span><br><span class="line"><span class="keyword">from</span> sqlalchemy.orm <span class="keyword">import</span> backref</span><br><span class="line"><span class="keyword">from</span> sqlalchemy.orm <span class="keyword">import</span> sessionmaker</span><br><span class="line"><span class="keyword">from</span> sqlalchemy.orm <span class="keyword">import</span> relationship, backref</span><br><span class="line"><span class="keyword">from</span> sqlalchemy.ext.declarative <span class="keyword">import</span> declarative_base</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Base = declarative_base()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">User</span><span class="params">(Base)</span>:</span></span><br><span class="line">    __tablename__ = <span class="string">'users'</span></span><br><span class="line"></span><br><span class="line">    id = Column(Integer, primary_key=<span class="keyword">True</span>)</span><br><span class="line">    name = Column(String(<span class="number">32</span>))</span><br><span class="line"></span><br><span class="line">    addresses = relationship(<span class="string">"Address"</span>, order_by=<span class="string">"Address.id"</span>, backref=<span class="string">"user"</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Address</span><span class="params">(Base)</span>:</span></span><br><span class="line">    __tablename__ = <span class="string">'addresses'</span></span><br><span class="line">    id = Column(Integer, primary_key=<span class="keyword">True</span>)</span><br><span class="line">    email_address = Column(String(<span class="number">32</span>), nullable=<span class="keyword">False</span>)</span><br><span class="line">    user_id = Column(Integer, ForeignKey(<span class="string">'users.id'</span>))</span><br><span class="line"></span><br><span class="line">    <span class="comment">#user = relationship("User", backref=backref('addresses', order_by=id))</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">engine  = create_engine(<span class="string">'mysql://root:root@localhost:3306/test'</span>, echo=<span class="keyword">True</span>)</span><br><span class="line"><span class="comment">#Base.metadata.create_all(engine)</span></span><br></pre></td></tr></table></figure>
+<p>接下来，调用user和address来添加数据，</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>jack = User(name=<span class="string">'jack'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>jack.address</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">"&lt;stdin&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">AttributeError: <span class="string">'User'</span> object has no attribute <span class="string">'address'</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>jack.addresses</span><br><span class="line">[]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>jack.addresses = [Address(email_address=<span class="string">'test@test.com'</span>), Address(email_address=<span class="string">'test1@test1.com'</span>)]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>jack.addresses</span><br><span class="line">[&lt;demo.Address object at <span class="number">0x7f2536564f90</span>&gt;, &lt;demo.Address object at <span class="number">0x7f2535dc71d0</span>&gt;]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>session.add(jack)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>session.commit()</span><br><span class="line"><span class="number">2015</span><span class="number">-08</span><span class="number">-19</span> <span class="number">13</span>:<span class="number">45</span>:<span class="number">36</span>,<span class="number">237</span> INFO sqlalchemy.engine.base.Engine SHOW VARIABLES LIKE <span class="string">'sql_mode'</span></span><br><span class="line"><span class="number">2015</span><span class="number">-08</span><span class="number">-19</span> <span class="number">13</span>:<span class="number">45</span>:<span class="number">36</span>,<span class="number">237</span> INFO sqlalchemy.engine.base.Engine ()</span><br><span class="line"><span class="number">2015</span><span class="number">-08</span><span class="number">-19</span> <span class="number">13</span>:<span class="number">45</span>:<span class="number">36</span>,<span class="number">238</span> INFO sqlalchemy.engine.base.Engine SELECT DATABASE()</span><br><span class="line"><span class="number">2015</span><span class="number">-08</span><span class="number">-19</span> <span class="number">13</span>:<span class="number">45</span>:<span class="number">36</span>,<span class="number">238</span> INFO sqlalchemy.engine.base.Engine ()</span><br><span class="line"><span class="number">2015</span><span class="number">-08</span><span class="number">-19</span> <span class="number">13</span>:<span class="number">45</span>:<span class="number">36</span>,<span class="number">239</span> INFO sqlalchemy.engine.base.Engine show collation where `Charset` = <span class="string">'utf8'</span> <span class="keyword">and</span> `Collation` = <span class="string">'utf8_bin'</span></span><br><span class="line"><span class="number">2015</span><span class="number">-08</span><span class="number">-19</span> <span class="number">13</span>:<span class="number">45</span>:<span class="number">36</span>,<span class="number">239</span> INFO sqlalchemy.engine.base.Engine ()</span><br><span class="line"><span class="number">2015</span><span class="number">-08</span><span class="number">-19</span> <span class="number">13</span>:<span class="number">45</span>:<span class="number">36</span>,<span class="number">239</span> INFO sqlalchemy.engine.base.Engine SELECT CAST(<span class="string">'test plain returns'</span> AS CHAR(<span class="number">60</span>)) AS anon_1</span><br><span class="line"><span class="number">2015</span><span class="number">-08</span><span class="number">-19</span> <span class="number">13</span>:<span class="number">45</span>:<span class="number">36</span>,<span class="number">239</span> INFO sqlalchemy.engine.base.Engine ()</span><br><span class="line"><span class="number">2015</span><span class="number">-08</span><span class="number">-19</span> <span class="number">13</span>:<span class="number">45</span>:<span class="number">36</span>,<span class="number">240</span> INFO sqlalchemy.engine.base.Engine SELECT CAST(<span class="string">'test unicode returns'</span> AS CHAR(<span class="number">60</span>)) AS anon_1</span><br><span class="line"><span class="number">2015</span><span class="number">-08</span><span class="number">-19</span> <span class="number">13</span>:<span class="number">45</span>:<span class="number">36</span>,<span class="number">240</span> INFO sqlalchemy.engine.base.Engine ()</span><br><span class="line"><span class="number">2015</span><span class="number">-08</span><span class="number">-19</span> <span class="number">13</span>:<span class="number">45</span>:<span class="number">36</span>,<span class="number">240</span> INFO sqlalchemy.engine.base.Engine SELECT CAST(<span class="string">'test collated returns'</span> AS CHAR CHARACTER SET utf8) COLLATE utf8_bin AS anon_1</span><br><span class="line"><span class="number">2015</span><span class="number">-08</span><span class="number">-19</span> <span class="number">13</span>:<span class="number">45</span>:<span class="number">36</span>,<span class="number">240</span> INFO sqlalchemy.engine.base.Engine ()</span><br><span class="line"><span class="number">2015</span><span class="number">-08</span><span class="number">-19</span> <span class="number">13</span>:<span class="number">45</span>:<span class="number">36</span>,<span class="number">241</span> INFO sqlalchemy.engine.base.Engine BEGIN (implicit)</span><br><span class="line"><span class="number">2015</span><span class="number">-08</span><span class="number">-19</span> <span class="number">13</span>:<span class="number">45</span>:<span class="number">36</span>,<span class="number">242</span> INFO sqlalchemy.engine.base.Engine INSERT INTO users (name) VALUES (%s)</span><br><span class="line"><span class="number">2015</span><span class="number">-08</span><span class="number">-19</span> <span class="number">13</span>:<span class="number">45</span>:<span class="number">36</span>,<span class="number">242</span> INFO sqlalchemy.engine.base.Engine (<span class="string">'jack'</span>,)</span><br><span class="line"><span class="number">2015</span><span class="number">-08</span><span class="number">-19</span> <span class="number">13</span>:<span class="number">45</span>:<span class="number">36</span>,<span class="number">243</span> INFO sqlalchemy.engine.base.Engine INSERT INTO addresses (email_address, user_id) VALUES (%s, %s)</span><br><span class="line"><span class="number">2015</span><span class="number">-08</span><span class="number">-19</span> <span class="number">13</span>:<span class="number">45</span>:<span class="number">36</span>,<span class="number">243</span> INFO sqlalchemy.engine.base.Engine (<span class="string">'test@test.com'</span>, <span class="number">1L</span>)</span><br><span class="line"><span class="number">2015</span><span class="number">-08</span><span class="number">-19</span> <span class="number">13</span>:<span class="number">45</span>:<span class="number">36</span>,<span class="number">243</span> INFO sqlalchemy.engine.base.Engine INSERT INTO addresses (email_address, user_id) VALUES (%s, %s)</span><br><span class="line"><span class="number">2015</span><span class="number">-08</span><span class="number">-19</span> <span class="number">13</span>:<span class="number">45</span>:<span class="number">36</span>,<span class="number">243</span> INFO sqlalchemy.engine.base.Engine (<span class="string">'test1@test1.com'</span>, <span class="number">1L</span>)</span><br><span class="line"><span class="number">2015</span><span class="number">-08</span><span class="number">-19</span> <span class="number">13</span>:<span class="number">45</span>:<span class="number">36</span>,<span class="number">244</span> INFO sqlalchemy.engine.base.Engine COMMIT</span><br><span class="line">&gt;&gt;&gt;</span><br></pre></td></tr></table></figure>
+<p>此时，查看数据库，可以得到刚才插入的数据，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from users;</span><br><span class="line">+----+------+</span><br><span class="line">| id | name |</span><br><span class="line">+----+------+</span><br><span class="line">|  1 | jack |</span><br><span class="line">+----+------+</span><br><span class="line">1 row in set (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; select * from addresses;</span><br><span class="line">+----+-----------------+---------+</span><br><span class="line">| id | email_address   | user_id |</span><br><span class="line">+----+-----------------+---------+</span><br><span class="line">|  1 | test@test.com   |       1 |</span><br><span class="line">|  2 | test1@test1.com |       1 |</span><br><span class="line">+----+-----------------+---------+</span><br><span class="line">2 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<h2 id="join查询"><a href="#join查询" class="headerlink" title="join查询"></a>join查询</h2><p>如果不使用join的话，可以直接联表查询，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; session.query(User.name, Address.email_address).filter(User.id==Address.user_id).filter(Address.email_address==&apos;test@test.com&apos;).all()</span><br><span class="line">2015-08-19 14:02:02,877 INFO sqlalchemy.engine.base.Engine SELECT users.name AS users_name, addresses.email_address AS addresses_email_address </span><br><span class="line">FROM users, addresses </span><br><span class="line">WHERE users.id = addresses.user_id AND addresses.email_address = %s</span><br><span class="line">2015-08-19 14:02:02,878 INFO sqlalchemy.engine.base.Engine (&apos;test@test.com&apos;,)</span><br><span class="line">[(&apos;jack&apos;, &apos;test@test.com&apos;)]</span><br></pre></td></tr></table></figure>
+<p>在sqlalchemy中提供了Queqy.join()函数，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; session.query(User).join(Address).filter(Address.email_address==&apos;test@test.com&apos;).first()</span><br><span class="line">2015-08-19 14:06:56,624 INFO sqlalchemy.engine.base.Engine SELECT users.id AS users_id, users.name AS users_name </span><br><span class="line">FROM users INNER JOIN addresses ON users.id = addresses.user_id </span><br><span class="line">WHERE addresses.email_address = %s </span><br><span class="line"> LIMIT %s</span><br><span class="line">2015-08-19 14:06:56,624 INFO sqlalchemy.engine.base.Engine (&apos;test@test.com&apos;, 1)</span><br><span class="line">&lt;demo.User object at 0x7f9a74139a10&gt;</span><br><span class="line">&gt;&gt;&gt; session.query(User).join(Address).filter(Address.email_address==&apos;test@test.com&apos;).first().name</span><br><span class="line">2015-08-19 14:07:04,224 INFO sqlalchemy.engine.base.Engine SELECT users.id AS users_id, users.name AS users_name </span><br><span class="line">FROM users INNER JOIN addresses ON users.id = addresses.user_id </span><br><span class="line">WHERE addresses.email_address = %s </span><br><span class="line"> LIMIT %s</span><br><span class="line">2015-08-19 14:07:04,224 INFO sqlalchemy.engine.base.Engine (&apos;test@test.com&apos;, 1)</span><br><span class="line">&apos;jack&apos;</span><br><span class="line">&gt;&gt;&gt; session.query(User).join(Address).filter(Address.email_address==&apos;test@test.com&apos;).first().addresses</span><br><span class="line">2015-08-19 14:07:06,534 INFO sqlalchemy.engine.base.Engine SELECT users.id AS users_id, users.name AS users_name </span><br><span class="line">FROM users INNER JOIN addresses ON users.id = addresses.user_id </span><br><span class="line">WHERE addresses.email_address = %s </span><br><span class="line"> LIMIT %s</span><br><span class="line">2015-08-19 14:07:06,534 INFO sqlalchemy.engine.base.Engine (&apos;test@test.com&apos;, 1)</span><br><span class="line">2015-08-19 14:07:06,535 INFO sqlalchemy.engine.base.Engine SELECT addresses.id AS addresses_id, addresses.email_address AS addresses_email_address, addresses.user_id AS addresses_user_id </span><br><span class="line">FROM addresses </span><br><span class="line">WHERE %s = addresses.user_id ORDER BY addresses.id</span><br><span class="line">2015-08-19 14:07:06,535 INFO sqlalchemy.engine.base.Engine (1L,)</span><br><span class="line">[&lt;demo.Address object at 0x7f9a74139350&gt;, &lt;demo.Address object at 0x7f9a741390d0&gt;]</span><br><span class="line">&gt;&gt;&gt;</span><br></pre></td></tr></table></figure>
+<p>注意，上面的用法的前提是存在外键的情况下，如果没有外键，那么可以使用,</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">query.join(Address, User.id==Address.user_id)    # explicit condition</span><br><span class="line">query.join(User.addresses)                       # specify relationship from left to right</span><br><span class="line">query.join(Address, User.addresses)              # same, with explicit target</span><br><span class="line">query.join(&apos;addresses&apos;)</span><br></pre></td></tr></table></figure>
+<h2 id="表的别名"><a href="#表的别名" class="headerlink" title="表的别名"></a>表的别名</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; from sqlalchemy.orm import aliased</span><br><span class="line">&gt;&gt;&gt; adalias1 = aliased(Address)</span><br></pre></td></tr></table></figure>
+<h2 id="子查询"><a href="#子查询" class="headerlink" title="子查询"></a>子查询</h2><p>假设我们需要这样一个查询，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SELECT users.*, adr_count.address_count FROM users LEFT OUTER JOIN</span><br><span class="line">    -&gt;     (SELECT user_id, count(*) AS address_count</span><br><span class="line">    -&gt;         FROM addresses GROUP BY user_id) AS adr_count</span><br><span class="line">    -&gt;     ON users.id=adr_count.user_id;</span><br><span class="line">+----+------+---------------+</span><br><span class="line">| id | name | address_count |</span><br><span class="line">+----+------+---------------+</span><br><span class="line">|  1 | jack |             2 |</span><br><span class="line">+----+------+---------------+</span><br><span class="line">1 row in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">#　生成子句，等同于（select user_id ... group_by user_id）</span><br><span class="line">&gt;&gt;&gt; sbq = session.query(Address.user_id, func.count(&apos;*&apos;).label(&apos;address_count&apos;)).group_by(Address.user_id).subquery()</span><br><span class="line"></span><br><span class="line"># 联接子句，注意子句中需要使用c来调用字段内容</span><br><span class="line">&gt;&gt;&gt; session.query(User.name, sbq.c.address_count).outerjoin(sbq, User.id==sbq.c.user_id).all()</span><br><span class="line">2015-08-19 14:42:53,425 INFO sqlalchemy.engine.base.Engine SELECT users.name AS users_name, anon_1.address_count AS anon_1_address_count</span><br><span class="line">FROM users LEFT OUTER JOIN (SELECT addresses.user_id AS user_id, count(%s) AS address_count</span><br><span class="line">FROM addresses GROUP BY addresses.user_id) AS anon_1 ON users.id = anon_1.user_id</span><br><span class="line">2015-08-19 14:42:53,425 INFO sqlalchemy.engine.base.Engine (&apos;*&apos;,)</span><br><span class="line">[(&apos;jack&apos;, 2L)]</span><br><span class="line">&gt;&gt;&gt;</span><br></pre></td></tr></table></figure>
+<h2 id="包含contains"><a href="#包含contains" class="headerlink" title="包含contains"></a>包含contains</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">query.filter(User.addresses.contains(someaddress))</span><br></pre></td></tr></table></figure>
+<h2 id="数据删除delete"><a href="#数据删除delete" class="headerlink" title="数据删除delete"></a>数据删除delete</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; session.delete(jack)</span><br><span class="line">&gt;&gt;&gt; session.query(User).filter_by(name=&apos;jack&apos;).count()</span><br><span class="line">0</span><br></pre></td></tr></table></figure>
+<h2 id="外键配置"><a href="#外键配置" class="headerlink" title="外键配置"></a>外键配置</h2><p>在上面的例子中，删除了user－jack，但是address中的数据并没有删除。</p>
+<p>cascade字段用来</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">addresses = relationship(&quot;Address&quot;, backref=&apos;user&apos;,</span><br><span class="line">    cascade=&quot;all, delete, delete-orphan&quot;)</span><br></pre></td></tr></table></figure>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2015/09/17/golang-project-import/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Go项目结构和模块导入
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/08/18/sqlalchemy/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          sqlalchemy(一)基本操作
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2018 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

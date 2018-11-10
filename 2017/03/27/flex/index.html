@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>flex | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="flex属性用于设置或检索弹性盒模型对象的子元素如何分配空间。">
+<meta name="keywords" content="css">
+<meta property="og:type" content="article">
+<meta property="og:title" content="flex">
+<meta property="og:url" content="http://simyy.cn/2017/03/27/flex/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="flex属性用于设置或检索弹性盒模型对象的子元素如何分配空间。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-04-08T09:30:58.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="flex">
+<meta name="twitter:description" content="flex属性用于设置或检索弹性盒模型对象的子元素如何分配空间。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-flex" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2017/03/27/flex/" class="article-date">
+  <time datetime="2017-03-27T15:27:41.000Z" itemprop="datePublished">2017-03-27</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/css/">css</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      flex
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p><code>flex</code>属性用于设置或检索弹性盒模型对象的子元素如何分配空间。<br><a id="more"></a><br><code>flex</code>属性是<code>flex-grow</code>、<code>flex-shrink</code>和<code>flex-basis</code>属性的简写属性。</p>
+<blockquote>
+<p><strong>注意</strong>：如果元素不是弹性盒模型对象的子元素，则 flex 属性不起作用。</p>
+</blockquote>
+<p>属性包括<code>flex-basis</code>、<code>flex-direction</code>、<code>flex-flow</code>、<code>flex-shrink</code>、<code>flex-grow</code>、<code>flex-wrap</code>。</p>
+<h2 id="flex-basis"><a href="#flex-basis" class="headerlink" title="flex-basis"></a><a href="http://www.runoob.com/cssref/css3-pr-flex-basis.html" target="_blank" rel="noopener">flex-basis</a></h2><p><code>flex-basis</code>属性用于设置或检索弹性盒伸缩基准值，默认值<code>auto</code>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">可选：number|auto|initial|inherit;</span><br><span class="line">其中，number表示长度单位或百分比，auto表示根据内容决定当前盒子长度。</span><br><span class="line"></span><br><span class="line">//实例：指定class=&quot;test&quot;元素下，第二个div元素的宽度</span><br><span class="line">.test div:nth-of-type(2) &#123;</span><br><span class="line">    -webkit-flex-basis: 80px; /* Safari 6.1+ */</span><br><span class="line">    flex-basis: 80px;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>nth-of-type()选择器？</p>
+</blockquote>
+<p><code>nth-of-type(n)</code> 选择器匹配属于父元素的特定类型的第 N 个子元素的每个元素。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">//实例1：按奇偶顺序改变子元素颜色</span><br><span class="line">p:nth-of-type(odd)</span><br><span class="line">&#123;</span><br><span class="line">  background:#ff0000;</span><br><span class="line">&#125;</span><br><span class="line">p:nth-of-type(even)</span><br><span class="line">&#123;</span><br><span class="line">  background:#0000ff;</span><br><span class="line">&#125;</span><br><span class="line">//实例2：按3n+1的顺序添加背景颜色</span><br><span class="line">p:nth-of-type(3n+0)</span><br><span class="line">&#123;</span><br><span class="line">  background:#ff0000;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="flex-direction"><a href="#flex-direction" class="headerlink" title="flex-direction"></a><a href="http://www.runoob.com/cssref/css3-pr-flex-direction.html" target="_blank" rel="noopener">flex-direction</a></h2><p><code>flex-direction</code>属性用于指定子元素的排列方向。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">可选：row|row-reverse|column|column-reverse|initial|inherit</span><br></pre></td></tr></table></figure></p>
+<h2 id="flex-wrap"><a href="#flex-wrap" class="headerlink" title="flex-wrap"></a><a href="http://www.runoob.com/cssref/css3-pr-flex-wrap.html" target="_blank" rel="noopener">flex-wrap</a></h2><p><code>flex-wrap</code>属性用于指定flex容器内子元素的排列方式：单行或多行。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">可选：nowarp单行|warp多行|warp-reverse反向多行</span><br></pre></td></tr></table></figure></p>
+<h2 id="flex-flow"><a href="#flex-flow" class="headerlink" title="flex-flow"></a><a href="http://www.runoob.com/cssref/css3-pr-flex-flow.html" target="_blank" rel="noopener">flex-flow</a></h2><p><code>flex-flow</code>属性用于设置子元素的排列顺序，是<code>flex-direction</code>和<code>flex-wrap</code>复合属性。</p>
+<h2 id="flex-grow"><a href="#flex-grow" class="headerlink" title="flex-grow"></a><a href="http://www.runoob.com/cssref/css3-pr-flex-grow.html" target="_blank" rel="noopener">flex-grow</a></h2><p><code>flex-grow</code>属性用于设置子元素扩大的比率。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">可选：比例（当小于1时缩小）|initial|inherit</span><br></pre></td></tr></table></figure></p>
+<h2 id="flex-shrink"><a href="#flex-shrink" class="headerlink" title="flex-shrink"></a><a href="http://www.runoob.com/cssref/css3-pr-flex-shrink.html" target="_blank" rel="noopener">flex-shrink</a></h2><p><code>flex-shrink</code>属性用于设置子元素缩小的比率。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">可选：比例（当大于1时扩小）|initial|inherit</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p><code>flex-grow</code>和<code>flex-shrink</code>其实可以实现同样的效果。</p>
+</blockquote>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2017/03/30/java-object/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          java object
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/01/25/gc/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          垃圾回收GC
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2018 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

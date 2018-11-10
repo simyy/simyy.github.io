@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>spring mvc框架 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="spring web mvc 是一种基于JAVA实现的web框架，它根据MVC思想将web进行职责解耦。">
+<meta name="keywords" content="java,spring">
+<meta property="og:type" content="article">
+<meta property="og:title" content="spring mvc框架">
+<meta property="og:url" content="http://simyy.cn/2016/05/19/spring-mvc/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="spring web mvc 是一种基于JAVA实现的web框架，它根据MVC思想将web进行职责解耦。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-04-08T09:23:58.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="spring mvc框架">
+<meta name="twitter:description" content="spring web mvc 是一种基于JAVA实现的web框架，它根据MVC思想将web进行职责解耦。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-spring-mvc" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2016/05/19/spring-mvc/" class="article-date">
+  <time datetime="2016-05-18T17:14:53.000Z" itemprop="datePublished">2016-05-19</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/">spring</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      spring mvc框架
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>spring web mvc 是一种基于JAVA实现的web框架，它根据MVC思想将web进行职责解耦。<br><a id="more"></a></p>
+<h2 id="Componet"><a href="#Componet" class="headerlink" title="Componet"></a>Componet</h2><p>spring mvc包括以下组件，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Dispatcher Servlet - 前端控制器</span><br><span class="line">Handler Mapping - 处理器映射器</span><br><span class="line">Controller - 页面控制器</span><br><span class="line">View Resolver - 试图解析器</span><br></pre></td></tr></table></figure></p>
+<h2 id="How-to-use-in-eclipse"><a href="#How-to-use-in-eclipse" class="headerlink" title="How to use in eclipse"></a>How to use in eclipse</h2><p>需要提前安装：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">java</span><br><span class="line">eclipse</span><br><span class="line">tomcat</span><br><span class="line">maven</span><br></pre></td></tr></table></figure></p>
+<h3 id="new-dynamic-web-project"><a href="#new-dynamic-web-project" class="headerlink" title="new dynamic web project"></a>new dynamic web project</h3><p>新建动态web工程：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">File -&gt; other -&gt; web -&gt; dynamic web project</span><br></pre></td></tr></table></figure></p>
+<p>设置：<br>项目名称、服务器版本</p>
+<h3 id="maven-project"><a href="#maven-project" class="headerlink" title="maven project"></a>maven project</h3><p>转换为<code>maven</code>工程：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">properties -&gt; configure -&gt; convert to maven project</span><br></pre></td></tr></table></figure></p>
+<h3 id="add-dependencies"><a href="#add-dependencies" class="headerlink" title="add dependencies"></a>add dependencies</h3><p>利用maven来管理依赖，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">pom.xml -&gt; dependencies</span><br><span class="line">add -&gt; </span><br><span class="line"></span><br><span class="line">groupId - artifactId - version</span><br><span class="line">------------</span><br><span class="line">org.springframework - spring-context - 4.2.5.RELEASE</span><br><span class="line">org.springframework - spring-aop - 4.2.5.RELEASE</span><br><span class="line">org.springframework - spring-webmvc - 4.2.5.RELEASE</span><br><span class="line">org.springframework - spring-web - 4.2.5.RELEASE</span><br><span class="line">javax.servlet - jstl - 1.2</span><br><span class="line">commons-logging - commons-logging - 1.1.3</span><br><span class="line">------------</span><br></pre></td></tr></table></figure></p>
+<h3 id="add-hello-servlet-xml"><a href="#add-hello-servlet-xml" class="headerlink" title="add hello-servlet.xml"></a>add hello-servlet.xml</h3><p><code>&lt;context:componet-scan&gt;</code>用来设置需要加载的控制类所在的包，<br><code>&lt;bean id=&quot;viewResolver&quot; ... &gt;</code>用来解析view并自动添加前缀和后缀</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;</span><br><span class="line">	xmlns:mvc=&quot;http://www.springframework.org/schema/mvc&quot; xmlns:context=&quot;http://www.springframework.org/schema/context&quot;</span><br><span class="line">	xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span><br><span class="line">	xsi:schemaLocation=&quot;</span><br><span class="line">        http://www.springframework.org/schema/beans     </span><br><span class="line">        http://www.springframework.org/schema/beans/spring-beans.xsd</span><br><span class="line">        http://www.springframework.org/schema/mvc </span><br><span class="line">        http://www.springframework.org/schema/mvc/spring-mvc.xsd</span><br><span class="line">        http://www.springframework.org/schema/context </span><br><span class="line">        http://www.springframework.org/schema/context/spring-context.xsd&quot;&gt; </span><br><span class="line">	&lt;context:component-scan base-package=&quot;com.hello&quot; /&gt;</span><br><span class="line">	&lt;bean id=&quot;viewResolver&quot;</span><br><span class="line">		class=&quot;org.springframework.web.servlet.view.UrlBasedViewResolver&quot;&gt;</span><br><span class="line">		&lt;property name=&quot;viewClass&quot;</span><br><span class="line">			value=&quot;org.springframework.web.servlet.view.JstlView&quot; /&gt;</span><br><span class="line">		&lt;property name=&quot;prefix&quot; value=&quot;/WEB-INF/jsp/&quot; /&gt;</span><br><span class="line">		&lt;property name=&quot;suffix&quot; value=&quot;.jsp&quot; /&gt;</span><br><span class="line">	&lt;/bean&gt;</span><br><span class="line">&lt;/beans&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="add-web-xml"><a href="#add-web-xml" class="headerlink" title="add web.xml"></a>add web.xml</h3><p><code>&lt;servlet-name&gt;</code>设置<code>servlet.xml</code>文件的名称，如下对应的应该为<code>hello-servlet.xml</code>，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;web-app xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns=&quot;http://java.sun.com/xml/ns/javaee&quot; xsi:schemaLocation=&quot;http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd&quot; version=&quot;3.0&quot;&gt;</span><br><span class="line">  &lt;display-name&gt;SpringMVC&lt;/display-name&gt;</span><br><span class="line">  &lt;welcome-file-list&gt;</span><br><span class="line">    &lt;welcome-file&gt;index.jsp&lt;/welcome-file&gt;</span><br><span class="line">  &lt;/welcome-file-list&gt;</span><br><span class="line">    &lt;servlet&gt;</span><br><span class="line">        &lt;servlet-name&gt;hello&lt;/servlet-name&gt;</span><br><span class="line">        &lt;servlet-class&gt;</span><br><span class="line">            org.springframework.web.servlet.DispatcherServlet</span><br><span class="line">        &lt;/servlet-class&gt;</span><br><span class="line">        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;</span><br><span class="line">    &lt;/servlet&gt;</span><br><span class="line">    &lt;servlet-mapping&gt;</span><br><span class="line">        &lt;servlet-name&gt;hello&lt;/servlet-name&gt;</span><br><span class="line">        &lt;url-pattern&gt;/welcome.jsp&lt;/url-pattern&gt;</span><br><span class="line">        &lt;url-pattern&gt;/welcome.html&lt;/url-pattern&gt;</span><br><span class="line">        &lt;url-pattern&gt;*.html&lt;/url-pattern&gt;</span><br><span class="line">    &lt;/servlet-mapping&gt;</span><br><span class="line">&lt;/web-app&gt;</span><br></pre></td></tr></table></figure></p>
+<h3 id="add-controller-class"><a href="#add-controller-class" class="headerlink" title="add  controller class"></a>add  controller class</h3><p>添加包<code>com.hello.controller</code>以及Hello控制类，<br>定义映射关系<code>welcome</code>，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">package com.hello.controller;</span><br><span class="line"></span><br><span class="line">import org.springframework.stereotype.Controller;</span><br><span class="line">import org.springframework.web.bind.annotation.RequestMapping;</span><br><span class="line">import org.springframework.web.servlet.ModelAndView;</span><br><span class="line">  </span><br><span class="line">@Controller</span><br><span class="line">public class Hello &#123; </span><br><span class="line">	@RequestMapping(&quot;/welcome&quot;)</span><br><span class="line">	public ModelAndView helloWorld() &#123;</span><br><span class="line">		String message = &quot;Hello&quot;;</span><br><span class="line">		return new ModelAndView(&quot;welcome&quot;, &quot;message&quot;, message);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>其中，<code>ModelAndView</code>对象会解析<code>view</code>并把结果返回给请求端，<code>message</code>是传递给<code>view</code>的值。<br>那么，根据<code>hello-servlet.xml</code>中的设置，<code>welcome</code>会自动补全为<code>/WEB-INF/jsp/welcome.jsp</code>。</p>
+<h3 id="add-view"><a href="#add-view" class="headerlink" title="add view"></a>add view</h3><p>添加默认页面<code>index.jsp</code>,<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">&lt;title&gt;Spring MVC Tutorial Series by Crunchify.com&lt;/title&gt;</span><br><span class="line">&lt;style type=&quot;text/css&quot;&gt;</span><br><span class="line">body &#123;</span><br><span class="line">	background-image: url(&apos;http://crunchify.com/bg.png&apos;);</span><br><span class="line">&#125;</span><br><span class="line">&lt;/style&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">	&lt;br&gt;</span><br><span class="line">	&lt;div style=&quot;text-align:center&quot;&gt;</span><br><span class="line">		&lt;h2&gt;</span><br><span class="line">			This is your Spring MCV&lt;br&gt;</span><br><span class="line">		&lt;/h2&gt;</span><br><span class="line">		&lt;h3&gt;</span><br><span class="line">			&lt;a href=&quot;welcome.html&quot;&gt;Click here to See Welcome Message... &lt;/a&gt;</span><br><span class="line">		&lt;/h3&gt;</span><br><span class="line">	&lt;/div&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure></p>
+<p>添加<code>welcome.jsp</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;h1&gt;$&#123;message&#125;&lt;/h1&gt;</span><br></pre></td></tr></table></figure></p>
+<h3 id="maven-build"><a href="#maven-build" class="headerlink" title="maven build"></a>maven build</h3><p><code>maven</code>编译，在<code>target</code>目录产生编译结果<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">properties -&gt; run as -&gt; maven build ... </span><br><span class="line">Add Goals:</span><br><span class="line">----</span><br><span class="line">clean install</span><br><span class="line">----</span><br></pre></td></tr></table></figure></p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2016/05/31/tcp-term/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          tcp常见问题
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/05/17/maven/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          maven简介
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2018 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

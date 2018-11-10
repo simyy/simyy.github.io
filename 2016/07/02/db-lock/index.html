@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>锁与mysql中的锁 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="锁是并发控制主要的技术手段。">
+<meta name="keywords" content="mysql">
+<meta property="og:type" content="article">
+<meta property="og:title" content="锁与mysql中的锁">
+<meta property="og:url" content="http://simyy.cn/2016/07/02/db-lock/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="锁是并发控制主要的技术手段。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-04-08T09:31:08.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="锁与mysql中的锁">
+<meta name="twitter:description" content="锁是并发控制主要的技术手段。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-db-lock" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2016/07/02/db-lock/" class="article-date">
+  <time datetime="2016-07-02T07:51:08.000Z" itemprop="datePublished">2016-07-02</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      锁与mysql中的锁
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>锁是并发控制主要的技术手段。<br><a id="more"></a></p>
+<h2 id="悲观锁"><a href="#悲观锁" class="headerlink" title="悲观锁"></a>悲观锁</h2><p>Pessimistic Concurrency Control</p>
+<p>悲观锁是假设数据冲突的可能性很大，每次更新数据都会锁定数据，直到更新操作完成。</p>
+<p>在对数据进行更新之前，需要对数据添加排他锁，如果成功，执行更新操作，否则，抛出异常提示执行失败，表明该数据正在被修改。更新成功后，释放排他锁，该数据可用于其他更新操作。</p>
+<h2 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a>乐观锁</h2><p>Optimistic Concurrency Control</p>
+<p>乐观锁是假设数据一般不会造成冲突，只有在数据进行提交更新的时候，才会对数据的冲突与否进行验证，如果冲突返回错误信息，待用户进一步处理。</p>
+<p>为数据增加一个新的属性版本标识，每当读取数据时，都会把数据的版本信息同时读取出来，每当需要更新数据时，都会数据对应的版本信息与上一次读取的版本信息做对比，只有版本信息相同（数据未被更改）时，才予以更新，否则认为数据已过期。</p>
+<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><p>由于乐观锁的版本对比特性，每次更新都需要进行版本检查，造成了开销，所以它更适合多读得场景，也就是冲突较少的情况（避免过多的版本对比的开销）；反之，写操作较多，冲突较多的场景，更适合使用悲观锁，这样不需要重复的对比开销。</p>
+<p>memcached使用CAS（compare and set）乐观锁来解决冲突问题。</p>
+<p>redis使用乐观锁来实现事务操作（redis中的事务是把事务中的操作加入到一个执行队列中，直到exec命令开始执行）。</p>
+<p>传统关系型数据库中的行锁、表锁都属于悲观锁。</p>
+<h2 id="locking-in-MySQL"><a href="#locking-in-MySQL" class="headerlink" title="locking in MySQL"></a>locking in MySQL</h2><p>mysql中常见的锁：行锁、表锁、页锁。</p>
+<h3 id="行锁"><a href="#行锁" class="headerlink" title="行锁"></a>行锁</h3><p>row-level locking </p>
+<p>行级锁是mysql中锁的力度最小的一种，只会当前操作的行进行加锁，但它开销大，加锁慢。</p>
+<p>Innodb支持行级锁，但它的实现是通过对索引加锁来实现的，因此只有通过索引来检索数据才会触发行级锁。</p>
+<p>由于innodb中的行级锁是逐步获取的，那么有可能造成死锁。</p>
+<h3 id="表锁"><a href="#表锁" class="headerlink" title="表锁"></a>表锁</h3><p>table-level locking</p>
+<p>表级锁是对当前操作的整个数据表加锁，它的实现就比较简单，开销小。</p>
+<p>它包括：排他锁和共享锁。</p>
+<p>InnoDB和MyISAM都支持表级锁。</p>
+<h3 id="页级锁"><a href="#页级锁" class="headerlink" title="页级锁"></a>页级锁</h3><p>page-level locking</p>
+<p>页级锁是介于行锁和表锁粒度之间的一种锁，BDB支持，但可能造成死锁。</p>
+<h2 id="共享锁、排他锁、意向锁"><a href="#共享锁、排他锁、意向锁" class="headerlink" title="共享锁、排他锁、意向锁"></a>共享锁、排他锁、意向锁</h2><p>共享锁属于行锁，又称为读锁，允许其他用户读取数据，但任何事务都不可以更改数据。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from student lock in share mode;</span><br></pre></td></tr></table></figure></p>
+<p>排他锁属于行锁，又称为写锁，不允许其他用户的操作（包括写和读）。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from student for update;</span><br></pre></td></tr></table></figure></p>
+<p>意向锁属于表锁，在InooDB中会自动加意向锁。<br>意向锁分为两种，意向共享锁和意向排他锁。<br>执行insert/update/delete语句时，InnoDB会自动给数据添加意向排他锁，而执行select语句不会加锁。</p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2016/07/12/linux-zero-copy/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          ZeroCopy零拷贝
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/06/25/jetty/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          jetty简介
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2018 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

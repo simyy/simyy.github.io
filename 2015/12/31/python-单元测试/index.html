@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>python-单元测试 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="The Hacker’s Guide To Python 单元测试">
+<meta name="keywords" content="python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python-单元测试">
+<meta property="og:url" content="http://simyy.cn/2015/12/31/python-单元测试/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="The Hacker’s Guide To Python 单元测试">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-04-08T09:28:10.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="python-单元测试">
+<meta name="twitter:description" content="The Hacker’s Guide To Python 单元测试">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-python-单元测试" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2015/12/31/python-单元测试/" class="article-date">
+  <time datetime="2015-12-31T08:56:17.000Z" itemprop="datePublished">2015-12-31</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      python-单元测试
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>The Hacker’s Guide To Python 单元测试<br><a id="more"></a></p>
+<h2 id="基本方式"><a href="#基本方式" class="headerlink" title="基本方式"></a>基本方式</h2><p>python中提供了非常简单的单元测试方式，利用<code>nose</code>包中的<code>nosetests</code>命令可以实现简单的批量测试。</p>
+<p>安装<code>nose</code>包<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo pip install nose</span><br></pre></td></tr></table></figure></p>
+<p>编辑测试文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># test_true.py</span><br><span class="line">def test_true():</span><br><span class="line">    assert True</span><br><span class="line"></span><br><span class="line">def test_false():</span><br><span class="line">    assert False</span><br></pre></td></tr></table></figure></p>
+<p>执行测试<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"># 命令， nosetests命令会加载所有以test_开头的文件，并执行所有以test_开头的函数</span><br><span class="line">nosetests -v</span><br><span class="line"># 输出</span><br><span class="line">test_true.test_true ... ok</span><br><span class="line">test_true.test_false ... FAIL</span><br><span class="line"></span><br><span class="line">======================================================================</span><br><span class="line">FAIL: test_true.test_false</span><br><span class="line">----------------------------------------------------------------------</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File &quot;/usr/local/lib/python2.7/site-packages/nose/case.py&quot;, line 197, in runTest</span><br><span class="line">    self.test(*self.arg)</span><br><span class="line">  File &quot;/xxxx/workspace/py/test/test_true.py&quot;, line 5, in test_false</span><br><span class="line">    assert False</span><br><span class="line">AssertionError</span><br><span class="line"></span><br><span class="line">----------------------------------------------------------------------</span><br><span class="line">Ran 2 tests in 0.007s</span><br><span class="line"></span><br><span class="line">FAILED (failures=1</span><br></pre></td></tr></table></figure></p>
+<p><code>unittest</code>是python提供了单元测试的标准库。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"># 为了兼容python 2.6和2.7</span><br><span class="line">try:</span><br><span class="line">    import unittest2 as unittest</span><br><span class="line">except ImportError:</span><br><span class="line">    import unittest</span><br><span class="line"></span><br><span class="line">class TestKey(unittest.TestCase):</span><br><span class="line">    def test_keyh(self):</span><br><span class="line">        a = [&apos;a&apos;]</span><br><span class="line">        b = [&apos;a&apos;, &apos;b&apos;]</span><br><span class="line">        self.assertEqual(a, b)</span><br></pre></td></tr></table></figure>
+<p>输出如下，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">test_keyh (test_true.TestKey) ... FAIL</span><br><span class="line"></span><br><span class="line">======================================================================</span><br><span class="line">FAIL: test_keyh (test_true.TestKey)</span><br><span class="line">----------------------------------------------------------------------</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File &quot;/home/y/workspace/py/test/test_true.py&quot;, line 8, in test_keyh</span><br><span class="line">    self.assertEqual(a, b)</span><br><span class="line">AssertionError: Lists differ: [&apos;a&apos;] != [&apos;a&apos;, &apos;b&apos;]</span><br><span class="line"></span><br><span class="line">Second list contains 1 additional elements.</span><br><span class="line">First extra element 1:</span><br><span class="line">b</span><br><span class="line"></span><br><span class="line">- [&apos;a&apos;]</span><br><span class="line">+ [&apos;a&apos;, &apos;b&apos;]</span><br><span class="line"></span><br><span class="line">----------------------------------------------------------------------</span><br><span class="line">Ran 1 test in 0.006s</span><br><span class="line"></span><br><span class="line">FAILED (failures=1)</span><br></pre></td></tr></table></figure></p>
+<p>此外，<code>unittest.skipIf</code>可以通过判断条件来选择是否进行测试，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">class TestSkipped(unittest.TestCase):</span><br><span class="line">    @unitttest.skip(&quot;Do not run this&quot;)</span><br><span class="line">    def test_failt(self):</span><br><span class="line">        self.fail(&quot;This should not be run&quot;)</span><br><span class="line"></span><br><span class="line">    @unittest.skipIf(mylib is None, &quot;mylib is not available&quot;)</span><br><span class="line">    def test_mylib(self):</span><br><span class="line">        self.assertEqual(1, 1)</span><br></pre></td></tr></table></figure></p>
+<p>此外，自定义<code>setUp</code>和<code>tearDown</code>函数可以单元测试开始和结束时自动调用。</p>
+<h2 id="fixtures"><a href="#fixtures" class="headerlink" title="fixtures"></a>fixtures</h2><p><code>fixtures</code>模块可以用来临时改变当前的测试环境。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">import fixtures</span><br><span class="line">import os</span><br><span class="line"></span><br><span class="line">class TestEnviron(fixtures.TestWithFixtures):</span><br><span class="line">    def test_environ(self):</span><br><span class="line">        fixture = self.useFixture(</span><br><span class="line">                fixtures.EnvironmentVariable(&quot;FOOBAR&quot;, &quot;42&quot;)) # 临时增加一个环境变量FOOBAR</span><br><span class="line">        self.assertEqual(os.environ.get(&quot;FOOBAR&quot;), &quot;42&quot;)</span><br><span class="line"></span><br><span class="line">    def test_environ_no_fixture(self):</span><br><span class="line">        self.assertEqual(os.environ.get(&quot;FOOBAR&quot;), None) # 上面增加的环境变量的操作对于其他函数无效</span><br></pre></td></tr></table></figure>
+<h2 id="mock"><a href="#mock" class="headerlink" title="mock"></a>mock</h2><p><code>mock</code>模块可以用来进行模拟测试，其主要功能就是模拟一个函数，类或实例的行为。</p>
+<p>由于网络测试环境的特殊性，最常用的使用就是模拟网络请求，具体例子如下，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"># test_mock.py</span><br><span class="line">import requests</span><br><span class="line">import unittest</span><br><span class="line">import mock</span><br><span class="line"></span><br><span class="line">class WhereIsPythonError(Exception):</span><br><span class="line">    pass</span><br><span class="line"></span><br><span class="line">def is_python():</span><br><span class="line">    try:</span><br><span class="line">        r = requests.get(&quot;http://python.org&quot;)</span><br><span class="line">    except IOError:</span><br><span class="line">        pass</span><br><span class="line">    else:</span><br><span class="line">        if r.status_code == 200:</span><br><span class="line">            return &apos;is python&apos; in r.content</span><br><span class="line">    raise WhereIsPythonError(&apos;something happened&apos;)</span><br><span class="line"></span><br><span class="line">def get_fake_get(status_code, content):</span><br><span class="line">    m = mock.Mock()</span><br><span class="line">    m.status_code = status_code</span><br><span class="line">    m.content = content</span><br><span class="line">    def fake_get(url):</span><br><span class="line">        return m</span><br><span class="line">    return fake_get</span><br><span class="line"></span><br><span class="line">def raise_get(url):</span><br><span class="line">    raise IOError(&quot;unable to fetch url %s&quot; % url)</span><br><span class="line"></span><br><span class="line">class TestPython(unittest.TestCase):</span><br><span class="line">    @mock.patch(&apos;requests.get&apos;, get_fake_get(</span><br><span class="line">        200, &apos;is python, hello&apos;</span><br><span class="line">        ))</span><br><span class="line">    def test_python_is(self):</span><br><span class="line">        self.assertTrue(is_python())</span><br><span class="line"></span><br><span class="line">    @mock.patch(&apos;requests.get&apos;, get_fake_get(</span><br><span class="line">        200, &apos;is not python, hello&apos;</span><br><span class="line">        ))</span><br><span class="line">    def test_python_is_not(self):</span><br><span class="line">        self.assertFalse(is_python())</span><br></pre></td></tr></table></figure>
+<p>输出如下，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># 命令</span><br><span class="line">nosetests --tests=test_mock -v</span><br><span class="line"># 结果</span><br><span class="line">test_python_is (test_mock.TestPython) ... ok</span><br><span class="line">test_python_is_not (test_mock.TestPython) ... ok</span><br><span class="line"></span><br><span class="line">----------------------------------------------------------------------</span><br><span class="line">Ran 2 tests in 0.001s</span><br><span class="line"></span><br><span class="line">OK</span><br></pre></td></tr></table></figure></p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2016/01/18/tcp-status/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          TCP状态
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/11/24/python-yield/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          python yield关键字
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2018 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

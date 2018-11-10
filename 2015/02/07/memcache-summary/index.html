@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>memcache 概述 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="memcache是一种支持分布式的缓存系统，基于网络连接（当然它也可以使用localhost）方式完成服务，本身它是一个独立于应用的程序或守护进程（Daemon方式）。">
+<meta name="keywords" content="memcache">
+<meta property="og:type" content="article">
+<meta property="og:title" content="memcache 概述">
+<meta property="og:url" content="http://simyy.cn/2015/02/07/memcache-summary/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="memcache是一种支持分布式的缓存系统，基于网络连接（当然它也可以使用localhost）方式完成服务，本身它是一个独立于应用的程序或守护进程（Daemon方式）。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-04-08T09:29:23.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="memcache 概述">
+<meta name="twitter:description" content="memcache是一种支持分布式的缓存系统，基于网络连接（当然它也可以使用localhost）方式完成服务，本身它是一个独立于应用的程序或守护进程（Daemon方式）。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-memcache-summary" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2015/02/07/memcache-summary/" class="article-date">
+  <time datetime="2015-02-07T04:07:10.000Z" itemprop="datePublished">2015-02-07</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/memcache/">memcache</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      memcache 概述
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>memcache是一种支持分布式的缓存系统，基于网络连接（当然它也可以使用localhost）方式完成服务，本身它是一个独立于应用的程序或守护进程（Daemon方式）。<br><a id="more"></a></p>
+<h2 id="本地缓存"><a href="#本地缓存" class="headerlink" title="本地缓存"></a>本地缓存</h2><p>memcached是“分布式”的内存对象缓存系统，那么就是说，那些不需要“分布”的，不需要共享的，或者干脆规模小到只有一台服务器的应用，memcached不会带来任何好处，相反还会拖慢系统效率，因为网络连接同样需要资源，即使是UNIX本地连接也一样。memcached本地读写速度要比直接PHP内存数组慢几十倍，而APC、共享内存方式都和直接数组差不多。可见，如果只是本地级缓存，使用memcached是非常不划算的。</p>
+<h2 id="并发连接"><a href="#并发连接" class="headerlink" title="并发连接"></a>并发连接</h2><p>memcached使用libevent库实现网络连接服务，理论上可以处理无限多的连接，但是它和Apache不同，它更多的时候是面向稳定的持续连接的，所以它实际的并发能力是有限制的。在保守情况下memcached的最大同时连接数为200，这和Linux线程能力有关系，这个数值是可以调整的。关于libevent可以参考相关文档。</p>
+<h2 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h2><p>memcached内存使用方式也和APC不同。APC是基于共享内存和MMAP的，memcachd有自己的内存分配算法和管理方式，它和共享内存没有关系，也没有共享内存的限制，通常情况下，每个memcached进程可以管理2GB的内存空间，如果需要更多的空间，可以增加进程数。</p>
+<h2 id="降低数据库压力"><a href="#降低数据库压力" class="headerlink" title="降低数据库压力"></a>降低数据库压力</h2><p>memcached在很多时候都是作为数据库前端cache使用的。因为它比数据库少了很多SQL解析、磁盘操作等开销，而且它是使用内存来管理数据的，所以它可以提供比直接读取数据库更好的性能，在大型系统中，访问同样的数据是很频繁的，memcached可以大大降低数据库压力，使系统执行效率提升。</p>
+<p>memcached也经常作为服务器之间数据共享的存储媒介，例如在SSO系统中保存系统单点登陆状态的数据就可以保存在memcached中，被多个应用共享。</p>
+<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><p>由于memcache是分布式的，在web项目中可以为不同的服务器提供共享资源。<br>由于memcache是把数据直接存储在内存中，那么为了降低数据库的压力，可以再web与数据库之间增加一层memcache缓存。而且在memcache中，内存中存储的数据是根据哈希来实现存储的，那么这样查找数据的销量就会远远高于数据库。</p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2015/02/09/memcache-event-model/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          memcache 事件模型
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2014/12/04/python-file-operate/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          python 文件操作
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2018 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

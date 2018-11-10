@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>SimHash算法 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="Google采用这种算法来解决万亿级别的网页的去重任务。">
+<meta name="keywords" content="algorithm">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SimHash算法">
+<meta property="og:url" content="http://simyy.cn/2016/10/27/simhash/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="Google采用这种算法来解决万亿级别的网页的去重任务。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://simyy.cn/images/simhash.png">
+<meta property="og:updated_time" content="2017-04-08T09:33:52.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SimHash算法">
+<meta name="twitter:description" content="Google采用这种算法来解决万亿级别的网页的去重任务。">
+<meta name="twitter:image" content="http://simyy.cn/images/simhash.png">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-simhash" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2016/10/27/simhash/" class="article-date">
+  <time datetime="2016-10-26T17:30:43.000Z" itemprop="datePublished">2016-10-27</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/algorithm/">algorithm</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      SimHash算法
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>Google采用这种算法来解决万亿级别的网页的去重任务。<br><a id="more"></a></p>
+<p>由于实验室和互联网基本没啥关系，也就从来没有关注过数据挖掘相关的东西。在实际工作中，第一次接触到匹配和聚类等工作，虽然用一些简单的匹配算法可以做小数据的聚类，但数据量达到一定的时候就束手无策了。</p>
+<p>所以，趁着周末把这方面的东西看了看，做个笔记。</p>
+<h2 id="来历"><a href="#来历" class="headerlink" title="来历"></a>来历</h2><p>google的论文“detecting near-duplicates for web crawling”——–simhash。</p>
+<h2 id="基本思想"><a href="#基本思想" class="headerlink" title="基本思想"></a>基本思想</h2><p>simhash算法的主要思想是降维，将高维的特征向量映射成一个低维的特征向量，通过两个向量的Hamming Distance来确定文章是否重复或者高度近似。</p>
+<p>算法步骤：　　</p>
+<ol>
+<li>对于给定的一段语句，进行分词，得到有效的特征向量</li>
+<li>为每一个特征向量设置一个权值</li>
+<li>对每一个特征向量计算hash值，为01组成的n-bit签名</li>
+<li>所有特征向量进行加权（1则为正，0则为负），然后累加</li>
+<li>对于n-bit签名的累加结果，如果&gt;0置1，否则置0</li>
+<li>得到该语句的simhash值</li>
+<li>根据不同语句simhash的海明距离就来判断相似程度<br>　　<br>具体如图，<br><img src="/images/simhash.png" alt="simhash"></li>
+</ol>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>simhash用于比较大文本，比如500字以上效果都还蛮好，距离小于3的基本都是相似，误判率也比较低。</p>
+<p>这样的话，小文本呢？如何解决？</p>
+<p><a href="http://blog.163.com/cindy_19810217/blog/static/20105911820104279560289/" target="_blank" rel="noopener">该博客</a>给出一个思路是，将短文本抽象出有序关键字，计算此有序字串的simhash值，寻找simhash相等的集合，缩小的搜索范围。还提到了并查集和bloom filter。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://www.lanceyan.com/tech/arch/simhash_hamming_distance_similarity.html" target="_blank" rel="noopener">http://www.lanceyan.com/tech/arch/simhash_hamming_distance_similarity.html</a><br><a href="http://www.cnblogs.com/zhengyun_ustc/archive/2012/06/12/sim.html" target="_blank" rel="noopener">http://www.cnblogs.com/zhengyun_ustc/archive/2012/06/12/sim.html</a><br><a href="http://blog.jobbole.com/21928/" target="_blank" rel="noopener">http://blog.jobbole.com/21928/</a></p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2016/10/30/compiling-1/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          编译原理（一）词法分析
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/10/27/soft-coding/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          软编码存储字典数据
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2018 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

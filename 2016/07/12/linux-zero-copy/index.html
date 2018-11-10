@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>ZeroCopy零拷贝 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="本文将简单介绍一下0拷贝的原理。">
+<meta name="keywords" content="linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ZeroCopy零拷贝">
+<meta property="og:url" content="http://simyy.cn/2016/07/12/linux-zero-copy/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="本文将简单介绍一下0拷贝的原理。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://simyy.cn/images/linux-zero-copy-1.gif">
+<meta property="og:image" content="http://simyy.cn/images/linux-zero-copy-2.gif">
+<meta property="og:image" content="http://simyy.cn/images/linux-zero-copy-3.gif">
+<meta property="og:image" content="http://simyy.cn/images/linux-zero-copy-4.gif">
+<meta property="og:updated_time" content="2017-04-08T09:34:43.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ZeroCopy零拷贝">
+<meta name="twitter:description" content="本文将简单介绍一下0拷贝的原理。">
+<meta name="twitter:image" content="http://simyy.cn/images/linux-zero-copy-1.gif">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-linux-zero-copy" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2016/07/12/linux-zero-copy/" class="article-date">
+  <time datetime="2016-07-11T16:02:53.000Z" itemprop="datePublished">2016-07-12</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      ZeroCopy零拷贝
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>本文将简单介绍一下0拷贝的原理。<br><a id="more"></a></p>
+<h2 id="传统的IO"><a href="#传统的IO" class="headerlink" title="传统的IO"></a>传统的IO</h2><p>服务器在对静态文件进行处理时，需要从硬盘读取静态文件，然后再通过socket返回数据。在这个过程中，数据在内核和用户态之间切换，都会进行数据复制，影响数据传输的效率。</p>
+<p><strong>四次内存拷贝</strong></p>
+<p>调用read函数会产生一次系统调用sys_read，通过DMA将数据拷贝到内核模式;<br>cpu将内核模式数据拷贝到用户模式的buffer;<br>read函数返回后，write函数将用户模式下buffer数据拷贝到内核模式的socket buffer中;<br>通过DMA将数据从socket buffer中拷贝到网卡缓存中.</p>
+<p><img src="/images/linux-zero-copy-1.gif" alt=" 4 copy "></p>
+<p><strong>三次上下文的切换</strong></p>
+<p>read会造成一次从用户态到内核态的上下文切换;<br>read返回会造成一次从内核态到用户态的上下文切换;<br>write会造成一次从用户态到内核态的上下文切换;<br>write返回造成一次从内核态到用户态的上下文切换.</p>
+<p><img src="/images/linux-zero-copy-2.gif" alt=" 3 switch "></p>
+<h2 id="zero-copy"><a href="#zero-copy" class="headerlink" title="zero copy"></a>zero copy</h2><p>零拷贝是通过避免不必要的拷贝和状态切换来提高性能的。</p>
+<p>对于传统IO来说，在user和kernel之间的数据拷贝是非必须的，所以Linux提供了一种sendfile技术来提高性能。</p>
+<p>在Linux中，提供了sendfile系统调用来避免两次数据拷贝，应用包括nginx和lighttpd，而在JAVA中，transferTo函数通过一次系统调用，减少了原来read和send的切换，数据直接从read buffer拷贝到socket buffer中，避免了两次copy操作，应用有kafka和netty。</p>
+<p><img src="/images/linux-zero-copy-3.gif" alt=" 2 copy "></p>
+<p>同时，上下文切换也降低为两次，</p>
+<p><img src="/images/linux-zero-copy-4.gif" alt=" 2 switch "></p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2016/08/08/mysql-null/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          mysql中的null
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/07/02/db-lock/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          锁与mysql中的锁
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2018 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

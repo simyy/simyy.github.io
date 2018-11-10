@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>logistic回归 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="学习logistic回归。">
+<meta name="keywords" content="机器学习">
+<meta property="og:type" content="article">
+<meta property="og:title" content="logistic回归">
+<meta property="og:url" content="http://simyy.cn/2015/06/24/logistic/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="学习logistic回归。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://simyy.cn/images/logistic-1.jpg">
+<meta property="og:image" content="http://simyy.cn/images/logistic-2.jpg">
+<meta property="og:image" content="http://simyy.cn/images/logistic-3.jpg">
+<meta property="og:image" content="http://simyy.cn/images/logistic-4.jpg">
+<meta property="og:updated_time" content="2018-03-07T14:44:59.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="logistic回归">
+<meta name="twitter:description" content="学习logistic回归。">
+<meta name="twitter:image" content="http://simyy.cn/images/logistic-1.jpg">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-logistic" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2015/06/24/logistic/" class="article-date">
+  <time datetime="2015-06-24T13:10:30.000Z" itemprop="datePublished">2015-06-24</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/机器学习/">机器学习</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      logistic回归
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>学习logistic回归。<br><a id="more"></a></p>
+<blockquote>
+<p>回归就是对已知公式的未知参数进行估计。比如已知公式是$y = a*x + b$，未知参数是a和b，利用多真实的(x,y)训练数据对a和b的取值去自动估计。估计的方法是在给定训练样本点和已知的公式后，对于一个或多个未知参数，机器会自动枚举参数的所有可能取值，直到找到那个最符合样本点分布的参数（或参数组合）。</p>
+</blockquote>
+<h2 id="logistic分布"><a href="#logistic分布" class="headerlink" title="logistic分布"></a>logistic分布</h2><p>设X是连续随机变量，X服从logistic分布是指X具有下列分布函数和密度函数：</p>
+<p>$$F(x)=P(x \le x)=\frac 1 {1+e^{-(x-\mu)/\gamma}}\\<br>f(x)=F^{‘}(x)=\frac {e^{-(x-\mu)/\gamma}} {\gamma(1+e^{-(x-\mu)/\gamma})^2}$$</p>
+<p>其中，$\mu$为位置参数，$\gamma$为形状参数。</p>
+<p>$f(x)$与$F(x)$图像如下，其中分布函数是以$(\mu, \frac 1 2)$为中心对阵，$\gamma$越小曲线变化越快。</p>
+<p><img src="/images/logistic-1.jpg" alt="logistic分布的密度函数和分布函数"></p>
+<h2 id="logistic回归模型"><a href="#logistic回归模型" class="headerlink" title="logistic回归模型"></a>logistic回归模型</h2><p>二项logistic回归模型如下：</p>
+<p>$$P(Y=1|x)=\frac {exp(w \cdot x + b)} {1 + exp(w \cdot x + b)} \\<br>P(Y=0|x)=\frac {1} {1 + exp(w \cdot x + b)}$$</p>
+<p>其中，$x \in R^n$是输入，$Y \in {0,1}$是输出，w称为权值向量，b称为偏置，$w \cdot x$为w和x的内积。</p>
+<h3 id="参数估计"><a href="#参数估计" class="headerlink" title="参数估计"></a>参数估计</h3><p>假设：</p>
+<p>$$P(Y=1|x)=\pi (x), \quad P(Y=0|x)=1-\pi (x)$$</p>
+<p>则似然函数为:</p>
+<p>$$\prod_{i=1}^N [\pi (x_i)]^{y_i} [1 - \pi(x_i)]^{1-y_i}<br>$$</p>
+<p>求对数似然函数：</p>
+<p>$$L(w) = \sum_{i=1}^N [y_i \log{\pi(x_i)} + (1-y_i) \log{(1 - \pi(x_i)})]\\<br>=\sum_{i=1}^N [y_i \log{\frac {\pi (x_i)} {1 - \pi(x_i)}} + \log{(1 - \pi(x_i)})]$$</p>
+<p>从而对$L(w)$求极大值，得到$w$的估计值。</p>
+<p>求极值的方法可以是梯度下降法，梯度上升法等。</p>
+<h2 id="梯度上升确定回归系数"><a href="#梯度上升确定回归系数" class="headerlink" title="梯度上升确定回归系数"></a>梯度上升确定回归系数</h2><p>logistic回归的sigmoid函数：</p>
+<p>$$\sigma (z) = \frac 1 {1 + e^{-z}}$$</p>
+<p>假设logstic的函数为:</p>
+<p>$$y = w_0 + w_1 x_1 + w_2 x_2 + … + w_n x_n$$</p>
+<p>可简写为:</p>
+<p>$$y = w_0 + w^T x$$</p>
+<p>梯度上升算法是按照上升最快的方向不断移动，每次都增加$\alpha \nabla_w f(w)$，</p>
+<p>$$w = w + \alpha \nabla_w f(w) $$</p>
+<p>其中，$\nabla_w f(w)$为函数导数，$\alpha$为增长的步长。</p>
+<h3 id="训练算法"><a href="#训练算法" class="headerlink" title="训练算法"></a>训练算法</h3><p>本算法的主要思想根据logistic回归的sigmoid函数来将函数值映射到有限的空间内，sigmoid函数的取值范围是0~1，从而可以把数据按照0和1分为两类。在算法中，首先要初始化所有的w权值为1，每次计算一次误差并根据误差调整w权值的大小。</p>
+<ul>
+<li>每个回归系数都初始化为1</li>
+<li>重复N次<ul>
+<li>计算整个数据集合的梯度</li>
+<li>使用$\alpha \cdot \nabla f(x)$来更新w向量</li>
+<li>返回回归系数</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># encoding:utf-8</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> numpy</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">sigmoid</span><span class="params">(x)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">1.0</span> / (<span class="number">1</span> + numpy.exp(-x))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">loadData</span><span class="params">()</span>:</span></span><br><span class="line">    dataMat = []</span><br><span class="line">    laberMat = []</span><br><span class="line">    <span class="keyword">with</span> open(<span class="string">"test.txt"</span>, <span class="string">'r'</span>) <span class="keyword">as</span> f:</span><br><span class="line">        <span class="keyword">for</span> line <span class="keyword">in</span> f.readlines():</span><br><span class="line">            arry = line.strip().split()</span><br><span class="line">            dataMat.append([<span class="number">1.0</span>, float(arry[<span class="number">0</span>]), float(arry[<span class="number">1</span>])])</span><br><span class="line">            laberMat.append(float(arry[<span class="number">2</span>]))</span><br><span class="line">    <span class="keyword">return</span> numpy.mat(dataMat), numpy.mat(laberMat).transpose()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gradAscent</span><span class="params">(dataMat, laberMat, alpha=<span class="number">0.001</span>, maxCycle=<span class="number">500</span>)</span>:</span></span><br><span class="line">    <span class="string">"""general gradscent"""</span></span><br><span class="line">    start_time = time.time()</span><br><span class="line">    m, n = numpy.shape(dataMat)</span><br><span class="line">    weights = numpy.ones((n, <span class="number">1</span>)) </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(maxCycle):</span><br><span class="line">        h = sigmoid(dataMat * weights)</span><br><span class="line">        error = laberMat - h </span><br><span class="line">        weights += alpha * dataMat.transpose() * error</span><br><span class="line">    duration = time.time() - start_time</span><br><span class="line">    <span class="keyword">print</span> <span class="string">"duration of time:"</span>, duration</span><br><span class="line">    <span class="keyword">return</span> weights</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">stocGradAscent</span><span class="params">(dataMat, laberMat, alpha=<span class="number">0.01</span>)</span>:</span></span><br><span class="line">    start_time = time.time()</span><br><span class="line">    m, n = numpy.shape(dataMat)</span><br><span class="line">    weights = numpy.ones((n, <span class="number">1</span>)) </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(m):</span><br><span class="line">        h = sigmoid(dataMat[i] * weights)</span><br><span class="line">        error = laberMat[i] - h </span><br><span class="line">        weights += alpha * dataMat[i].transpose() * error</span><br><span class="line">    duration = time.time() - start_time</span><br><span class="line">    <span class="keyword">print</span> <span class="string">"duration of time:"</span>, duration</span><br><span class="line">    <span class="keyword">return</span> weights</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">betterStocGradAscent</span><span class="params">(dataMat, laberMat, alpha=<span class="number">0.01</span>, numIter=<span class="number">150</span>)</span>:</span></span><br><span class="line">    <span class="string">"""better one, use a dynamic alpha"""</span></span><br><span class="line">    start_time = time.time()</span><br><span class="line">    m, n = numpy.shape(dataMat)</span><br><span class="line">    weights = numpy.ones((n, <span class="number">1</span>)) </span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> range(numIter):</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(m):</span><br><span class="line">            alpha = <span class="number">4</span> / (<span class="number">1</span> + j + i) + <span class="number">0.01</span></span><br><span class="line">            h = sigmoid(dataMat[i] * weights)</span><br><span class="line">            error = laberMat[i] - h </span><br><span class="line">            weights += alpha * dataMat[i].transpose() * error</span><br><span class="line">    duration = time.time() - start_time</span><br><span class="line">    <span class="keyword">print</span> <span class="string">"duration of time:"</span>, duration</span><br><span class="line">    <span class="keyword">return</span> weights</span><br><span class="line">    start_time = time.time()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show</span><span class="params">(dataMat, laberMat, weights)</span>:</span></span><br><span class="line">    m, n = numpy.shape(dataMat) </span><br><span class="line">    min_x = min(dataMat[:, <span class="number">1</span>])[<span class="number">0</span>, <span class="number">0</span>]</span><br><span class="line">    max_x = max(dataMat[:, <span class="number">1</span>])[<span class="number">0</span>, <span class="number">0</span>]</span><br><span class="line">    xcoord1 = []; ycoord1 = []</span><br><span class="line">    xcoord2 = []; ycoord2 = []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(m):</span><br><span class="line">        <span class="keyword">if</span> int(laberMat[i, <span class="number">0</span>]) == <span class="number">0</span>:</span><br><span class="line">            xcoord1.append(dataMat[i, <span class="number">1</span>]); ycoord1.append(dataMat[i, <span class="number">2</span>]) </span><br><span class="line">        <span class="keyword">elif</span> int(laberMat[i, <span class="number">0</span>]) == <span class="number">1</span>:</span><br><span class="line">            xcoord2.append(dataMat[i, <span class="number">1</span>]); ycoord2.append(dataMat[i, <span class="number">2</span>]) </span><br><span class="line">    fig = plt.figure()</span><br><span class="line">    ax = fig.add_subplot(<span class="number">111</span>)</span><br><span class="line">    ax.scatter(xcoord1, ycoord1, s=<span class="number">30</span>, c=<span class="string">"red"</span>, marker=<span class="string">"s"</span>)</span><br><span class="line">    ax.scatter(xcoord2, ycoord2, s=<span class="number">30</span>, c=<span class="string">"green"</span>)</span><br><span class="line">    x = numpy.arange(min_x, max_x, <span class="number">0.1</span>)</span><br><span class="line">    y = (-weights[<span class="number">0</span>] - weights[<span class="number">1</span>]*x) / weights[<span class="number">2</span>]</span><br><span class="line">    ax.plot(x, y)</span><br><span class="line">    plt.xlabel(<span class="string">"x1"</span>); plt.ylabel(<span class="string">"x2"</span>)</span><br><span class="line">    plt.show()</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    dataMat, laberMat = loadData()</span><br><span class="line">    <span class="comment">#weights = gradAscent(dataMat, laberMat, maxCycle=500)</span></span><br><span class="line">    <span class="comment">#weights = stocGradAscent(dataMat, laberMat)</span></span><br><span class="line">    weights = betterStocGradAscent(dataMat, laberMat, numIter=<span class="number">80</span>)</span><br><span class="line">    show(dataMat, laberMat, weights)</span><br></pre></td></tr></table></figure>
+<p>未优化的程序结果如下，<br><img src="/images/logistic-2.jpg" alt="普通结果"></p>
+<p>随机梯度上升算法（降低了迭代的次数，算法较快，但结果不够准确）结果如下，<br><img src="/images/logistic-3.jpg" alt="随机梯度上升算法结果"></p>
+<p>对$\alpha$进行优化，动态调整步长（同样降低了迭代次数，但是由于代码采用动态调整alpha，提高了结果的准确性），结果如下<br><img src="/images/logistic-4.jpg" alt="alpha优化结果"></p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2015/06/25/regression/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          回归
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/06/18/ml-svm-2/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          SVM-非线性支持向量机及SMO算法
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2018 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

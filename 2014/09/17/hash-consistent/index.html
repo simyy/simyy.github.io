@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>哈希算法（二）一致性哈希 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="一致性哈希算法在1997年由麻省理工学院提出的一种分布式哈希（DHT）实现算法，设计目标是为了解决因特网中的热点(Hot spot)问题，经常用于分布式、负载均衡等。">
+<meta name="keywords" content="algorithm">
+<meta property="og:type" content="article">
+<meta property="og:title" content="哈希算法（二）一致性哈希">
+<meta property="og:url" content="http://simyy.cn/2014/09/17/hash-consistent/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="一致性哈希算法在1997年由麻省理工学院提出的一种分布式哈希（DHT）实现算法，设计目标是为了解决因特网中的热点(Hot spot)问题，经常用于分布式、负载均衡等。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://simyy.cn/images/hash-consistent-1.png">
+<meta property="og:image" content="http://simyy.cn/images/hash-consistent-2.gif">
+<meta property="og:image" content="http://simyy.cn/images/hash-consistent-3.png">
+<meta property="og:image" content="http://simyy.cn/images/hash-consistent-4.png">
+<meta property="og:updated_time" content="2017-04-08T09:34:54.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="哈希算法（二）一致性哈希">
+<meta name="twitter:description" content="一致性哈希算法在1997年由麻省理工学院提出的一种分布式哈希（DHT）实现算法，设计目标是为了解决因特网中的热点(Hot spot)问题，经常用于分布式、负载均衡等。">
+<meta name="twitter:image" content="http://simyy.cn/images/hash-consistent-1.png">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-hash-consistent" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2014/09/17/hash-consistent/" class="article-date">
+  <time datetime="2014-09-17T15:11:00.000Z" itemprop="datePublished">2014-09-17</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/algorithm/">algorithm</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      哈希算法（二）一致性哈希
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>一致性哈希算法在1997年由麻省理工学院提出的一种分布式哈希（DHT）实现算法，设计目标是为了解决因特网中的热点(Hot spot)问题，经常用于分布式、负载均衡等。<br><a id="more"></a></p>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>一致哈希是一种特殊的哈希算法。在使用一致哈希算法后，哈希表中平均只需要对 个关键字重新映射，其中 是关键字的数量，是映射节点数量。</p>
+<p>然而在传统的哈希表中，添加或删除一个映射节点的几乎需要对所有关键字进行重新映射。</p>
+<p>原来的映射大概是这样的，如下图，</p>
+<p><img src="/images/hash-consistent-1.png" alt="图片1"></p>
+<p>没当加入或删除一个新的节点可能都会造成每个节点的映射发生变化，如果黄色的节点代表服务器，那么每一次更新服务器的数量都会造成每个服务器上蓝色的映射节点都会发生变化，当集群数量庞大时每次增删节点所需要的修改操作就会过于庞大。</p>
+<p>而在一致性哈希中映射是这样的，如下图，一般一致性hash取值范围为-2^32~2^32，分布在一个圆上</p>
+<p><img src="/images/hash-consistent-2.gif" alt="图片2"></p>
+<p>下面画的比较丑，就凑合看吧~~</p>
+<p>其中，黄色节点作为映射节点（实节点），蓝色节点为需要映射到映射节点的key节点，<br>首先，看左边的图，把8个蓝色的key通过hash取值散列在一个范围为0~2^32的圆上<br>其次，选择三个黄色节点作为映射节点，按照圆的顺时针方向，把蓝色节点与黄色节点建立映射关系<br>最后，由于1节点负载为4，最大，那么我们为了降低1节点的负载情况，增加黄色的映射节点4，依然按照顺时针的方向修改原映射，那么只需要改变蓝色的节点7、8以及黄色节点1</p>
+<p><img src="/images/hash-consistent-3.png" alt="图片3"></p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>　　一般为了方便起见，我们把黄色的映射节点称为实节点，也就是固定不变的，而蓝色的节点称为虚节点，虚节点需要映射到实节点，每次实节点的增删只会影响距离它最近的节点。</p>
+<p>在这里使用C++实现了ConsistentHash算法</p>
+<p><img src="/images/hash-consistent-4.png" alt="图片4"></p>
+<p>在存储节点方面，本程序只是简单的使用链表，最好的方式当然是红黑树了，当然为了简单起见，就用了链表，主要是理解一致性hash的原理~~</p>
+<p><a href="https://github.com/yxd123/algorithm-notes/tree/master/ConsistentHash" target="_blank" rel="noopener">源码下载</a></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://blog.csdn.net/cywosp/article/details/23397179" target="_blank" rel="noopener">http://blog.csdn.net/cywosp/article/details/23397179</a><br><a href="http://zh.wikipedia.org/wiki/一致哈希" target="_blank" rel="noopener">http://zh.wikipedia.org/wiki/一致哈希</a><br><a href="http://baike.baidu.com/view/1588037.htm?fr=aladdin" target="_blank" rel="noopener">http://baike.baidu.com/view/1588037.htm?fr=aladdin</a></p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2014/10/22/python-webpy-session/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          webpy中的session实现
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2014/09/04/hash-basic/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          哈希算法（一）
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2018 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

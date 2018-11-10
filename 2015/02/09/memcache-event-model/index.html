@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>memcache 事件模型 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="在memcachedd中，作者为了专注于缓存的设计，使用了libevent来开发事件模型。memcachedd的时间模型同nginx的类似，拥有一个主进行（master）以及多个工作者线程（woker）。">
+<meta name="keywords" content="memcache">
+<meta property="og:type" content="article">
+<meta property="og:title" content="memcache 事件模型">
+<meta property="og:url" content="http://simyy.cn/2015/02/09/memcache-event-model/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="在memcachedd中，作者为了专注于缓存的设计，使用了libevent来开发事件模型。memcachedd的时间模型同nginx的类似，拥有一个主进行（master）以及多个工作者线程（woker）。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://simyy.cn/images/memcache-event-model-1.jpg">
+<meta property="og:updated_time" content="2017-04-08T09:29:28.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="memcache 事件模型">
+<meta name="twitter:description" content="在memcachedd中，作者为了专注于缓存的设计，使用了libevent来开发事件模型。memcachedd的时间模型同nginx的类似，拥有一个主进行（master）以及多个工作者线程（woker）。">
+<meta name="twitter:image" content="http://simyy.cn/images/memcache-event-model-1.jpg">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-memcache-event-model" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2015/02/09/memcache-event-model/" class="article-date">
+  <time datetime="2015-02-09T06:27:10.000Z" itemprop="datePublished">2015-02-09</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/memcache/">memcache</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      memcache 事件模型
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>在memcachedd中，作者为了专注于缓存的设计，使用了libevent来开发事件模型。memcachedd的时间模型同nginx的类似，拥有一个主进行（master）以及多个工作者线程（woker）。<br><a id="more"></a></p>
+<h2 id="流程图"><a href="#流程图" class="headerlink" title="流程图"></a>流程图</h2><p>在memcached中，是先对工作者线程进行初始化并启动，然后才会创建启动主线程。<br><img src="/images/memcache-event-model-1.jpg" alt="memcache_event_model"></p>
+<h2 id="工作者线程"><a href="#工作者线程" class="headerlink" title="工作者线程"></a>工作者线程</h2><h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p>memcached对工作者线程进行初始化，参数分别为线程数量以及<code>main_base</code>，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* start up worker threads if MT mode */</span></span><br><span class="line">thread_init(settings.num_threads, main_base);</span><br></pre></td></tr></table></figure>
+<p>在memcachedd中为了避免多线程共享资源的使用使用了很多锁，这里对锁不做介绍。</p>
+<h3 id="线程的结构体"><a href="#线程的结构体" class="headerlink" title="线程的结构体"></a>线程的结构体</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="keyword">pthread_t</span> thread_id;        <span class="comment">/* unique ID of this thread 线程ID*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">event_base</span> *<span class="title">base</span>;</span>    <span class="comment">/* libevent handle this thread uses libevent事件*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">event</span> <span class="title">notify_event</span>;</span>  <span class="comment">/* listen event for notify pipe 注册事件*/</span></span><br><span class="line">    <span class="keyword">int</span> notify_receive_fd;      <span class="comment">/* receiving end of notify pipe 管道中接收端*/</span></span><br><span class="line">    <span class="keyword">int</span> notify_send_fd;         <span class="comment">/* sending end of notify pipe 管道中发送端*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">thread_stats</span> <span class="title">stats</span>;</span>  <span class="comment">/* Stats generated by this thread 线程状态*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">conn_queue</span> *<span class="title">new_conn_queue</span>;</span> <span class="comment">/* queue of new connections to handle 消息队列*/</span></span><br><span class="line">    <span class="keyword">cache_t</span> *suffix_cache;      <span class="comment">/* suffix cache */</span></span><br><span class="line">    <span class="keyword">uint8_t</span> item_lock_type;     <span class="comment">/* use fine-grained or global item lock */</span></span><br><span class="line">&#125; LIBEVENT_THREAD;</span><br></pre></td></tr></table></figure>
+<h3 id="初始化工作者线程"><a href="#初始化工作者线程" class="headerlink" title="初始化工作者线程"></a>初始化工作者线程</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; nthreads; i++) &#123;</span><br><span class="line">    <span class="keyword">int</span> fds[<span class="number">2</span>];</span><br><span class="line">    <span class="comment">/* 创建管道 */</span></span><br><span class="line">    <span class="keyword">if</span> (pipe(fds)) &#123;</span><br><span class="line">        perror(<span class="string">"Can't create notify pipe"</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 设置线程管道的读写入口 */</span></span><br><span class="line">    threads[i].notify_receive_fd = fds[<span class="number">0</span>];</span><br><span class="line">    threads[i].notify_send_fd = fds[<span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*  设置线程属性 */</span></span><br><span class="line">    setup_thread(&amp;threads[i]);</span><br><span class="line">    <span class="comment">/* Reserve three fds for the libevent base, and two for the pipe */</span></span><br><span class="line">    stats.reserved_fds += <span class="number">5</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="设置线程属性"><a href="#设置线程属性" class="headerlink" title="设置线程属性"></a>设置线程属性</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Set up a thread's information.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">setup_thread</span><span class="params">(LIBEVENT_THREAD *me)</span> </span>&#123;</span><br><span class="line">    me-&gt;base = event_init(); <span class="comment">//初始化线程事件</span></span><br><span class="line">    <span class="keyword">if</span> (! me-&gt;base) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Can't allocate event base\n"</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 初始化监听事件 */</span></span><br><span class="line">    <span class="comment">/* Listen for notifications from other threads */</span></span><br><span class="line">    event_set(&amp;me-&gt;notify_event, me-&gt;notify_receive_fd,</span><br><span class="line">              EV_READ | EV_PERSIST, thread_libevent_process, me);</span><br><span class="line">    <span class="comment">/* 把事件绑定到线程事件 */</span></span><br><span class="line">    event_base_set(me-&gt;base, &amp;me-&gt;notify_event);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 注册事件到监听状态 */</span></span><br><span class="line">    <span class="keyword">if</span> (event_add(&amp;me-&gt;notify_event, <span class="number">0</span>) == <span class="number">-1</span>) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Can't monitor libevent notify pipe\n"</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="READ回调函数"><a href="#READ回调函数" class="headerlink" title="READ回调函数"></a>READ回调函数</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Processes an incoming "handle a new connection" item. This is called when</span></span><br><span class="line"><span class="comment"> * input arrives on the libevent wakeup pipe.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">thread_libevent_process</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">short</span> which, <span class="keyword">void</span> *arg)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 从管道读取消息 */</span></span><br><span class="line">    <span class="keyword">if</span> (read(fd, buf, <span class="number">1</span>) != <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">if</span> (settings.verbose &gt; <span class="number">0</span>)</span><br><span class="line">            <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Can't read from libevent pipe\n"</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    item = cq_pop(me-&gt;new_conn_queue); <span class="comment">//读取连接</span></span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="启动工作者线程"><a href="#启动工作者线程" class="headerlink" title="启动工作者线程"></a>启动工作者线程</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Create threads after we've done all the libevent setup. */</span></span><br><span class="line"><span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; nthreads; i++) &#123;</span><br><span class="line">     create_worker(worker_libevent, &amp;threads[i]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>create_woker</code>函数创建工作者线程，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Creates a worker thread.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">create_worker</span><span class="params">(<span class="keyword">void</span> *(*func)(<span class="keyword">void</span> *), <span class="keyword">void</span> *arg)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">pthread_t</span>       thread;</span><br><span class="line">    <span class="keyword">pthread_attr_t</span>  attr;</span><br><span class="line">    <span class="keyword">int</span>             ret;</span><br><span class="line"></span><br><span class="line">    pthread_attr_init(&amp;attr);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ((ret = pthread_create(&amp;thread, &amp;attr, func, arg)) != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Can't create thread: %s\n"</span>,</span><br><span class="line">                strerror(ret));</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>worker_libevent</code>函数进入线程循环监听状态，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Worker thread: main event loop</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> *<span class="title">worker_libevent</span><span class="params">(<span class="keyword">void</span> *arg)</span> </span>&#123;</span><br><span class="line">    LIBEVENT_THREAD *me = arg;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Any per-thread setup can happen here; thread_init() will block until</span></span><br><span class="line"><span class="comment">     * all threads have finished initializing.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* set an indexable thread-specific memory item for the lock type.</span></span><br><span class="line"><span class="comment">     * this could be unnecessary if we pass the conn *c struct through</span></span><br><span class="line"><span class="comment">     * all item_lock calls...</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    me-&gt;item_lock_type = ITEM_LOCK_GRANULAR;</span><br><span class="line">    pthread_setspecific(item_lock_type_key, &amp;me-&gt;item_lock_type);</span><br><span class="line"></span><br><span class="line">    register_thread_initialized();</span><br><span class="line"></span><br><span class="line">    event_base_loop(me-&gt;base, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="主线程"><a href="#主线程" class="headerlink" title="主线程"></a>主线程</h2><h3 id="初始化-1"><a href="#初始化-1" class="headerlink" title="初始化"></a>初始化</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">event_base</span>* <span class="title">mian_base</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* initialize main thread libevent instance */</span></span><br><span class="line">main_base = event_init();</span><br></pre></td></tr></table></figure>
+<p>在<code>memcached.c</code>的主函数中，使用<code>libevent</code>的事件初始化函数来初始化<code>main_base</code>。</p>
+<h3 id="初始化socket"><a href="#初始化socket" class="headerlink" title="初始化socket"></a>初始化socket</h3><p>这里只介绍tcp连接，其中使用<code>server_sockets</code>来调用<code>server_socket</code>来初始化连接。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (settings.port &amp;&amp; server_sockets(settings.port, tcp_transport,  portnumber_file)) &#123;</span><br><span class="line">            vperror(<span class="string">"failed to listzhefen on TCP port %d"</span>, settings.port);</span><br><span class="line">            <span class="built_in">exit</span>(EX_OSERR);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">server_sockets</span><span class="params">(<span class="keyword">int</span> port, <span class="keyword">enum</span> network_transport transport,</span></span></span><br><span class="line"><span class="function"><span class="params">                          FILE *portnumber_file)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (settings.inter == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> server_socket(settings.inter, port, transport, portnumber_file);</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而在<code>server_socket</code>中完成了socket的初始化、绑定等操作。</p>
+<h3 id="主线程事件"><a href="#主线程事件" class="headerlink" title="主线程事件"></a>主线程事件</h3><p>在主线程中通过<code>conn_new</code>函数来建立主线程和工作者线程之间的关系。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 设置线程事件 */</span></span><br><span class="line">event_set(&amp;c-&gt;event, sfd, event_flags, event_handler, (<span class="keyword">void</span> *)c);</span><br><span class="line">event_base_set(base, &amp;c-&gt;event);</span><br><span class="line">c-&gt;ev_flags = event_flags;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 注册事件到监听 */</span></span><br><span class="line"><span class="keyword">if</span> (event_add(&amp;c-&gt;event, <span class="number">0</span>) == <span class="number">-1</span>) &#123;</span><br><span class="line">    perror(<span class="string">"event_add"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="事件处理"><a href="#事件处理" class="headerlink" title="事件处理"></a>事件处理</h3><p>上面中设置了事件的回调函数<code>event_handler</code>，而在<code>event_handler</code>中，主要调用了<code>driver_machine</code>函数。</p>
+<p>driver_machine看名字就知道，想发动机一样的函数，那么该函数主要是处理各种事件以及相应的处理方法。</p>
+<p>这里只简要介绍一个函数调用<code>dispatch_conn_new</code>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">dispatch_conn_new</span><span class="params">(<span class="keyword">int</span> sfd, <span class="keyword">enum</span> conn_states init_state, <span class="keyword">int</span> event_flags,</span></span></span><br><span class="line"><span class="function"><span class="params">                       <span class="keyword">int</span> read_buffer_size, <span class="keyword">enum</span> network_transport transport)</span> </span>&#123;</span><br><span class="line">    CQ_ITEM *item = cqi_new();</span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">1</span>];</span><br><span class="line">    <span class="keyword">if</span> (item == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        close(sfd);</span><br><span class="line">        <span class="comment">/* given that malloc failed this may also fail, but let's try */</span></span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Failed to allocate memory for connection object\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> ;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> tid = (last_thread + <span class="number">1</span>) % settings.num_threads;</span><br><span class="line"></span><br><span class="line">    LIBEVENT_THREAD *thread = threads + tid; <span class="comment">//循环获取工作者线程</span></span><br><span class="line"></span><br><span class="line">    last_thread = tid;</span><br><span class="line"></span><br><span class="line">    item-&gt;sfd = sfd;</span><br><span class="line">    item-&gt;init_state = init_state;</span><br><span class="line">    item-&gt;event_flags = event_flags;</span><br><span class="line">    item-&gt;read_buffer_size = read_buffer_size;</span><br><span class="line">    item-&gt;transport = transport;</span><br><span class="line"></span><br><span class="line">    cq_push(thread-&gt;new_conn_queue, item); <span class="comment">//连接加入懂啊队列</span></span><br><span class="line"></span><br><span class="line">    memcachedD_CONN_DISPATCH(sfd, thread-&gt;thread_id);</span><br><span class="line">    buf[<span class="number">0</span>] = <span class="string">'c'</span>;</span><br><span class="line">    <span class="keyword">if</span> (write(thread-&gt;notify_send_fd, buf, <span class="number">1</span>) != <span class="number">1</span>) &#123;<span class="comment">//向管道写入消息</span></span><br><span class="line">        perror(<span class="string">"Writing to thread notify pipe"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2015/03/05/python-set-get-del-call-attr/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Python __setattr__, __getattr__, __delattr__, __call__
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/02/07/memcache-summary/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          memcache 概述
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2018 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>java 异常 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="介绍java中的异常处理。">
+<meta name="keywords" content="java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java 异常">
+<meta property="og:url" content="http://simyy.cn/2017/04/08/java-exception/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="介绍java中的异常处理。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-04-08T14:31:11.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java 异常">
+<meta name="twitter:description" content="介绍java中的异常处理。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-java-exception" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2017/04/08/java-exception/" class="article-date">
+  <time datetime="2017-04-08T14:30:12.000Z" itemprop="datePublished">2017-04-08</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      java 异常
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>介绍java中的异常处理。<br><a id="more"></a></p>
+<h2 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h2><p><code>java</code>中的异常可分为<code>检查的异常</code>和<code>非检查异常</code>。</p>
+<p>在<code>java</code>中，异常的类层次结构如下，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">           Throwable</span><br><span class="line">         /          \</span><br><span class="line">    Error            Exception</span><br><span class="line">    /   \           /         \</span><br><span class="line">VMError AWTError  IOException  RuntimeException</span><br></pre></td></tr></table></figure></p>
+<p>所有异常都是继承自<code>Throwable</code>，分为<code>Error</code>和<code>Exception</code>。</p>
+<p><code>Error</code>一般是<code>JVM</code>问题导致，也就是说在应用程序控制和处理之外产生的，因此此类异常是<code>不可检查的</code>。</p>
+<p><code>Exception</code>是程序自身产生的异常，是可以通过<code>try-catch</code>和<code>throws</code>来控制。</p>
+<p><code>Exception</code>可被划分为非检查的<code>RuntimeException</code>和检查的<code>IOException</code>。</p>
+<h2 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h2><h3 id="捕获异常"><a href="#捕获异常" class="headerlink" title="捕获异常"></a>捕获异常</h3><p>在<code>java</code>中可以用<code>try-catch</code>语句来捕获异常（可捕获检查和非检查异常），<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">try &#123;  </span><br><span class="line">    // 可能会发生异常的程序代码  </span><br><span class="line">&#125; catch (Type1 id1)&#123;  </span><br><span class="line">    // 捕获并处置try抛出的异常类型Type1  </span><br><span class="line">&#125; catch (Type2 id2)&#123;  </span><br><span class="line">    // 捕获并处置try抛出的异常类型Type2  </span><br><span class="line">&#125; finally &#123;</span><br><span class="line">    // 无论是否发生异常需要处理</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>异常是按照<code>catch</code>的顺序依次捕获的，所以需要按照继承关系来决定捕获顺序。</p>
+<blockquote>
+<p><code>finally</code>一般用来关闭一下IO操作，例如文件、网络连接。</p>
+</blockquote>
+<h2 id="抛出异常"><a href="#抛出异常" class="headerlink" title="抛出异常"></a>抛出异常</h2><p>在<code>java</code>中可以使用<code>throws</code>来抛出异常，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public void method() throws Exception1, Exception2, ... &#123;</span><br><span class="line">    // 执行</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="throwable"><a href="#throwable" class="headerlink" title="throwable"></a>throwable</h2><p><code>throwable</code>作为异常处理的基类，常用的功能函数有,<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">getCause(); <span class="comment">// 获取异常原因</span></span><br><span class="line">getMessage(); <span class="comment">// 异常信息</span></span><br><span class="line">printStackTrace(); <span class="comment">// 堆栈跟踪异常信息</span></span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>注意：<code>RuntimeException</code>不需要抛出，并不会造成编译错误。</p>
+</blockquote>
+<h2 id="自定义异常"><a href="#自定义异常" class="headerlink" title="自定义异常"></a>自定义异常</h2><p>通过继承<code>Exception</code>以及其子类可以实现自定义异常，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">class MyException extends Exception &#123;</span><br><span class="line">    public MyException() &#123;&#125;</span><br><span class="line">    public MyException(String message) &#123;</span><br><span class="line">        super(message);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>由于继承<code>Exception</code>，则需要接口处理该异常时添加<code>throws</code>指明抛出检查异常，否则无法编译通过。</p>
+<p>如果是继承<code>RuntimeException</code>，则不需要指定<code>throws</code>抛出异常，但是需要注意外层对于该异常的处理方法，这种异常会被隐藏起来。</p>
+<blockquote>
+<p>如何选择异常类型，<code>检查</code> or <code>非检查</code>？</p>
+</blockquote>
+<p>设计异常一般有两种，内部使用和外部使用。</p>
+<p>对于外部使用，也就是提供给调用方来处理的异常，一般是由于服务中依赖某不稳定的服务，提供服务方不能处理该异常，需要调用方自行处理该异常情况。</p>
+<p>对于内部使用，也就是程序内部自定义的异常，一般是由于跳出当前逻辑处理，直接返回，那么，就需要在逻辑的最外层来统一处理该自定义异常。</p>
+<h2 id="性能"><a href="#性能" class="headerlink" title="性能"></a>性能</h2><p>在使用异常来做控制流程处理的时候，一般有两种方式：<code>自定义异常</code>和<code>自定义返回结果</code>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 自定义异常</span><br><span class="line">class BizException extends RuntimeException &#123; ... &#125;</span><br><span class="line"></span><br><span class="line">// 自定义返回结果</span><br><span class="line">class BizResult&lt;T&gt; extends ObjectInfo &#123; ... &#125;</span><br></pre></td></tr></table></figure></p>
+<p>如果使用<code>自定义返回结果</code>，需要在每次调用函数时使用<code>if-else</code>来做判断，这样性能必然是<code>最好的</code>，但是在写业务逻辑的时候就会非常繁琐，每次调用都会添加一次<code>if-else</code>逻辑。</p>
+<p>如果使用<code>自定义异常</code>，需要在调用服务的最外层都添加一个针对<code>自定义异常</code>的异常处理，业务逻辑看起来好一点，但是这样性能就会差一点。</p>
+<blockquote>
+<p>如何提高异常性能？</p>
+</blockquote>
+<p>在参考中的一篇文章中，有提到通过重写<code>fillInStackTrace</code>来提高性能，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public synchronized Throwable fillInStackTrace() &#123;</span><br><span class="line">    if (stackTrace != null ||</span><br><span class="line">        backtrace != null /* Out of protocol state */ ) &#123;</span><br><span class="line">        fillInStackTrace(0);</span><br><span class="line">        stackTrace = UNASSIGNED_STACK;</span><br><span class="line">    &#125;</span><br><span class="line">    return this;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>fillInStackTrace</code>函数是一个同步的方法，在多线程的情况下必然会造成性能下降。在测试过程中发现，即使在单线程的情况下，仍然可以提升很大性能。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://niehan.blog.techweb.com.cn/archives/259.html" target="_blank" rel="noopener">http://niehan.blog.techweb.com.cn/archives/259.html</a><br><a href="http://blog.csdn.net/beijiguangyong/article/details/9080727" target="_blank" rel="noopener">http://blog.csdn.net/beijiguangyong/article/details/9080727</a><br><a href="http://www.blogjava.net/stone2083/archive/2010/07/09/325649.html" target="_blank" rel="noopener">http://www.blogjava.net/stone2083/archive/2010/07/09/325649.html</a></p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2017/04/12/java-thread/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          java 多线程
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/04/08/java-anotion-log/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          java 日志注解
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2018 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

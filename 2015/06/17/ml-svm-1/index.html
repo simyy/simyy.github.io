@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>SVM-线性可分支持向量机 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="学习支持向量机。">
+<meta name="keywords" content="机器学习">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SVM-线性可分支持向量机">
+<meta property="og:url" content="http://simyy.cn/2015/06/17/ml-svm-1/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="学习支持向量机。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://simyy.cn/images/ml-svm-1-1.jpg">
+<meta property="og:updated_time" content="2017-12-21T05:02:16.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SVM-线性可分支持向量机">
+<meta name="twitter:description" content="学习支持向量机。">
+<meta name="twitter:image" content="http://simyy.cn/images/ml-svm-1-1.jpg">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-ml-svm-1" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2015/06/17/ml-svm-1/" class="article-date">
+  <time datetime="2015-06-17T14:57:29.000Z" itemprop="datePublished">2015-06-17</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/机器学习/">机器学习</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      SVM-线性可分支持向量机
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>学习支持向量机。<br><a id="more"></a></p>
+<h2 id="函数间隔和几何间隔"><a href="#函数间隔和几何间隔" class="headerlink" title="函数间隔和几何间隔"></a>函数间隔和几何间隔</h2><p>给定线性可分训练数据集，通过间隔最大化或等价地求解相应的凸二次规划问题学习得到的分离超平面为</p>
+<p>$$w^* \cdot x+b^* =0 $$</p>
+<p>以及相应的分类决策函数</p>
+<p>$$f(x) = sign (w^* \cdot x + b^*)$$</p>
+<p>称为线性可分支持向量机。</p>
+<p>对于给定训练集合T和超平面$(w,b)$，定义超平面$(w,b)$关于样本点$(x _i,y_i)$的函数间隔为</p>
+<p>$$\hat\gamma_i = y_i(w \cdot x_i + b)$$</p>
+<p>定义超平面$(w,b)$关于训练数据集T的函数间隔为超平面$(w,b)$关于T中所有样本点$(x_i,y_i)$的函数间隔之最小值，</p>
+<p>$$\hat\gamma = \min_{i=1,…,N}\hat\gamma_i$$</p>
+<p>对于给定的训练数据集和超平面$(w,b)$，定义超平面$(w,b)关于$样本$(x_i,y_i)$的几何间隔为</p>
+<p>$$\hat\gamma_i = y_i(\frac w{||w||} \cdot x_i + \frac b{||w||})$$</p>
+<p>定义超平面$(w,b)$关于训练数据集T的几何间隔为超平面$(w,b)$关于T中所有样本点$(x_i,y_i)$的几何间隔之最小值</p>
+<p>$$\gamma = \min_{i=1,…,N}\gamma_i$$</p>
+<p>从而得到几何间隔和函数间隔的关系:</p>
+<p>$$\gamma = \frac{\hat\gamma_i}{||w||}$$</p>
+<h2 id="间隔最大化"><a href="#间隔最大化" class="headerlink" title="间隔最大化"></a>间隔最大化</h2><p>对数据集合找到几何间隔最大的超平面意味着以充分大的确信度来对训练数据进行分类。</p>
+<p>最大化超平面可表示为：</p>
+<p>$$\max_{w,b} \quad {\gamma}\\<br>s.t.\quad  y_i(\frac w{||w||} \cdot x_i + \frac b{||w||}) \ge \gamma,\quad i=1,…,N$$</p>
+<p>即最大化超平面$(w,b)$关于训练结合的间隔$\gamma$，约束条件表示的超平面$(w,b)$关于每个训练样本点的几何间隔至少为$\gamma$。</p>
+<p>而函数间隔对于上述公式并没有影响，假设按比例改变为$\lambda w$和$\lambda b$，那么函数间隔改变为$\lambda \hat\gamma$</p>
+<p>改变为相应的函数距离，如下</p>
+<p>$$\max_{w,b} \quad \frac{\hat\gamma}{||w||} \\<br>s.t.\quad  y_i(w \cdot x_i +  b) \ge \hat\gamma,\quad i=1,…,N$$</p>
+<p>由于分母和分子同时拥有$\lambda$，因此成比例改变并不会对函数间隔产生影响，从而对目标函数的优化也没有影响。</p>
+<p>令$\hat\gamma$=1，代入上式，最大化$\frac1{||w||}$等价于最小化$\frac12||w||$，从而得到线性可分支持向量机学习的最优化问题</p>
+<p>$$min_{w,b}\quad \frac12{||w||}^2 \\<br>s.t.\quad y_i(w\cdot x_i + b) - 1 \ge 0, \quad i=1,2,…,N$$</p>
+<p>这是一个凸二次规划问题。</p>
+<h2 id="支持向量"><a href="#支持向量" class="headerlink" title="支持向量"></a>支持向量</h2><p>在线性可分的情况下，训练数据集的样本点中与分离超平面距离最近的样本点的实例称为支持向量（support vector），即</p>
+<p>$$y_i(w\cdot x_i+b) =1$$</p>
+<p>对于y=+1的正例来说，支持向量在超平面</p>
+<p>$$H_1:w\cdot x + b= 1$$</p>
+<p>对于y=-1的负例来说，支持向量在超平面</p>
+<p>$$H_2:w\cdot x + b = -1$$</p>
+<p>如图中， H1和H2平行，之间形成一条长带，其宽度为$\frac 2 {||w||}$。在决定分离超平面时只有支持向量起作用，而其他实例点并不起作用，如果移动支持向量改变所求的解，但是如果在间隔边界（H1和H2）以外移动其他实例点，解都不会发生改变。</p>
+<p><img src="/images/ml-svm-1-1.jpg" alt="support_vector"></p>
+<h2 id="对偶算法"><a href="#对偶算法" class="headerlink" title="对偶算法"></a>对偶算法</h2><p>为了求解线性可分支持向量机的最优化问题，应用拉格朗日对偶性，通过求解对偶问题得到最优解。</p>
+<p>定义拉格朗日函数：</p>
+<p>$$L(w,b,\alpha) = \frac 1 2 {||w||}^2 - \sum_{i=0}^n \alpha_i y_i(w\cdot x_i + b) + \sum_{i=1}^N\alpha_i$$</p>
+<p>其中，$\alpha = (\alpha_1, \alpha_2,…,\alpha_N)^T$为拉格朗日乘子向量。</p>
+<p>根据拉格朗日对偶性，原始问题的对偶问题是极大极小问题需要先求$L(w,b,\alpha)$对(w,b)求极小，再对$\alpha$求极大：</p>
+<p>$$\max_\alpha \min_{w,b} L(w,b,\alpha)$$</p>
+<ul>
+<li>$\min_{w,b} L(w,b,\alpha)$</li>
+</ul>
+<p>分别对$w,b,\alpha$求偏导数，并令其等于0，将结果带入原公式中即得</p>
+<p>$$\min_{w,b} L(w,b,\alpha) = -\frac 1 2 \sum_{i-=1}^N  \sum_{j-=1}^N \alpha_i \alpha_j y_i y_j (x_i \cdot x_j) + \sum_{i=1}^N \alpha_i$$</p>
+<ul>
+<li>求$\min_{w,b} L(w, b, \alpha)$对$\alpha$的极大</li>
+</ul>
+<p>$$\max_\alpha -\frac 1 2 \sum_{i-=1}^N  \sum_{j-=1}^N \alpha_i \alpha_j y_i y_j (x_i \cdot x_j) + \sum_{i=1}^N \alpha_i \\<br>s.t.\quad \sum_{i=1}^N\alpha_i y_i=0,  \quad \alpha_i &gt; 0,i=1,2,…,N$$</p>
+<p>等价于：</p>
+<p>$$\min_\alpha \frac 1 2 \sum_{i-=1}^N  \sum_{j-=1}^N \alpha_i \alpha_j y_i y_j(x_i \cdot x_j) - \sum_{i=1}^N \alpha_i \\<br>s.t.\quad \sum_{i=1}^N\alpha_i y_i=0,  \quad \alpha_i &gt; 0, i=1,2,…,N$$</p>
+<h2 id="线性可分支持向量机学习算法"><a href="#线性可分支持向量机学习算法" class="headerlink" title="线性可分支持向量机学习算法"></a>线性可分支持向量机学习算法</h2><p>(1)构造并求解约束最优化问题</p>
+<p>$$\min_\alpha \frac 1 2 \sum_{i-=1}^N  \sum_{j-=1}^N \alpha_i \alpha_j y_i y_j(x_i \cdot x_j) - \sum_{i=1}^N \alpha_i\\<br>s.t.\quad \sum_{i=1}^N\alpha_i y_i=0,  \quad \alpha_i &gt; 0, i=1,2,…,N$$</p>
+<p>(2)计算</p>
+<p>$$w^* = \sum_{i=1}^N \alpha_i^* y_i x_i$$</p>
+<p>并选择$\alpha^*$的一个正分量$\alpha_j^*$，计算</p>
+<p>$$b^* = y_i - \sum_{i=1}^N \alpha_i^*y_i(x_i \cdot x_j)$$</p>
+<p>(3)求得分离超平面</p>
+<p>$$w^* \cdot x + b^* = 0$$</p>
+<p>分类决策函数</p>
+<p>$$f(x) = sign(w^* \cdot x + b^*)$$</p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2015/06/18/ml-svm-2/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          SVM-非线性支持向量机及SMO算法
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/06/03/python-thread/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          python-多线程
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2018 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

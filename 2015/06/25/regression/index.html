@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>回归 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="回归的目的是预测数值型目标值。类似于$y = w_1 \cdot x_1 + w_2 \cdot x_2$，其中w称为回归系数，只要可以确定w，就可以通过输入x得到预测值。">
+<meta name="keywords" content="机器学习">
+<meta property="og:type" content="article">
+<meta property="og:title" content="回归">
+<meta property="og:url" content="http://simyy.cn/2015/06/25/regression/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="回归的目的是预测数值型目标值。类似于$y = w_1 \cdot x_1 + w_2 \cdot x_2$，其中w称为回归系数，只要可以确定w，就可以通过输入x得到预测值。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://simyy.cn/images/regression-1.jpg">
+<meta property="og:image" content="http://simyy.cn/images/regression-2.jpg">
+<meta property="og:image" content="http://simyy.cn/images/regression-3.jpg">
+<meta property="og:updated_time" content="2017-04-08T09:33:59.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="回归">
+<meta name="twitter:description" content="回归的目的是预测数值型目标值。类似于$y = w_1 \cdot x_1 + w_2 \cdot x_2$，其中w称为回归系数，只要可以确定w，就可以通过输入x得到预测值。">
+<meta name="twitter:image" content="http://simyy.cn/images/regression-1.jpg">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-regression" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2015/06/25/regression/" class="article-date">
+  <time datetime="2015-06-25T15:14:10.000Z" itemprop="datePublished">2015-06-25</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/机器学习/">机器学习</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      回归
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>回归的目的是预测数值型目标值。类似于$y = w_1 \cdot x_1 + w_2 \cdot x_2$，其中w称为回归系数，只要可以确定w，就可以通过输入x得到预测值。<br><a id="more"></a></p>
+<h2 id="平方误差确定回归系数"><a href="#平方误差确定回归系数" class="headerlink" title="平方误差确定回归系数"></a>平方误差确定回归系数</h2><p>假设输入为x，输出为y，则平方误差可以表示为：</p>
+<p>$$\sum_{i=1}^m (y_i - x_i^T w)^2)$$</p>
+<p>为了让平方误差最小，令导数为0求得最佳回归系数，则</p>
+<p>$$w = (X^T X)^{-1}X^Ty$$<br><!--more--><br>算法实现如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> numpy <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">loadDataSet</span><span class="params">(fileName)</span>:</span></span><br><span class="line">    numFeat = len(open(fileName).readline().split(<span class="string">'\t'</span>)) - <span class="number">1</span> </span><br><span class="line">    dataMat = []; labelMat = []</span><br><span class="line">    fr = open(fileName)</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> fr.readlines():</span><br><span class="line">        lineArr =[]</span><br><span class="line">        curLine = line.strip().split(<span class="string">'\t'</span>)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(numFeat):</span><br><span class="line">            lineArr.append(float(curLine[i]))</span><br><span class="line">        dataMat.append(lineArr)</span><br><span class="line">        labelMat.append(float(curLine[<span class="number">-1</span>]))</span><br><span class="line">    <span class="keyword">return</span> dataMat,labelMat</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">standRegres</span><span class="params">(xArr,yArr)</span>:</span></span><br><span class="line">    xMat = mat(xArr); yMat = mat(yArr).T</span><br><span class="line">    xTx = xMat.T*xMat</span><br><span class="line">    <span class="keyword">if</span> linalg.det(xTx) == <span class="number">0.0</span>:</span><br><span class="line">        <span class="keyword">print</span> <span class="string">"This matrix is singular, cannot do inverse"</span></span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    ws = xTx.I * (xMat.T*yMat)</span><br><span class="line">    <span class="keyword">return</span> ws</span><br><span class="line">    </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">regression1</span><span class="params">()</span>:</span></span><br><span class="line">    xArr, yArr = loadDataSet(<span class="string">"Ch08/ex0.txt"</span>)</span><br><span class="line">    xMat = mat(xArr)</span><br><span class="line">    yMat = mat(yArr)</span><br><span class="line">    ws = standRegres(xArr, yArr)</span><br><span class="line">    fig = plt.figure()</span><br><span class="line">    ax = fig.add_subplot(<span class="number">111</span>)</span><br><span class="line">    <span class="keyword">print</span> xMat[:, <span class="number">1</span>].flatten()</span><br><span class="line">    <span class="keyword">print</span> yMat.T[:, <span class="number">0</span>].flatten()</span><br><span class="line">    ax.scatter(xMat[:, <span class="number">1</span>].flatten(), yMat.T[:, <span class="number">0</span>].flatten().A[<span class="number">0</span>])</span><br><span class="line">    xCopy = xMat.copy() </span><br><span class="line">    xCopy.sort(<span class="number">0</span>)</span><br><span class="line">    yHat = xCopy * ws</span><br><span class="line">    ax.plot(xCopy[:, <span class="number">1</span>], yHat)</span><br><span class="line">    plt.show()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    regression1()</span><br></pre></td></tr></table></figure>
+<p>结果如下：</p>
+<p><img src="/images/regression-1.jpg" alt="线性拟合"></p>
+<h2 id="局部加权线性回归"><a href="#局部加权线性回归" class="headerlink" title="局部加权线性回归"></a>局部加权线性回归</h2><p>最简单的线性回归(locally weighted linear regression)具有最小均方误差的无偏估计，因此会出现欠拟合现象。通过局部加权线性回归就可以优化预测结果，局部加权的回归系数w如下：</p>
+<p>$$w = (X^T WX)^{-1}X^TWy$$</p>
+<p>其中，W是类似于“核”来对调整不同权值的权重。最常用的核是高斯核，如下：</p>
+<p>$$w(i, j) = exp (\frac {|x^{(i)} - x|} {-2k^2})$$</p>
+<p>其中，k会对权重产生影响，k越小，权重变化越快。</p>
+<h3 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h3><p>通过核函数来调整权值的权重，可以让附近的点的赋予更高的权值。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">lwlr</span><span class="params">(testPoint,xArr,yArr,k=<span class="number">1.0</span>)</span>:</span></span><br><span class="line">    xMat = mat(xArr); yMat = mat(yArr).T</span><br><span class="line">    m = shape(xMat)[<span class="number">0</span>]</span><br><span class="line">    weights = mat(eye((m)))</span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> range(m):                      <span class="comment">#next 2 lines create weights matrix</span></span><br><span class="line">        diffMat = testPoint - xMat[j,:]     <span class="comment">#</span></span><br><span class="line">        weights[j,j] = exp(diffMat*diffMat.T/(<span class="number">-2.0</span>*k**<span class="number">2</span>))</span><br><span class="line">    xTx = xMat.T * (weights * xMat)</span><br><span class="line">    <span class="keyword">if</span> linalg.det(xTx) == <span class="number">0.0</span>:</span><br><span class="line">        <span class="keyword">print</span> <span class="string">"This matrix is singular, cannot do inverse"</span></span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    ws = xTx.I * (xMat.T * (weights * yMat))</span><br><span class="line">    <span class="keyword">return</span> testPoint * ws</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">lwlrTest</span><span class="params">(testArr,xArr,yArr,k=<span class="number">1.0</span>)</span>:</span>  <span class="comment">#loops over all the data points and applies lwlr to each one</span></span><br><span class="line">    m = shape(testArr)[<span class="number">0</span>]</span><br><span class="line">    yHat = zeros(m)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(m):</span><br><span class="line">        yHat[i] = lwlr(testArr[i],xArr,yArr,k)</span><br><span class="line">    <span class="keyword">return</span> yHat</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">regression2</span><span class="params">()</span>:</span></span><br><span class="line">    xArr, yArr = loadDataSet(<span class="string">"Ch08/ex0.txt"</span>)</span><br><span class="line">    yhat = lwlrTest(xArr, xArr, yArr, <span class="number">0.01</span>)</span><br><span class="line">    fig = plt.figure()</span><br><span class="line">    ax = fig.add_subplot(<span class="number">111</span>)</span><br><span class="line">    xMat = mat(xArr)</span><br><span class="line">    srtInd = xMat[:, <span class="number">1</span>].argsort(<span class="number">0</span>)</span><br><span class="line">    xSort = xMat[srtInd][:, <span class="number">0</span>, :]</span><br><span class="line">    ax.plot(xSort[:, <span class="number">1</span>], yhat[srtInd])</span><br><span class="line">    ax.scatter(xMat[:, <span class="number">-1</span>].flatten(), mat(yArr).T.flatten().A[<span class="number">0</span>], s=<span class="number">2</span>, c=<span class="string">"red"</span>)</span><br><span class="line">    plt.show()</span><br></pre></td></tr></table></figure>
+<p>结果如下：</p>
+<p><img src="/images/regression-2.jpg" alt="局部加权k=0.01"></p>
+<p><img src="/images/regression-3.jpg" alt="局部加权k=0.003"></p>
+<p>因此，k值如果越小会考虑太多的噪声影响，选择适合的k值可以得到最优的结果。</p>
+<h2 id="岭回归-ridge-regression"><a href="#岭回归-ridge-regression" class="headerlink" title="岭回归 ridge regression"></a>岭回归 ridge regression</h2><h3 id="预测精度"><a href="#预测精度" class="headerlink" title="预测精度"></a>预测精度</h3><p>对于普通的线性回归模型，样本数量n和特征数量p会影响预测精度：</p>
+<ul>
+<li>$n \le p$，最小二乘回归会有较小的方差</li>
+<li>$n \approx p$，容易产生过拟合</li>
+<li>$n \ge p$，最小二乘回归得不到有意义的结果</li>
+</ul>
+<h3 id="岭回归算法"><a href="#岭回归算法" class="headerlink" title="岭回归算法"></a>岭回归算法</h3><p>岭回归是在平方误差的基础之上增加正则项，</p>
+<p>$$\sum_{i=1}^n (y_i - \sum_{j=0}^p w_i x_{ij})^2 + \lambda \sum_{j=0}^p w_j^2, \quad \lambda &gt; 0$$</p>
+<p>通过确定$\lambda$的值可以使方差和偏差之间达到一定的平衡。</p>
+<p>从而对w求导，得</p>
+<p>$$2 X^T (Y - XW) - 2 \lambda W$$</p>
+<p>令导数为0，则</p>
+<p>$$w = (X^TX + \lambda I)^{-1}X^TY$$</p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2015/07/13/kmeans/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          K-均值聚类算法
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/06/24/logistic/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          logistic回归
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2018 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

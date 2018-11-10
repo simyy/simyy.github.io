@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>python 守护进程 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="python守护进程与linux c实现原理是一样的。">
+<meta name="keywords" content="python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python 守护进程">
+<meta property="og:url" content="http://simyy.cn/2014/10/22/python-deamon/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="python守护进程与linux c实现原理是一样的。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-04-08T09:28:06.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="python 守护进程">
+<meta name="twitter:description" content="python守护进程与linux c实现原理是一样的。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-python-deamon" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2014/10/22/python-deamon/" class="article-date">
+  <time datetime="2014-10-22T07:14:00.000Z" itemprop="datePublished">2014-10-22</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      python 守护进程
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>python守护进程与linux c实现原理是一样的。<br><a id="more"></a></p>
+<p>第一个fork是为了让shell返回，同时让你完成setsid（从你的控制终端移除，这样就不会意外地收到信号）。setsid使得这个进程成为“会话领导（session leader）”，即如果这个进程打开任何终端，该终端就会成为此进程的控制终端。我们不需要一个守护进程有任何控制终端，所以我们又fork一次。在第二次fork之后，此进程不再是一个“会话领导”，这样它就能打开任何文件（包括终端）且不会意外地再次获得一个控制终端</p>
+<p>另外说明：<br>umask()函数为进程设置文件模式创建屏蔽字，并返回以前的值<br>在shell命令行输入：umask 就可知当前文件模式创建屏蔽字<br>常见的几种umask值是002，022和027，002阻止其他用户写你的文件，022阻止同组成员和其他用户写你的文件，027阻止同组成员写你的文件以及其他用户读写或执行你的文件<br>rwx-rwx-rwx  代表是777  所有的人都具有权限读写与执行</p>
+<p>chmod()改变文件的权限位<br>int dup(int filedes) 返回新文件描述符一定是当前文件描述符中的最小数值<br>int dup2(int filedes, int filedes2);这两个函数返回的新文件描述符与参数filedes共享同一个文件表项。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*-coding:utf-8-*-</span></span><br><span class="line"><span class="keyword">import</span> sys, os</span><br><span class="line"></span><br><span class="line"><span class="string">'''将当前进程fork为一个守护进程</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    注意：如果你的守护进程是由inetd启动的，不要这样做！inetd完成了</span></span><br><span class="line"><span class="string">    所有需要做的事情，包括重定向标准文件描述符，需要做的事情只有</span></span><br><span class="line"><span class="string">    chdir() 和 umask()了</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">daemonize</span><span class="params">(stdin=<span class="string">'/dev/null'</span>,stdout= <span class="string">'/dev/null'</span>, stderr= <span class="string">'dev/null'</span>)</span>:</span></span><br><span class="line">    <span class="string">'''Fork当前进程为守护进程，重定向标准文件描述符</span></span><br><span class="line"><span class="string">        （默认情况下定向到/dev/null）</span></span><br><span class="line"><span class="string">    '''</span></span><br><span class="line">    <span class="comment">#Perform first fork.</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        pid = os.fork()</span><br><span class="line">        <span class="keyword">if</span> pid &gt; <span class="number">0</span>:</span><br><span class="line">            sys.exit(<span class="number">0</span>)  <span class="comment">#first parent out</span></span><br><span class="line">    <span class="keyword">except</span> OSError, e:</span><br><span class="line">        sys.stderr.write(<span class="string">"fork #1 failed: (%d) %s\n"</span> %(e.errno, e.strerror))</span><br><span class="line">        sys.exit(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">#从母体环境脱离</span></span><br><span class="line">    os.chdir(<span class="string">"/"</span>)</span><br><span class="line">    os.umask(<span class="number">0</span>)</span><br><span class="line">    os.setsid()</span><br><span class="line">    <span class="comment">#执行第二次fork</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        pid = os.fork()</span><br><span class="line">        <span class="keyword">if</span> pid &gt; <span class="number">0</span>:</span><br><span class="line">            sys.exit(<span class="number">0</span>) <span class="comment">#second parent out</span></span><br><span class="line">    <span class="keyword">except</span> OSError, e:</span><br><span class="line">        sys.stderr.write(<span class="string">"fork #2 failed: (%d) %s]n"</span> %(e.errno,e.strerror))</span><br><span class="line">        sys.exit(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">#进程已经是守护进程了，重定向标准文件描述符</span></span><br><span class="line">    <span class="keyword">for</span> f <span class="keyword">in</span> sys.stdout, sys.stderr: f.flush()</span><br><span class="line">    si = file(stdin, <span class="string">'r'</span>)</span><br><span class="line">    so = file(stdout,<span class="string">'a+'</span>)</span><br><span class="line">    se = file(stderr,<span class="string">'a+'</span>,<span class="number">0</span>)</span><br><span class="line">    os.dup2(si.fileno(), sys.stdin.fileno())</span><br><span class="line">    os.dup2(so.fileno(), sys.stdout.fileno())</span><br><span class="line">    os.dup2(se.fileno(), sys.stderr.fileno())</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_example_main</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="string">'''示例函数：每秒打印一个数字和时间戳'''</span></span><br><span class="line">    <span class="keyword">import</span> time</span><br><span class="line">    sys.stdout.write(<span class="string">'Daemon started with pid %d\n'</span> % os.getpid())</span><br><span class="line">    sys.stdout.write(<span class="string">'Daemon stdout output\n'</span>)</span><br><span class="line">    sys.stderr.write(<span class="string">'Daemon stderr output\n'</span>)</span><br><span class="line"></span><br><span class="line">    c = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">        sys.stdout.write(<span class="string">'%d: %s\n'</span> %(c, time.ctime()))</span><br><span class="line">        sys.stdout.flush()</span><br><span class="line">        c = c+<span class="number">1</span></span><br><span class="line">        time.sleep(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    daemonize()</span><br><span class="line">    _example_main()</span><br></pre></td></tr></table></figure>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2014/11/01/python-list/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          python 序列
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2014/10/22/python-webpy-session/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          webpy中的session实现
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2018 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

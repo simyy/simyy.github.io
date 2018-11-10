@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>python 模块加载 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="本文主要介绍python模块加载的过程。">
+<meta name="keywords" content="python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python 模块加载">
+<meta property="og:url" content="http://simyy.cn/2015/05/27/python-module-init/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="本文主要介绍python模块加载的过程。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-04-08T09:27:42.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="python 模块加载">
+<meta name="twitter:description" content="本文主要介绍python模块加载的过程。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-python-module-init" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2015/05/27/python-module-init/" class="article-date">
+  <time datetime="2015-05-27T14:10:16.000Z" itemprop="datePublished">2015-05-27</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      python 模块加载
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>本文主要介绍python模块加载的过程。<br><a id="more"></a></p>
+<h2 id="module的组成"><a href="#module的组成" class="headerlink" title="module的组成"></a>module的组成</h2><p>所有的module都是由对象和对象之间的关系组成。</p>
+<h2 id="type和object"><a href="#type和object" class="headerlink" title="#type和object"></a>#type和object</h2><p>python中所有的东西都是对象，分为三类：类型type、类class和实例instance。</p>
+<p>三种对象之间的两种关系：</p>
+<ul>
+<li>is kind of，基类和子类的关系</li>
+<li>is instance of，类和对象的关系</li>
+</ul>
+<p>类和对象的关系可以通过内建方法<code>type</code>来辨别。</p>
+<p>python中，任何一个类都是直接或间接继承自object，而每一个对象都会拥有自己的type类型，可以通过__class__属性获得。</p>
+<h2 id="运行环境初始化"><a href="#运行环境初始化" class="headerlink" title="运行环境初始化"></a>运行环境初始化</h2><p>python首先需要加载多个基础的module，例如__builtin__,sys等，同时也会完成python类型系统的初始化和异常系统的初始化。</p>
+<h3 id="系统module初始化"><a href="#系统module初始化" class="headerlink" title="系统module初始化"></a>系统module初始化</h3><p>Python内部维护了一个维护加载到内存的module集合，需要现在集合中查找module是否存在。如果存在直接返回该module对象，否则创建该module对象，并插入到module集合中。创建module后，需要设置module的属性。</p>
+<p>由于python的module集合是一个PyDictObject对象，而PyDictObject对象在Python中是一个可变对象，所以其中维护的元素有可能在运行时被删除。对于Python的扩展module，例如sys，为了避免再一次初始化同样的module，python将所有的扩展module通过一个全局的PyDictObject对象来进行备份维护。</p>
+<h3 id="启动虚拟机"><a href="#启动虚拟机" class="headerlink" title="启动虚拟机"></a>启动虚拟机</h3><p>python包括两种运行方式：命令行和脚本文件。</p>
+<p>python中的run_mode函数基于AST抽象语法树 (AST, Abstract Syntax Tree)完成了字节码的编译工作，并创建PyCodeObject对象。</p>
+<p>python中所有的线程都是共享同样的builtin名字空间。</p>
+<h2 id="模块的动态加载"><a href="#模块的动态加载" class="headerlink" title="模块的动态加载"></a>模块的动态加载</h2><p>import功能包括：</p>
+<ul>
+<li>python运行时的全局module缓存的维护和搜索；</li>
+<li>解析和搜索module路径的树形结构；</li>
+<li>对不同文件格式的module动态加载机制。</li>
+</ul>
+<p>py文件中的import不会影响上一层的命名空间，只会影响各自的命名空间，也就是影响各自module自身维护的那个dict对象。但所有的import操作都会影响全局的module集合，这样的话只要再一次import该module，python虚拟机只需要将全局module集合中缓存的对象返回。</p>
+<p>在module的基础之上，python提供了package机制（逻辑相关联的module需要聚合到同一package中）。也就是说通过package机制来管理module，通过module来管理class。</p>
+<p>文件件中存在__init__.py文件才能成为package（多个py文件组成的文件夹）。</p>
+<p>在加载package下的module时，例如a.b.c，python内部将这个module视为一个树形结构，c是b的子节点，b是a的子节点。python虚拟机在动态加载时，需要将这个树形结构分解，然后从左到右依次去sys.modules中查找每一个符号是否存在。如果已经存在，假设存在a，那么在a对应的PyModuleObject对象中保持着__path__路径信息，此时就可以在a.__path__路径中搜索b和c了。</p>
+<p>del删除模块只是把模块从当前命名空间中删除，但该module依然存在于module缓存中。</p>
+<h3 id="module缓存"><a href="#module缓存" class="headerlink" title="module缓存"></a>module缓存</h3><p>python中的全局module集合sys.modules被称为modules缓存，保证了module的唯一性，每当有import操作都会在该sys.modules查找，如果不存在就会将该module加入到sys.modules中。</p>
+<p>如果已经加载的模块发生改变，那么需要调用<code>reload</code>函数来重新加载该模块。需要注意reload函数并不会重新创建该对象，而在在原有对象的基础上做修改。</p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2015/05/29/python-virtualenv/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          python virtualenv
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/05/27/python-name-space/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          python 名字、作用域和命名空间
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2018 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

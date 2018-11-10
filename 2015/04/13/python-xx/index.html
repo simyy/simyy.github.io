@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>Python _、__和__xx__的区别 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="本文为译文，版权属于原作者，在此翻译为中文分享给大家。英文原文地址：Difference between _, __ and __xx__ in Python">
+<meta name="keywords" content="python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python _、__和__xx__的区别">
+<meta property="og:url" content="http://simyy.cn/2015/04/13/python-xx/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="本文为译文，版权属于原作者，在此翻译为中文分享给大家。英文原文地址：Difference between _, __ and __xx__ in Python">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-04-08T09:26:51.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Python _、__和__xx__的区别">
+<meta name="twitter:description" content="本文为译文，版权属于原作者，在此翻译为中文分享给大家。英文原文地址：Difference between _, __ and __xx__ in Python">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-python-xx" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2015/04/13/python-xx/" class="article-date">
+  <time datetime="2015-04-12T16:49:10.000Z" itemprop="datePublished">2015-04-13</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      Python _、__和__xx__的区别
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>本文为译文，版权属于原作者，在此翻译为中文分享给大家。英文原文地址：<a href="http://igorsobreira.com/2010/09/16/difference-between-one-underline-and-two-underlines-in-python.html" target="_blank" rel="noopener">Difference between _, __ and __xx__ in Python</a><br><a id="more"></a></p>
+<h2 id="“-“单下划线"><a href="#“-“单下划线" class="headerlink" title="“_“单下划线"></a>“_“单下划线</h2><p>Python中不存在真正的私有方法。为了实现类似于c++中私有方法，可以在类的方法或属性前加一个“_”单下划线，意味着该方法或属性不应该去调用，它并不属于API。</p>
+<p>在使用property时，经常出现这个问题：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BaseForm</span><span class="params">(StrAndUnicode)</span>:</span></span><br><span class="line">    ...</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_get_errors</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"Returns an ErrorDict for the data provided for the form"</span></span><br><span class="line">        <span class="keyword">if</span> self._errors <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            self.full_clean()</span><br><span class="line">        <span class="keyword">return</span> self._errors</span><br><span class="line">    </span><br><span class="line">    errors = property(_get_errors)</span><br></pre></td></tr></table></figure>
+<p>上面的代码片段来自于django源码（django/forms/forms.py）。这里的errors是一个属性，属于API的一部分，但是_get_errors是私有的，是不应该访问的，但可以通过errors来访问该错误结果。</p>
+<h2 id="“-“双下划线"><a href="#“-“双下划线" class="headerlink" title="“__“双下划线"></a>“__“双下划线</h2><p>这个双下划线更会造成更多混乱，但它并不是用来标识一个方法或属性是私有的，真正作用是用来避免子类覆盖其内容。</p>
+<p>让我们来看一个例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span><span class="params">(object)</span>:</span> </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__method</span><span class="params">(self)</span>:</span> </span><br><span class="line">        <span class="keyword">print</span> <span class="string">"I'm a method in A"</span> </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">method</span><span class="params">(self)</span>:</span> </span><br><span class="line">        self.__method() a = A() a.method()</span><br></pre></td></tr></table></figure>
+<p>输出是这样的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ python example.py </span><br><span class="line">I&apos;m a method in A</span><br></pre></td></tr></table></figure>
+<p>很好，出现了预计的结果。</p>
+<p>我们给A添加一个子类，并重新实现一个__method：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span><span class="params">(A)</span>:</span> </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__method</span><span class="params">(self)</span>:</span> </span><br><span class="line">        <span class="keyword">print</span> <span class="string">"I'm a method in B"</span> </span><br><span class="line"></span><br><span class="line">b = B() </span><br><span class="line">b.method()</span><br></pre></td></tr></table></figure>
+<p>现在，结果是这样的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ python example.py</span><br><span class="line">I&apos;m a method in A</span><br></pre></td></tr></table></figure>
+<p>就像我们看到的一样，B.method()不能调用B.__method的方法。实际上，它是”__“两个下划线的功能的正常显示。</p>
+<p>因此，在我们创建一个以”__“两个下划线开始的方法时，这意味着这个方法不能被重写，它只允许在该类的内部中使用。</p>
+<p>在Python中如是做的？很简单，它只是把方法重命名了，如下： </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">a = A()</span><br><span class="line">a._A__method()  <span class="comment"># never use this!! please!</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ python example.py </span><br><span class="line">I&apos;m a method in A</span><br></pre></td></tr></table></figure>
+<p>如果你试图调用a.__method，它还是无法运行的，就如上面所说，只可以在类的内部调用__method。</p>
+<h2 id="“-xx-“前后各双下划线"><a href="#“-xx-“前后各双下划线" class="headerlink" title="“__xx__“前后各双下划线"></a>“__xx__“前后各双下划线</h2><p>当你看到”__this__“的时，就知道不要调用它。为什么？因为它的意思是它是用于Python调用的，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; name = &quot;igor&quot; </span><br><span class="line">&gt;&gt;&gt; name.__len__() 4 </span><br><span class="line">&gt;&gt;&gt; len(name) 4 </span><br><span class="line">&gt;&gt;&gt; number = 10 </span><br><span class="line">&gt;&gt;&gt; number.__add__(20) 30 </span><br><span class="line">&gt;&gt;&gt; number + 20 30</span><br></pre></td></tr></table></figure>
+<p>“__xx__”经常是操作符或本地函数调用的magic methods。在上面的例子中，提供了一种重写类的操作符的功能。</p>
+<p>在特殊的情况下，它只是python调用的hook。例如，__init__()函数是当对象被创建初始化时调用的;__new__()是用来创建实例。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CrazyNumber</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, n)</span>:</span> </span><br><span class="line">        self.n = n </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__add__</span><span class="params">(self, other)</span>:</span> </span><br><span class="line">        <span class="keyword">return</span> self.n - other </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__sub__</span><span class="params">(self, other)</span>:</span> </span><br><span class="line">        <span class="keyword">return</span> self.n + other </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__str__</span><span class="params">(self)</span>:</span> </span><br><span class="line">        <span class="keyword">return</span> str(self.n) </span><br><span class="line"></span><br><span class="line">num = CrazyNumber(<span class="number">10</span>) </span><br><span class="line"><span class="keyword">print</span> num <span class="comment"># 10</span></span><br><span class="line"><span class="keyword">print</span> num + <span class="number">5</span> <span class="comment"># 5</span></span><br><span class="line"><span class="keyword">print</span> num - <span class="number">20</span> <span class="comment"># 30</span></span><br></pre></td></tr></table></figure>
+<p>另一个例子</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Room</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span> </span><br><span class="line">        self.people = [] </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(self, person)</span>:</span> </span><br><span class="line">        self.people.append(person) </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__len__</span><span class="params">(self)</span>:</span> </span><br><span class="line">        <span class="keyword">return</span> len(self.people)</span><br><span class="line"> </span><br><span class="line">room = Room() </span><br><span class="line">room.add(<span class="string">"Igor"</span>) </span><br><span class="line"><span class="keyword">print</span> len(room) <span class="comment"># 1</span></span><br></pre></td></tr></table></figure>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ul>
+<li>使用_one_underline来表示该方法或属性是私有的，不属于API；</li>
+<li>当创建一个用于python调用或一些特殊情况时，使用__two_underline__；</li>
+<li>使用__just_to_underlines，来避免子类的重写！</li>
+</ul>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2015/04/16/python-propety/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          python propety
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/04/08/redis-advance-usage/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          redis（二）高级用法
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2018 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

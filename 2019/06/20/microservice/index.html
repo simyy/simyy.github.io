@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>microservice | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="大部分公司都会经历单体应用、SOA、微服务的各个架构演变的过程。">
+<meta name="keywords" content="rpc,微服务">
+<meta property="og:type" content="article">
+<meta property="og:title" content="microservice">
+<meta property="og:url" content="http://simyy.cn/2019/06/20/microservice/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="大部分公司都会经历单体应用、SOA、微服务的各个架构演变的过程。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://simyy.cn/images/microservice-1.png">
+<meta property="og:image" content="http://simyy.cn/images/microservice-2.png">
+<meta property="og:image" content="http://simyy.cn/images/microservice-3.png">
+<meta property="og:image" content="http://simyy.cn/images/microservice-4.png">
+<meta property="og:updated_time" content="2019-07-10T03:09:35.146Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="microservice">
+<meta name="twitter:description" content="大部分公司都会经历单体应用、SOA、微服务的各个架构演变的过程。">
+<meta name="twitter:image" content="http://simyy.cn/images/microservice-1.png">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      <article id="post-microservice" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2019/06/20/microservice/" class="article-date">
+  <time datetime="2019-06-20T12:57:21.000Z" itemprop="datePublished">2019-06-20</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rpc/">rpc</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/微服务/">微服务</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      microservice
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>大部分公司都会经历单体应用、SOA、微服务的各个架构演变的过程。</p>
+<a id="more"></a>
+<h3 id="单体应用"><a href="#单体应用" class="headerlink" title="单体应用"></a>单体应用</h3><p><strong>单体应用</strong> 是一个耦合了大量内部不可见的服务的独立系统，由于内部多个功能的耦合导致无法模块之间无法简单的拆分（牵一发而动全身）。</p>
+<h5 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h5><blockquote>
+<p><strong>优点：</strong></p>
+<ul>
+<li><code>易于开发/调试</code>，全部功能集中在一个项目</li>
+<li><code>易于测试</code>，功能耦合在一起，没有分布式带来的诸多问题</li>
+<li><code>易于部署</code>，只有一个应用</li>
+</ul>
+</blockquote>
+<blockquote>
+<p><strong>缺点：</strong></p>
+<ul>
+<li><code>不易于开发</code>，功能集中、内部依赖关系复杂导致系统难以开发和优化</li>
+<li><code>不易于持续开发迭代</code>，整体开发、构建、部署都会影响整个迭代过程中的效率</li>
+<li><code>技术受限</code>，整个应用使用相同的技术栈开发不同的功能，无法根据具体的场景做出其他选择</li>
+<li><code>性能瓶颈</code>，部分功能出现瓶颈无法有针对性的优化，只能通过增加整个节点来临时解决问题（浪费资源）</li>
+</ul>
+</blockquote>
+<p><img src="/images/microservice-1.png" alt="">@h=400</p>
+<h5 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h5><p>个人博客、中小型论坛、小型门户咨询网站、个人电商系统都可以采用单体应用的方式来构建。</p>
+<h3 id="SOA"><a href="#SOA" class="headerlink" title="SOA"></a>SOA</h3><p><strong>SOA</strong> 是一种分布式运算的软件设计方法<a href="https://zh.wikipedia.org/zh-hans/%E9%9D%A2%E5%90%91%E6%9C%8D%E5%8A%A1%E7%9A%84%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84" target="_blank" rel="noopener">(来自维基百科)</a>，它将应用程序的不同功能单元（称为服务）通过这些服务之间定义的接口联系起来。</p>
+<blockquote>
+<p><code>SOA 是一种架构模式，是一种面向服务的思维方式</code>。</p>
+</blockquote>
+<ul>
+<li>服务单独部署、易于系统优化</li>
+<li>服务瓶颈单独维护和解决、易于伸缩</li>
+<li>多应用部署运维要求较高</li>
+<li>引入分布式问题：系统容错、网络延迟、分布式事务</li>
+<li>接口调整引入的问题（依赖方需要感知接口的调整）</li>
+</ul>
+<h5 id="ESB架构"><a href="#ESB架构" class="headerlink" title="ESB架构"></a>ESB架构</h5><p><code>企业服务总线ESB(enterprise service bus)</code>是类似于通信模型中的通信总线的概念，所有服务应用将通过总线交互，而总线扮演着应用间的信息调度的角色，从而可以实现相互隔离的异构分布式服务系统。</p>
+<p><img src="/images/microservice-2.png" alt="">@h=400</p>
+<blockquote>
+<p><strong>问题</strong></p>
+<ul>
+<li>ESB负责兼容和调度各个服务的异构接口（复杂均衡、流量控制等），内部实现很复杂</li>
+<li>所有服务共用ESB的通道，直接影响了服务的通信速度</li>
+</ul>
+</blockquote>
+<h5 id="ESB的替代品？"><a href="#ESB的替代品？" class="headerlink" title="ESB的替代品？"></a>ESB的替代品？</h5><p>在Java生态中，大家常用<code>grpc</code>、<code>thrift</code>、<code>dubbo</code>和<code>spring cloud</code>。</p>
+<blockquote>
+<p>这就是<code>第一代的微服务</code>的具体实现，特点在于：<code>注重服务发现、轻量链路通信。</code></p>
+</blockquote>
+<ul>
+<li><code>服务注册、服务发现、负载均衡</code>均等功能都由具体的服务应用来控制</li>
+<li><code>服务状态</code>信息由<code>分布式协调服务来维护</code>，例如<code>zookeeper</code>/<code>etcd</code></li>
+<li>服务之间通信不再依赖一个单点总线，而是<code>点对点</code>的服务之间进行交互</li>
+</ul>
+<h5 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h5><p>中大型互联网公司都在使用SOA或者微服务架构，这种架构满足互联网的快速迭代、运维自由伸缩、资源独立运维的需求。</p>
+<p>不同团队负责不同的业务，同一业务划分不同的功能模块独立部署，从而实现快速开发、快速构建、快速部署，快速上线的要求，而且也降低了不同团队之间的耦合，大家只需要根据API接口来沟通即可，不需要关心内部实现逻辑。</p>
+<h3 id="微服务"><a href="#微服务" class="headerlink" title="微服务"></a>微服务</h3><p>从维基百科可以简单的了解一下什么是<a href="https://zh.wikipedia.org/wiki/%E5%BE%AE%E6%9C%8D%E5%8B%99" target="_blank" rel="noopener">微服务</a>。</p>
+<blockquote>
+<p><code>微服务</code> 是一种软件架构风格，它是以专注于<code>单一责任与功能的小型功能区块</code> (Small Building Blocks) 为基础，利用<code>模块化的方式组合</code>出复杂的大型应用程序，<code>各功能区块使用与语言无关</code> (Language-Independent/Language agnostic) 的 API 集相互通信。</p>
+</blockquote>
+<p><strong>单一职责与功能</strong>：功能独立，意味着应用可以独立部署，资源单独控制。<br><strong>模块化方式组合</strong>：功能可任意组合，组合方式通过任意通信方式（通信协议）来实现，不限于RPC/Restfull。<br><strong>功能区块与语言无关</strong>：应用独立部署、通信方式与语言无关，任意语言有自己的实现方式，所以应用可以采用更适合的语言来开发。</p>
+<blockquote>
+<p>其实这里看下来，微服务和SOA是不是一样的？</p>
+<p>较早实践微服务的公司<code>Netflix</code>就曾经称他们构建的架构是<code>「细粒度的SOA」</code>。</p>
+</blockquote>
+<h4 id="SOA遇到kubernetes"><a href="#SOA遇到kubernetes" class="headerlink" title="SOA遇到kubernetes"></a>SOA遇到kubernetes</h4><p><code>细粒度的SOA</code>意味着服务拆分的更细，不仅是<code>服务拆分上的细</code>，也是<code>运维资源上的细</code>。</p>
+<blockquote>
+<p><code>运维资源上的细可以</code>通过<code>K8S</code>来实现，从而实现了<code>第二代微服务</code>。</p>
+</blockquote>
+<p><code>K8S或者说容器调度平台</code>的引入是比较<strong>革命性的</strong>。</p>
+<p>容器使得我们的微服务对环境的依赖可以<code>打包整合进行随意分发</code>，从而实现<code>微服务节点任意调度</code>。</p>
+<p>调度平台通过<code>服务的分类和抽象</code>，使得微服务本身的<code>部署和维护实现自动化</code>，以及实现更上一层楼的<code>自动伸缩</code>。</p>
+<blockquote>
+<p>自动化的难点就在于<code>服务的编排协调</code>。</p>
+</blockquote>
+<h6 id="虚拟化"><a href="#虚拟化" class="headerlink" title="虚拟化"></a>虚拟化</h6><p>虚拟化是指通过虚拟化技术将一台计算机虚拟为多台逻辑计算机。</p>
+<p><code>VM（虚拟机）</code>是一个<code>物理硬件层抽象</code>，用于将一台服务器变成多台服务器，<code>每个VM都包含一整套操作系统</code>、 占用大量空间、启动慢。</p>
+<p><code>Docker</code>是一个<code>应用层抽象</code>，用于将代码和依赖资源打包在一起。每个容器是<code>基于已有的公共基础设施中操作系统</code>的功能来运行的，<code>各自作为独立的进程在用户空间中运行</code>，占用空间极少，启动快。</p>
+<blockquote>
+<p><code>Docker</code>的轻量对于微服务来说是在适合不过了。</p>
+</blockquote>
+<h6 id="kubernetes"><a href="#kubernetes" class="headerlink" title="kubernetes"></a>kubernetes</h6><p><code>kubernetes（k8s）</code>是用于<code>自动部署</code>、<code>扩展和管理容器化（containerized）</code>应用程序的开源系统。</p>
+<p><code>SOA</code>的思想出现后，系统拆分服务会变得越来越多，单靠原有的运维方式无法支撑管理，往往需要应用开发同事来帮忙查看到底那里出现了问题（配置发生了变更？目录权限有问题？）。</p>
+<p>基于<code>kubernetes</code>，运维只负责<code>资源交付</code>，服务的启动注册、目录权限、配置都让服务的开发者来管理，从而降低了运维的压力，而运维更能把重点转移到基础运维工作中。</p>
+<blockquote>
+<p><code>kubernetes</code>解决了服务的编排协调及快速伸缩。</p>
+</blockquote>
+<p>虽然<code>kubernetes</code>为应用程序提供服务发现、负载均衡和外部路由的功能，但是大部分公司都是采用<code>dubbo/grpc</code>等框架来实现完整的服务发现。</p>
+<h4 id="Service-Mesh"><a href="#Service-Mesh" class="headerlink" title="Service Mesh"></a>Service Mesh</h4><p><code>Service Mesh(服务网格)</code>是一个基础设施层，用于处理服务间通信。</p>
+<p><img src="/images/microservice-3.png" alt="">@h=200</p>
+<blockquote>
+<p><code>Service Mesh</code>类似于在k8s的基础之上又封装了统一的服务发现功能。</p>
+</blockquote>
+<p><code>Service Mesh</code>会接管整个集群的网络，把所有请求在服务之间做转发。从而业务开发不再需要关注服务的注册和发现，只专注完成业务逻辑，服务之间的通讯环节就从应用层剥离出来。</p>
+<p><code>Service Mesh（服务网格）</code>实际上是抽象出了一个基础设施层，独立于应用之外，所提供的功能就是实现请求的可靠路由，部署上体现为轻量级的网络代理，并对应用是透明的。</p>
+<h5 id="服务治理"><a href="#服务治理" class="headerlink" title="服务治理"></a>服务治理</h5><blockquote>
+<p><code>微服务</code>时代面临最大的挑战就是<code>服务治理</code>。</p>
+</blockquote>
+<p>在大型互联网公司都会有自研的一套服务治理框架，功能各不相同各有优势，但都有不足之处。</p>
+<p>目前最火的<code>SpringCloud</code>提供了一系列的组件来实现微服务下的<code>服务治理</code>。</p>
+<p><code>Service Mesh（服务网格）</code>利用<code>基础设施层</code>来解决<code>服务注册、服务路由、流量控制、服务降级、安全认证</code>等功能。</p>
+<h5 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h5><p>对于大规模部署微服务，内部服务异构程度高的场景，使用<code>Service Mesh（服务网格）</code>方案是一个不错的选择。</p>
+<p><code>Service Mesh（服务网格）</code>实现了<code>业务逻辑和控制的解耦</code>。</p>
+<p><code>网络中多了一跳</code>，增加了<code>性能的损耗和访问的延迟</code>。</p>
+<p>每个服务都需要部署<code>Sidecar</code>, 这也会使本来就具有一定复杂度的分布式系统变得更加复杂。</p>
+<p><img src="/images/microservice-4.png" alt="">@h=200</p>
+<h5 id="现状"><a href="#现状" class="headerlink" title="现状"></a>现状</h5><p>第一代<code>Service Mesh</code>的代表为<code>Linkerd</code>和<code>Envoy</code>。</p>
+<p>第二代<code>Service Mesh</code>主要改进集中在更加强大的控制面功能（<code>Sidecar</code>），典型代表有<code>Istio</code>和<code>Conduit</code>。</p>
+<p>到目前为止，服务网格的概念已经被实现，也有投入生产的实例，但普及还是需要一定时间。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>从<code>单体应用、SOA、微服务、K8S、ServiceMesh</code>的发展中可以看到技术的层出不穷，技术分工越来越细。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://jinfei21.github.io/2018/11/15/%E6%88%91%E4%B8%BA%E4%BB%80%E4%B9%88%E7%9C%8B%E5%A5%BD%E6%96%B0%E4%B8%80%E4%BB%A3%E5%BE%AE%E6%9C%8D%E5%8A%A1ServiceMesh/" target="_blank" rel="noopener">https://jinfei21.github.io/2018/11/15/%E6%88%91%E4%B8%BA%E4%BB%80%E4%B9%88%E7%9C%8B%E5%A5%BD%E6%96%B0%E4%B8%80%E4%BB%A3%E5%BE%AE%E6%9C%8D%E5%8A%A1ServiceMesh/</a><br><a href="https://juejin.im/post/592f87feb123db0064e5ef7c#heading-1" target="_blank" rel="noopener">https://juejin.im/post/592f87feb123db0064e5ef7c#heading-1</a><br><a href="https://juejin.im/post/5ad4146ff265da238670592f" target="_blank" rel="noopener">https://juejin.im/post/5ad4146ff265da238670592f</a><br><a href="https://zhuanlan.zhihu.com/p/53260098" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/53260098</a></p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2018/04/12/git/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          git
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2019 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

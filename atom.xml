@@ -34,9 +34,9 @@
       <category term="微服务" scheme="http://simyy.cn/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
     
     
-      <category term="rpc" scheme="http://simyy.cn/tags/rpc/"/>
-    
       <category term="微服务" scheme="http://simyy.cn/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
+    
+      <category term="rpc" scheme="http://simyy.cn/tags/rpc/"/>
     
   </entry>
   
@@ -81,6 +81,28 @@
     
     
       <category term="java" scheme="http://simyy.cn/tags/java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>电商架构</title>
+    <link href="http://simyy.cn/2018/12/20/e-commerce-architecture/"/>
+    <id>http://simyy.cn/2018/12/20/e-commerce-architecture/</id>
+    <published>2018-12-20T06:37:04.000Z</published>
+    <updated>2019-08-20T06:44:18.656Z</updated>
+    
+    <content type="html"><![CDATA[<p>记录下电商系统涉及到的一些系统的关联关系。<br><a id="more"></a><br><img src="/images/e-commerce-architecture.png" alt="业务架构"></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;记录下电商系统涉及到的一些系统的关联关系。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="架构" scheme="http://simyy.cn/categories/%E6%9E%B6%E6%9E%84/"/>
+    
+    
+      <category term="微服务" scheme="http://simyy.cn/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
     
   </entry>
   
@@ -433,30 +455,6 @@
     
     
       <category term="redis" scheme="http://simyy.cn/tags/redis/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>tire tree算法</title>
-    <link href="http://simyy.cn/2016/11/27/simWS-tire-tree/"/>
-    <id>http://simyy.cn/2016/11/27/simWS-tire-tree/</id>
-    <published>2016-11-27T08:39:58.000Z</published>
-    <updated>2017-04-08T09:33:44.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>tire tree称为查找树或字典树，插入和查询的复杂度为O(K)（K为被插入或查询的关键字长度）。<br><a id="more"></a></p><h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>tire tree的基本性质如下，</p><ul><li>根节点不包含任何字符</li><li>除根节点外每一个节点都仅包含一个字符</li><li>树的每一条路径的所有节点连接起来代表一个被添加的字符串</li></ul><p><img src="/images/tire-tree-1.png" alt=""></p><p>tire tree的核心思想是空间换时间，并利用字符串的公共前缀来降低查询时间的开销以及节约存储空间。</p><p>如图所示，“故事”和“故乡”拥有共同的前缀“故”，所以“故”只需要存储一次，达到了节约存储空间的目的。</p><h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><h3 id="统计词频"><a href="#统计词频" class="headerlink" title="统计词频"></a>统计词频</h3><p>对于哈希和堆来说，tire tree的公共前缀可以有效降低内存空间，当需要统计的数据越多时，这个压缩的效果越明显。</p><h3 id="前缀匹配"><a href="#前缀匹配" class="headerlink" title="前缀匹配"></a>前缀匹配</h3><p>由于tire tree是按照前缀匹配来存储字符串的，那么查询字符串的复杂度只是O(K)，K为字符串的长度，因此，可以用来加载分词的词库。</p><h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>这里使用go来实现简单的tire树，完整代码：<a href="https://github.com/yxd123/simWS/blob/master/tire/tire.go。" target="_blank" rel="noopener">https://github.com/yxd123/simWS/blob/master/tire/tire.go。</a></p><h3 id="节点的定义"><a href="#节点的定义" class="headerlink" title="节点的定义"></a>节点的定义</h3><p>树的节点需要包含节点值、子节点指针、节点状态。</p><ul><li>节点值：当前节点存储的值</li><li>子节点指针：当前节点的子节点的指针（记录了当前节点的所有子节点）</li><li>节点状态：记录当前节点是否为代表字符串的结尾（用于判断以当前节点为结尾的字符串是否被添加过）</li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">type Node struct &#123;</span><br><span class="line">    value     byte //当前节点存储的值</span><br><span class="line">    nextNodes []*Node // 子节点指针</span><br><span class="line">    nextNums  int  //子节点个数</span><br><span class="line">    flag      bool //是否为结尾字符</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h3 id="节点的添加"><a href="#节点的添加" class="headerlink" title="节点的添加"></a>节点的添加</h3><p>节点的添加需要考虑几种情况：</p><ul><li>是否为公共前缀</li><li>是否为结尾字符</li></ul><p><code>values</code>代表需要添加的字符串，<code>place</code>代表当前需要处理的字符位置，</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">func (t *Node) add(values []byte, place int) &#123;</span><br><span class="line">    // 达到字符串的末尾</span><br><span class="line">    if place &gt;= len(values) &#123;</span><br><span class="line">        t.flag = true</span><br><span class="line">        return</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">   //如果没有子节点，需要添加新节点</span><br><span class="line">    if t.nextNodes == nil &#123;</span><br><span class="line">        log.Println(&quot;new nextNodes&quot;)</span><br><span class="line">        t.nextNodes = make([]*Node, 0, 26)</span><br><span class="line">        t.nextNums = 0</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if t.nextNums &gt; 0 &#123;</span><br><span class="line">        for _, node := range t.nextNodes &#123;</span><br><span class="line">            // 如果子节点中包含待添加字符，则递归添加下一节点</span><br><span class="line">            if node.value == values[place] &#123;</span><br><span class="line">                log.Println(&quot;duplicate byte:&quot;, string(node.value))</span><br><span class="line">                node.add(values, place + 1)</span><br><span class="line">                return</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 子节点无待添加字符，则添加新的子节点</span><br><span class="line">    node := NewNode(values[place])</span><br><span class="line">    node.add(values, place + 1)</span><br><span class="line">    t.nextNodes = append(t.nextNodes, node)</span><br><span class="line">    t.nextNums += 1</span><br><span class="line">    log.Println(&quot;add new Node:&quot;, string(node.value), t.nextNums)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h3 id="节点的查找"><a href="#节点的查找" class="headerlink" title="节点的查找"></a>节点的查找</h3><p>节点的查找和添加类似，都是从树的根节点开始，递归到目的节点。</p><p>节点的查找需要注意结尾标记。</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">func (t *Node) find(values []byte, place int) bool &#123;</span><br><span class="line">    //如果没有子节点，则未查到</span><br><span class="line">    if t == nil || t.nextNums == 0 &#123;</span><br><span class="line">        log.Println(&quot;can&apos;t cmp&quot;, string(values[place]), &quot;nextNums:&quot;, string(t.value), t.nextNums)</span><br><span class="line">        return false</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    for _, node := range t.nextNodes &#123;</span><br><span class="line">        log.Println(&quot;cmp:&quot;, string(node.value), string(values[place]))</span><br><span class="line">        // 找到待查找字符</span><br><span class="line">        if node.value == values[place] &#123;</span><br><span class="line">            //当前待查找字符为结尾，则找到目标字符串</span><br><span class="line">            if place == len(values) - 1 &#123;</span><br><span class="line">                return node.flag</span><br><span class="line">            &#125;</span><br><span class="line">            // 非结尾字符串，递归查找下一字符</span><br><span class="line">            return node.find(values, place + 1)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return false</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;tire tree称为查找树或字典树，插入和查询的复杂度为O(K)（K为被插入或查询的关键字长度）。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="algorithm" scheme="http://simyy.cn/categories/algorithm/"/>
-    
-    
-      <category term="algorithm" scheme="http://simyy.cn/tags/algorithm/"/>
-    
-      <category term="中文分词" scheme="http://simyy.cn/tags/%E4%B8%AD%E6%96%87%E5%88%86%E8%AF%8D/"/>
     
   </entry>
   

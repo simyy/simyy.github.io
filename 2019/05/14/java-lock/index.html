@@ -15,7 +15,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://simyy.cn/images/java_lock_1.png">
 <meta property="og:image" content="http://simyy.cn/images/java_lock_3.png">
-<meta property="og:updated_time" content="2019-08-19T03:20:01.000Z">
+<meta property="og:updated_time" content="2019-08-22T09:17:19.165Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java 锁与多线程协作">
 <meta name="twitter:description" content="一般谈到多线程都会谈到锁这个概念，通过限制并发控制来保证操作互斥的要求。">
@@ -143,6 +143,8 @@
 <p><code>独占</code>模式下又可分为<code>公平锁</code>和<code>非公平锁</code>。</p>
 <p><code>公平锁</code>：按照线程在队列中的排队顺序，先到者先拿到锁；<br><code>非公平锁</code>：当线程要获取锁时，无视队列顺序直接去抢锁，谁抢到就是谁的。</p>
 </blockquote>
+<h3 id="重入"><a href="#重入" class="headerlink" title="重入"></a>重入</h3><p><code>Synchronized</code>与<code>JUC lock</code>都是<code>可重入</code>的。</p>
+<p><code>可重入</code>是同一线程可以重复获得当前锁，也是为了<code>避免死锁问题</code>。</p>
 <h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><p><a href="https://www.jianshu.com/p/f4454164c017" target="_blank" rel="noopener">https://www.jianshu.com/p/f4454164c017</a><br><a href="https://blog.csdn.net/kobejayandy/article/details/39975339" target="_blank" rel="noopener">https://blog.csdn.net/kobejayandy/article/details/39975339</a><br><a href="https://tech.meituan.com/2018/11/15/java-lock.html" target="_blank" rel="noopener">https://tech.meituan.com/2018/11/15/java-lock.html</a><br><a href="https://www.hollischuang.com/archives/2030" target="_blank" rel="noopener">https://www.hollischuang.com/archives/2030</a></p>
 
     

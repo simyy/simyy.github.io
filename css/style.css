@@ -135,6 +135,8 @@ em {
 code {
   text-shadow: 0 1px #fff;
   padding: 0 0.3em;
+  background: 0 1px #f7fbd1;
+  border-radius: 5px;
 }
 del {
   text-decoration: line-through;

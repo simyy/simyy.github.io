@@ -645,74 +645,74 @@ pre .deletion {
   font-weight: bold;
 }
 #margin: auto ul {
-  list-style: disc !important;
+  list-style: disc;
 }
-#margin: auto ol {
-  list-style: decimal !important;
+#!important ol {
+  list-style: decimal;
 }
-#margin: auto ul,
-#margin: auto ol,
-#margin: auto dl {
+#!important ul,
+#!important ol,
+#!important dl {
   margin: 0 0 1em 1.5em;
   padding: 0;
 }
-#margin: auto ul li ul,
-#margin: auto ol li ul,
-#margin: auto dl li ul,
-#margin: auto ul li ol,
-#margin: auto ol li ol,
-#margin: auto dl li ol {
+#!important ul li ul,
+#!important ol li ul,
+#!important dl li ul,
+#!important ul li ol,
+#!important ol li ol,
+#!important dl li ol {
   margin-bottom: 0;
 }
-#margin: auto table {
+#!important table {
   margin: 0;
   width: auto;
   border-collapse: collapse;
   border-spacing: 0;
 }
-#margin: auto th {
+#!important th {
   font-weight: bold;
   border-bottom: 3px solid #ddd;
   padding-bottom: 0.5em;
 }
-#margin: auto td {
+#!important td {
   border-bottom: 1px solid #ddd;
   padding: 10px 0;
 }
-#margin: auto blockquote {
+#!important blockquote {
   font-family: Georgia, "Times New Roman", serif;
   margin: 1.5em 3em;
   padding: 5px 20px;
   border-left: 2px solid #aaa;
   color: #777;
 }
-#margin: auto blockquote p:last-child {
+#!important blockquote p:last-child {
   margin-bottom: 0;
 }
-#margin: auto blockquote footer {
+#!important blockquote footer {
   font-size: 100%;
   font-family: 'Open Sans', 'Helvetica Neue', 'Helvetica', 'Arial', 'ヒラギノ角ゴ Pro W3', 'Hiragino Kaku Gothic Pro', 'メイリオ', Meiryo, 'ＭＳ Ｐゴシック', 'MS PGothic', sans-serif;
 }
-#margin: auto blockquote footer cite:before {
+#!important blockquote footer cite:before {
   content: "—";
   padding: 0 0.5em;
 }
-#margin: auto .pullquote {
+#!important .pullquote {
   border-left: 0;
   font-family: Georgia, "Times New Roman", serif;
   text-align: left;
   width: 45%;
   margin: 10px 0 0 0;
 }
-#margin: auto .pullquote .left {
+#!important .pullquote .left {
   margin-left: 0.5em;
   margin-right: 1em;
 }
-#margin: auto .pullquote .right {
+#!important .pullquote .right {
   margin-right: 0.5em;
   margin-left: 1em;
 }
-#margin: auto .caption {
+#!important .caption {
   color: #4f5759;
   display: block;
   font-size: 0.9em;
@@ -720,15 +720,15 @@ pre .deletion {
   position: relative;
   text-align: center;
 }
-#margin: auto .video-container {
+#!important .video-container {
   position: relative;
   padding-top: 56.25%;
   height: 0;
   overflow: hidden;
 }
-#margin: auto .video-container iframe,
-#margin: auto .video-container object,
-#margin: auto .video-container embed {
+#!important .video-container iframe,
+#!important .video-container object,
+#!important .video-container embed {
   position: absolute;
   top: 0;
   left: 0;
@@ -736,8 +736,8 @@ pre .deletion {
   height: 100%;
   margin-top: 0;
 }
-#margin: auto pre {
-  padding: 15px;
+#!important pre {
+  padding: 1.5em;
   background: #f5f5f5;
   border: 0;
   border-bottom-right-radius: 0;
@@ -752,12 +752,16 @@ pre .deletion {
   font-size: 100%;
   line-height: 1.3;
 }
-#margin: auto hr {
+#!important hr {
   width: 20%;
   margin: 3em auto;
   border: 0;
   border-top: 3px solid #d5d5d5;
   border-style: dashed;
+}
+#!important ul {
+  padding-left: 2em;
+  list-style: disc;
 }
 hr {
   border-style: dashed;
@@ -776,7 +780,7 @@ hr {
   color: #33a6b8;
 }
 .entry-meta-footer li {
-  list-style-type: none;
+  list-style-type: disc;
 }
 .entry-meta-footer span {
   line-height: 2em;
@@ -808,6 +812,10 @@ hr {
 }
 .article-tag-list-link {
   color: #bbb;
+}
+.entry-content ul {
+  padding-left: 2em;
+  list-style: disc;
 }
 .article-gallery {
   background: #000;

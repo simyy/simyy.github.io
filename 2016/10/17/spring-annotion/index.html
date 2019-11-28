@@ -3,20 +3,20 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>spring注解annotion | simyy</title>
+  <title>Spring Annotion | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="spring 注解配置和使用说明">
-<meta name="keywords" content="java,spring">
+  <meta name="description" content="Spring Annotion注解配置和使用说明。">
+<meta name="keywords" content="Spring,Java">
 <meta property="og:type" content="article">
-<meta property="og:title" content="spring注解annotion">
+<meta property="og:title" content="Spring Annotion">
 <meta property="og:url" content="http://simyy.cn/2016/10/17/spring-annotion/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="spring 注解配置和使用说明">
+<meta property="og:description" content="Spring Annotion注解配置和使用说明。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-04-08T09:24:14.000Z">
+<meta property="og:updated_time" content="2019-11-28T07:24:31.525Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="spring注解annotion">
-<meta name="twitter:description" content="spring 注解配置和使用说明">
+<meta name="twitter:title" content="Spring Annotion">
+<meta name="twitter:description" content="Spring Annotion注解配置和使用说明。">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -58,7 +58,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/">spring</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring/">Spring</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -71,34 +71,41 @@
 		
   
     <h1 class="article-title entry-title" itemprop="name">
-      spring注解annotion
+      Spring Annotion
     </h1>
   
 
 	</header>
 	<div class="entry-content">
 		
-    	<p>spring 注解配置和使用说明<br><a id="more"></a></p>
-<h2 id="注解配置"><a href="#注解配置" class="headerlink" title="注解配置"></a>注解配置</h2><p>开启spring注解功能，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;context:annotation-config/&gt;</span><br></pre></td></tr></table></figure></p>
+    	<p><code>Spring Annotion</code>注解配置和使用说明。</p>
+<a id="more"></a>
+<h3 id="注解配置"><a href="#注解配置" class="headerlink" title="注解配置"></a>注解配置</h3><p><strong>开启<code>Spring Annotion</code>注解功能</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;context:annotation-config/&gt;</span><br></pre></td></tr></table></figure>
 <p>它将隐式地向 Spring 容器注册<code>AutowiredAnnotationBeanPostProcessor</code>、<code>CommonAnnotationBeanPostProcessor</code>、<code>PersistenceAnnotationBeanPostProcessor</code>以及<code>RequiredAnnotationBeanPostProcessor</code> 这 4 个 BeanPostProcessor。</p>
-<p>开启spring mvc注解功能，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;mvc:annotation-driven /&gt;</span><br></pre></td></tr></table></figure></p>
+<p><strong>开启<code>SpringMVC</code>注解功能</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;mvc:annotation-driven /&gt;</span><br></pre></td></tr></table></figure>
 <p>它将隐式地向Spring容器注册<code>DefaultAnnotationHandlerMapping</code>和<code>AnnotationMethodHandlerAdapter</code>。</p>
 <h2 id="Required"><a href="#Required" class="headerlink" title="Required"></a>Required</h2><p><code>@Required</code>注解用于检查被注解属性是否已经设置，但并不会检测属性是否为空。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@Required</span><br><span class="line">public void setName(name) &#123;</span><br><span class="line">    this.name = name;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;person&quot; class=&quot;Persoon&quot;&gt;</span><br><span class="line">    &lt;property name=&quot;name&quot; value=&quot;jack&quot; /&gt;</span><br><span class="line">&lt;/bean&gt;</span><br></pre></td></tr></table></figure>
 <p>如果bean中没有设置<code>name</code>，则会抛出BeanInitializationException异常。</p>
-<h2 id="Autowired"><a href="#Autowired" class="headerlink" title="Autowired"></a>Autowired</h2><p><code>@Autowired</code>注解用于对类进行自动装配工作（按照类型注入）。</p>
+<h3 id="Autowired"><a href="#Autowired" class="headerlink" title="Autowired"></a>Autowired</h3><p><code>@Autowired</code>注解用于对类进行自动装配工作（按照类型注入）。</p>
+<p><strong>常见情况：</strong></p>
 <ul>
-<li>在默认情况下使用 @Autowired 注释进行自动注入时，Spring 容器中匹配的候选 Bean 数目必须有且仅有一个。</li>
-<li>当找不到一个匹配的 Bean 时，Spring 容器将抛出 BeanCreationException 异常，并指出必须至少拥有一个匹配的 Bean；</li>
-<li>当不能确定 Spring 容器中一定拥有某个类的 Bean 时，可以在需要自动注入该类 Bean 的地方可以使用 @Autowired(required = false)，这等于告诉 Spring：在找不到匹配 Bean 时也不报错；</li>
-<li>如果 Spring 容器中拥有多个候选 Bean，Spring 容器在启动时也会抛出 BeanCreationException 异常。</li>
+<li>匹配的候选Bean数目必须有且仅有一个；</li>
+<li>无匹配的Bean时将抛出<code>BeanCreationException 异常</code>；</li>
+<li><code>@Autowired(required = false)</code>意味着该Bean不是必须的，即使匹配不到也不会报错；</li>
+<li>多个候选Bean将抛出 BeanCreationException 异常。</li>
 </ul>
 <blockquote>
 <p>如果有多个候选的bean该如何处理？</p>
 </blockquote>
-<p><code>@Qualifier</code>可以用来指定注入的bean。<br><code>@Qualifier</code>是与<code>@Autowired</code>结合使用，这样就会把注入类型从按名称注入转变为按按名称注入。</p>
-<p><code>@Autowired</code>可以用标记成员变量、方法以及构造函数，而<code>Qualifier</code>只可以用来标记成员变量、方法入参和苟赞函数入参。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">public class Student &#123;</span><br><span class="line">    @Autowired</span><br><span class="line">    @Qualifier(&quot;math&quot;) // 指定数学书</span><br><span class="line">    private Book book;</span><br><span class="line">    private Pen pen;</span><br><span class="line">   </span><br><span class="line">    @Autowired</span><br><span class="line">    public void setPen(@Qualifier(&quot;pencil&quot;)Pen pen) &#123;</span><br><span class="line">        this.pen = pen;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public class Student &#123;</span><br><span class="line">    private Book book;</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    public Student(Book book) &#123;</span><br><span class="line">        this.book = book;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h2 id="Resource"><a href="#Resource" class="headerlink" title="Resource"></a>Resource</h2><p><code>@Resource</code>注解是按照名称来装配注入的，只有找不到对应的名称才会按照类型来装配注入。<br><code>@Resource</code>注解是由J2EE提供，而@Autowired是由spring提供。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Resource(name=&quot;math&quot;)</span><br><span class="line">private Book book;</span><br><span class="line"></span><br><span class="line">@Reousrce(type=Book.class)</span><br><span class="line">private Book book;</span><br></pre></td></tr></table></figure></p>
+<p><code>@Qualifier</code>可以用来指定注入的bean。</p>
+<p><code>@Qualifier</code>是与<code>@Autowired</code>结合使用，这样就会把注入类型从按名称注入转变为按按名称注入。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">public class Student &#123;</span><br><span class="line">    @Autowired</span><br><span class="line">    @Qualifier(&quot;math&quot;) // 指定数学书</span><br><span class="line">    private Book book;</span><br><span class="line">    private Pen pen;</span><br><span class="line">   </span><br><span class="line">    @Autowired</span><br><span class="line">    public void setPen(@Qualifier(&quot;pencil&quot;)Pen pen) &#123;</span><br><span class="line">        this.pen = pen;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public class Student &#123;</span><br><span class="line">    private Book book;</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    public Student(Book book) &#123;</span><br><span class="line">        this.book = book;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Resource"><a href="#Resource" class="headerlink" title="Resource"></a>Resource</h3><p><code>@Resource</code>注解是按照名称来装配注入的，只有找不到对应的名称才会按照类型来装配注入。</p>
+<p><code>@Resource</code>注解是由J2EE提供，而<code>@Autowired</code>是由<code>Spring</code>提供。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Resource(name=&quot;math&quot;)</span><br><span class="line">private Book book;</span><br><span class="line"></span><br><span class="line">@Reousrce(type=Book.class)</span><br><span class="line">private Book book;</span><br></pre></td></tr></table></figure>
 <p>一般情况下，无需使用type方式（反射可以获取类型）。</p>
 <h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p><code>@Service</code>用于标注业务层组件;</p>
 <p><code>@Controller</code>用于标注控制层组件（如struts中的action）;</p>
@@ -115,7 +122,7 @@
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          selenium问题
+          Selenium驱动问题
         
       </div>
     </a>
@@ -125,7 +132,7 @@
       <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">
         
-          spring bean
+          Spring Bean
         
       </div>
     </a>

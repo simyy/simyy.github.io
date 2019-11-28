@@ -3,20 +3,20 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>selenium问题 | simyy</title>
+  <title>Selenium驱动问题 | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="selenium可以用来动态解析页面数据，用于爬虫、测试等工作。">
-<meta name="keywords" content="python,spider">
+  <meta name="description" content="Selenium可以用来动态解析页面数据，用于爬虫、测试等工作。">
+<meta name="keywords" content="Python,爬虫">
 <meta property="og:type" content="article">
-<meta property="og:title" content="selenium问题">
+<meta property="og:title" content="Selenium驱动问题">
 <meta property="og:url" content="http://simyy.cn/2016/10/24/spider-selenium/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="selenium可以用来动态解析页面数据，用于爬虫、测试等工作。">
+<meta property="og:description" content="Selenium可以用来动态解析页面数据，用于爬虫、测试等工作。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-11-15T04:35:28.000Z">
+<meta property="og:updated_time" content="2019-11-28T07:26:38.803Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="selenium问题">
-<meta name="twitter:description" content="selenium可以用来动态解析页面数据，用于爬虫、测试等工作。">
+<meta name="twitter:title" content="Selenium驱动问题">
+<meta name="twitter:description" content="Selenium可以用来动态解析页面数据，用于爬虫、测试等工作。">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -58,7 +58,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spider/">spider</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/">Python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/爬虫/">爬虫</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -71,21 +71,24 @@
 		
   
     <h1 class="article-title entry-title" itemprop="name">
-      selenium问题
+      Selenium驱动问题
     </h1>
   
 
 	</header>
 	<div class="entry-content">
 		
-    	<p>selenium可以用来动态解析页面数据，用于爬虫、测试等工作。<br><a id="more"></a></p>
+    	<p><code>Selenium</code>可以用来动态解析页面数据，用于爬虫、测试等工作。</p>
+<a id="more"></a>
 <h2 id="install"><a href="#install" class="headerlink" title="install"></a>install</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install selenium</span><br></pre></td></tr></table></figure>
 <h2 id="issue"><a href="#issue" class="headerlink" title="issue"></a>issue</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line">driver = webdriver.Firefox()</span><br></pre></td></tr></table></figure>
-<!--more-->
-<p>报错，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">selenium.common.exceptions.WebDriverException: Message: &apos;geckodriver&apos; executable needs to be in PATH.</span><br></pre></td></tr></table></figure></p>
-<p>出现的原因：<br>selenium 3.x需要firfox的驱动，而selenium 2.x是不需要该驱动的。</p>
-<p>下载驱动，添加到环境变量中，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># download: https://github.com/mozilla/geckodriver/releases</span><br><span class="line"></span><br><span class="line">mv geckodriver /usr/local/bin/</span><br></pre></td></tr></table></figure></p>
-<p>同理，在使用chrome作为浏览器时，需要下载chromedriver，<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line">driver = webdriver.Chrome()</span><br></pre></td></tr></table></figure></p>
+<p><strong>报错</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">selenium.common.exceptions.WebDriverException: Message: &apos;geckodriver&apos; executable needs to be in PATH.</span><br></pre></td></tr></table></figure>
+<p>出现的原因：<code>selenium 3.x</code>需要<code>firfox的驱动</code>，而<code>selenium 2.x</code>是不需要该驱动的。</p>
+<p>下载驱动，添加到环境变量中，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># download: https://github.com/mozilla/geckodriver/releases</span><br><span class="line"></span><br><span class="line">mv geckodriver /usr/local/bin/</span><br></pre></td></tr></table></figure>
+<p>同理，在使用chrome作为浏览器时，需要下载<code>chromedriver</code>，</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line">driver = webdriver.Chrome()</span><br></pre></td></tr></table></figure>
 
     
 	</div>
@@ -107,7 +110,7 @@
       <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">
         
-          spring注解annotion
+          Spring Annotion
         
       </div>
     </a>

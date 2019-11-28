@@ -3,20 +3,22 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>单点登录 | simyy</title>
+  <title>单点登录 SSO | simyy</title>
   <meta name="viewport" content="width=device-width">
   <meta name="description" content="单点登录全称Single Sign On（简称SSO），是指在多系统中用户只需要登录一个系统，便可在其他所有系统中得到授权而无需再次登录。">
-<meta name="keywords" content="web">
+<meta name="keywords" content="SSO">
 <meta property="og:type" content="article">
-<meta property="og:title" content="单点登录">
+<meta property="og:title" content="单点登录 SSO">
 <meta property="og:url" content="http://simyy.cn/2016/12/13/sso/index.html">
 <meta property="og:site_name" content="simyy">
 <meta property="og:description" content="单点登录全称Single Sign On（简称SSO），是指在多系统中用户只需要登录一个系统，便可在其他所有系统中得到授权而无需再次登录。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-04-08T09:33:06.000Z">
+<meta property="og:image" content="http://simyy.cn/images/SSO_1.jpg">
+<meta property="og:updated_time" content="2019-11-28T06:58:23.821Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="单点登录">
+<meta name="twitter:title" content="单点登录 SSO">
 <meta name="twitter:description" content="单点登录全称Single Sign On（简称SSO），是指在多系统中用户只需要登录一个系统，便可在其他所有系统中得到授权而无需再次登录。">
+<meta name="twitter:image" content="http://simyy.cn/images/SSO_1.jpg">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -58,7 +60,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/web/">web</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SSO/">SSO</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -71,36 +73,65 @@
 		
   
     <h1 class="article-title entry-title" itemprop="name">
-      单点登录
+      单点登录 SSO
     </h1>
   
 
 	</header>
 	<div class="entry-content">
 		
-    	<p>单点登录全称Single Sign On（简称SSO），是指在多系统中用户只需要登录一个系统，便可在其他所有系统中得到授权而无需再次登录。<br><a id="more"></a></p>
-<h2 id="传统方法"><a href="#传统方法" class="headerlink" title="传统方法"></a>传统方法</h2><p>对于小型站点来说，可以直接通过cookie和session在多个页面下实现登录状态的共享。<br>session常被保存在redis/memcache集群中，以便提高访问效率。<br><strong>使用cookie和session有哪些问题？</strong><br>cookie不安全，需要通过加密算法来处理；<br>使用cookie不能跨域。</p>
-<h2 id="单点登录"><a href="#单点登录" class="headerlink" title="单点登录"></a>单点登录</h2><p>主要思想是设计一个独立于各个系统的登录系统，也即是说要把用户登录的权限验证统一管理。</p>
-<h3 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h3><p>单点登录需要一个独立的认证中心，只有认证中心能接受用户的用户名密码等安全信息，其他系统不提供登录入口，只接受认证中心的间接授权。</p>
-<h3 id="认证步骤"><a href="#认证步骤" class="headerlink" title="认证步骤"></a>认证步骤</h3><p>通过SSO认证登录，然后把授权信息发送给各个系统，具体步骤如下：</p>
+    	<p>单点登录全称<code>Single Sign On</code>（简称<code>SSO</code>），是指在多系统中用户只需要登录一个系统，便可在其他所有系统中得到授权而无需再次登录。</p>
+<a id="more"></a>
+<h2 id="传统方法"><a href="#传统方法" class="headerlink" title="传统方法"></a>传统方法</h2><p>对于小型站点来说，可以直接通过<code>cookie</code>和<code>session</code>在多个页面下实现登录状态的共享。</p>
+<p><code>session</code>常被保存在<code>redis</code>/<code>memcached</code>集群中，以便提高访问效率。</p>
+<blockquote>
+<p><strong>使用cookie和session有哪些问题？</strong><br>cookie不安全，需要通过加密算法来处理，而且cookie不能跨域。</p>
+</blockquote>
+<h2 id="单点登录"><a href="#单点登录" class="headerlink" title="单点登录"></a>单点登录</h2><p>主要思想是设计一个独立于各个系统的登录系统，也即是说要把用户登录的<code>权限验证统一管理</code>。</p>
+<h3 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h3><p><code>单点登录SSO</code>需要一个独立的认证中心，具有以下特性：</p>
 <ul>
-<li>用户登录某一系统，未登录则跳转到sso认证中心</li>
-<li>用户在sso输入用户名密码，认证通过，生成授权令牌</li>
-<li>sso把授权令牌发送到各个子系统和用户</li>
-<li>用户重新访问原有系统， 通过验证授权令牌，登入系统</li>
-<li><h3 id="注销步骤"><a href="#注销步骤" class="headerlink" title="注销步骤"></a>注销步骤</h3>由于单点登录的状态是统一管理的，那么用户在任何一个系统中注销登录状态的同时需要保证其他系统的授权令牌同时失效，具体步骤如下：</li>
-<li>用户在某一个系统注销登录</li>
-<li>注销信息会传递给sso认证中心</li>
-<li>认证中心再通知各个系统销毁授权令牌</li>
+<li><code>认证中心</code>负责接收用户登录和权限申请，包括用户密码等安全信息；</li>
+<li><code>认证中心</code>负责给用户生成、给业务系统验证<code>授权令牌</code>；</li>
+<li><code>业务系统</code>通过<code>认证中心</code>下发的<code>授权令牌</code>间接授权。</li>
+</ul>
+<h4 id="认证流程"><a href="#认证流程" class="headerlink" title="认证流程"></a>认证流程</h4><p>认证流程大体可以分为：</p>
+<ul>
+<li>业务系统检查当前用户是否已经拥有<code>授权令牌</code></li>
+<li>如果不存在的话，跳转<code>统一登录页面</code><ul>
+<li>用户密码登录</li>
+<li>下发<code>授权令牌</code>（此时，用户已经拥有<code>授权令牌</code>）</li>
+<li>重定向回业务系统</li>
+</ul>
+</li>
+<li>业务系统检查通过<code>认证中心</code>校验<code>授权令牌</code>的有效性</li>
+<li>完成登录</li>
+</ul>
+<p><img src="/images/SSO_1.jpg" alt="认证过程"></p>
+<h4 id="注销流程"><a href="#注销流程" class="headerlink" title="注销流程"></a>注销流程</h4><blockquote>
+<p>由于单点登录的状态是统一管理的，那么用户在任何一个系统中注销登录状态的同时需要保证其他系统的授权令牌同时失效。</p>
+</blockquote>
+<p>注销流程相对比较简单：</p>
+<ul>
+<li>用户发起注销操作</li>
+<li>业务系统通知<code>认证中心</code>当前<code>授权令牌</code>注销</li>
+<li><code>认证中心</code>注销当前<code>授权令牌</code>，并通知其他业务系统当前<code>授权令牌</code>的销毁</li>
+<li>用户注销完成</li>
 </ul>
 <h3 id="系统特点"><a href="#系统特点" class="headerlink" title="系统特点"></a>系统特点</h3><ul>
-<li>sso需要保存一份全局的用户登录状态（也就是授权令牌和登录用户的关系）；</li>
-<li>sso作为登录状态的唯一管理者，每次授权和销毁都需要同步最新的授权令牌的状态到各个子系统；</li>
-<li>sso和其他系统之间需要建立一套数据同步机制。</li>
+<li>SSO登录状态的全局性（与业务系统无关）</li>
+<li>授权令牌状态同步的实时性（注销需要实时下发到各个业务系统）</li>
 </ul>
-<h3 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h3><p><strong>大量授权请求如何处理？</strong><br>大量授权请求会带来大量的授权数据，由于授权数据的临时性，可将这些授权信息存储的缓存系统中，常见memcache/redis等；<br>大量的授权请求会产生大量的授权令牌的生成，常见的授权令牌都需要加密处理，必然影响系统性能，可通过预生成授权令牌的方式来降低批量生成令牌造成的资源竞争。</p>
-<p><strong>全局和局部的授权令牌如何同步处理？</strong><br>SSO和系统发生认证和注销操作都需要同步给系统中的每一个系统；<br>授权令牌采用按时间过期的方式，定期更新授权令牌到各个子系统；<br>至少保证登录注销的信息传递到SSO认证中心。</p>
-<h3 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h3><p>常见的单点登录包括一些网站或应用的微信认证登录、QQ认证登录、微博认证登录；<br>淘宝、360、微博、网易、美团的登录认证方式。</p>
+<h3 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h3><h4 id="大量授权请求如何处理？"><a href="#大量授权请求如何处理？" class="headerlink" title="大量授权请求如何处理？"></a>大量授权请求如何处理？</h4><ol>
+<li>大量并发请求可以通过使用<code>分布式缓存</code>方案来解决</li>
+</ol>
+<p>由于登录状态是可以容忍状态的丢失的（不一定需要落盘），从而可以通过把<code>授权信息</code>存储的缓存系统(redis、memcached)中，从而实现良好的系统性能，</p>
+<ol start="2">
+<li><code>预生成授权令牌</code>来解决授权令牌加密生成造成CPU负担的问题</li>
+</ol>
+<p>常见的授权令牌都需要加密处理，大量的授权请求必然影响系统性能，可通过预生成授权令牌的方式来降低批量生成令牌造成的资源竞争。</p>
+<h4 id="全局和局部的授权令牌如何同步处理？"><a href="#全局和局部的授权令牌如何同步处理？" class="headerlink" title="全局和局部的授权令牌如何同步处理？"></a>全局和局部的授权令牌如何同步处理？</h4><p>由于登录状态的一致性对时延要求不高，所以一般采用异步通知的方式，可采用消息队列来通知各个业务系统。</p>
+<p>此外，为了避免消息处理中发生的异常情况，授权令牌的时效性也需要一定的限制。</p>
+<h3 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h3><p>常见的单点登录包括一些网站或应用的微信认证登录、QQ认证登录、微博认证登录以及淘宝、360、微博、网易、美团的登录认证方式。</p>
 <h2 id="其他类似系统"><a href="#其他类似系统" class="headerlink" title="其他类似系统"></a>其他类似系统</h2><p>全局唯一ID生成器（不仅仅是UUID），可参考微信消息的唯一ID的生成方式</p>
 
     
@@ -123,7 +154,7 @@
       <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">
         
-          redis 跳跃表
+          Redis 跳跃表
         
       </div>
     </a>

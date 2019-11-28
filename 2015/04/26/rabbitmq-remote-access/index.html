@@ -5,18 +5,18 @@
   
   <title>RabbitMQ 远程连接 | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="解决rabbitmq远程连接的问题。">
-<meta name="keywords" content="rabbitmq">
+  <meta name="description" content="RabbitMQ远程连接的方法。">
+<meta name="keywords" content="RabbitMQ">
 <meta property="og:type" content="article">
 <meta property="og:title" content="RabbitMQ 远程连接">
 <meta property="og:url" content="http://simyy.cn/2015/04/26/rabbitmq-remote-access/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="解决rabbitmq远程连接的问题。">
+<meta property="og:description" content="RabbitMQ远程连接的方法。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-04-08T09:26:29.000Z">
+<meta property="og:updated_time" content="2019-11-28T08:38:41.476Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="RabbitMQ 远程连接">
-<meta name="twitter:description" content="解决rabbitmq远程连接的问题。">
+<meta name="twitter:description" content="RabbitMQ远程连接的方法。">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -58,7 +58,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rabbitmq/">rabbitmq</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RabbitMQ/">RabbitMQ</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -78,7 +78,9 @@
 	</header>
 	<div class="entry-content">
 		
-    	<p>解决rabbitmq远程连接的问题。<br><a id="more"></a><br>默认情况下，rabbitmq使用<code>guest</code>来连接本地（localhost）的server，当需要远程连接时，就会失效。</p>
+    	<p>RabbitMQ远程连接的方法。</p>
+<a id="more"></a>
+<p>默认情况下，<code>RabbitMQ</code>使用<code>guest</code>来连接本地（localhost）的server，当需要远程连接时，就会失效。</p>
 <pre><code>&quot;guest&quot; user can only connect via localhost
 </code></pre><p>官方文档：<a href="http://www.rabbitmq.com/access-control.html" target="_blank" rel="noopener">http://www.rabbitmq.com/access-control.html</a></p>
 <p>如果必须使用<code>guest</code>用户来进行远程登录，需要修改配置</p>
@@ -140,7 +142,7 @@ channel.start_consuming()
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          python 对象
+          Python PyObject
         
       </div>
     </a>
@@ -150,7 +152,7 @@ channel.start_consuming()
       <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">
         
-          memcache 内存管理
+          Memcached 内存管理
         
       </div>
     </a>

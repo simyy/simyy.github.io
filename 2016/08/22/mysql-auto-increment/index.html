@@ -3,20 +3,20 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>mysql自增主键 | simyy</title>
+  <title>MySQL 自增主键 | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="介绍mysql auto increment。">
-<meta name="keywords" content="mysql">
+  <meta name="description" content="介绍MySQL自增主键。">
+<meta name="keywords" content="MySQL">
 <meta property="og:type" content="article">
-<meta property="og:title" content="mysql自增主键">
+<meta property="og:title" content="MySQL 自增主键">
 <meta property="og:url" content="http://simyy.cn/2016/08/22/mysql-auto-increment/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="介绍mysql auto increment。">
+<meta property="og:description" content="介绍MySQL自增主键。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-04-08T09:28:59.000Z">
+<meta property="og:updated_time" content="2019-11-28T09:44:13.821Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="mysql自增主键">
-<meta name="twitter:description" content="介绍mysql auto increment。">
+<meta name="twitter:title" content="MySQL 自增主键">
+<meta name="twitter:description" content="介绍MySQL自增主键。">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -58,7 +58,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -71,14 +71,14 @@
 		
   
     <h1 class="article-title entry-title" itemprop="name">
-      mysql自增主键
+      MySQL 自增主键
     </h1>
   
 
 	</header>
 	<div class="entry-content">
 		
-    	<p>介绍mysql auto increment。<br><a id="more"></a></p>
+    	<p>介绍MySQL自增主键。<br><a id="more"></a></p>
 <h2 id="auto-increment"><a href="#auto-increment" class="headerlink" title="auto increment"></a>auto increment</h2><p><code>mysql</code>的自增步长可以通过下面的命令查询，</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SHOW VARIABLES LIKE &apos;auto_inc%&apos;;</span><br><span class="line">+--------------------------+-------+</span><br><span class="line">| Variable_name            | Value |</span><br><span class="line">+--------------------------+-------+</span><br><span class="line">| auto_increment_increment | 1     |</span><br><span class="line">| auto_increment_offset    | 1     |</span><br><span class="line">+--------------------------+-------+</span><br></pre></td></tr></table></figure>
 <p>其中，<code>auto_increment_increment</code>是自增的步长，value为1代表每次+1，<code>auto_increment_offset</code>是自增的偏移量，也就是自增开始，value为1代表从1开始增加。</p>
@@ -108,7 +108,7 @@
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          thrift 入门
+          Thrift使用
         
       </div>
     </a>
@@ -118,7 +118,7 @@
       <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">
         
-          python 迭代器和生成器
+          Python 迭代器和生成器
         
       </div>
     </a>

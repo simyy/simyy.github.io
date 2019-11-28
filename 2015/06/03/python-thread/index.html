@@ -3,19 +3,19 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>python-多线程 | simyy</title>
+  <title>Python 多线程 | simyy</title>
   <meta name="viewport" content="width=device-width">
   <meta name="description" content="介绍python中的多线程。">
-<meta name="keywords" content="python">
+<meta name="keywords" content="Python,多线程">
 <meta property="og:type" content="article">
-<meta property="og:title" content="python-多线程">
+<meta property="og:title" content="Python 多线程">
 <meta property="og:url" content="http://simyy.cn/2015/06/03/python-thread/index.html">
 <meta property="og:site_name" content="simyy">
 <meta property="og:description" content="介绍python中的多线程。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-04-08T09:27:11.000Z">
+<meta property="og:updated_time" content="2019-11-28T08:52:28.232Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="python-多线程">
+<meta name="twitter:title" content="Python 多线程">
 <meta name="twitter:description" content="介绍python中的多线程。">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
@@ -58,7 +58,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/">Python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/多线程/">多线程</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -71,36 +71,60 @@
 		
   
     <h1 class="article-title entry-title" itemprop="name">
-      python-多线程
+      Python 多线程
     </h1>
   
 
 	</header>
 	<div class="entry-content">
 		
-    	<p>介绍python中的多线程。<br><a id="more"></a></p>
-<h2 id="真正的多线程吗？"><a href="#真正的多线程吗？" class="headerlink" title="真正的多线程吗？"></a>真正的多线程吗？</h2><p>对于多核处理器，在同一时间确实可以多个线程独立运行，但在Python中确不是这样的了。原因在于，python虚拟机中引入了GIL这一概念。GIL（Global Interpreter Lock）全局解析器锁是用来解决共享资源访问的互斥问题，导致在python虚拟机中同一时间只能有一个线程访问python所提供的API。</p>
-<pre><code>那么python是如何支持多线程的呢？
-</code></pre><p>在操作系统中系统通过时钟中断进行进程的调度，而python正是参考这个原理。在python内部维护了一个内部的时钟，来记录每个线程每个时钟周期执行命令的数量。</p>
+    	<p>介绍python中的多线程。</p>
+<a id="more"></a>
+<h2 id="真正的多线程吗？"><a href="#真正的多线程吗？" class="headerlink" title="真正的多线程吗？"></a>真正的多线程吗？</h2><p>对于多核处理器，在同一时间确实可以多个线程独立运行，但在Python中确不是这样的了。原因在于，python虚拟机中引入了<code>GIL</code>这一概念。<code>GIL（Global Interpreter Lock）</code>全局解析器锁是用来解决共享资源访问的互斥问题，导致在python虚拟机中同一时间只能有一个线程访问python所提供的API。</p>
+<blockquote>
+<p>那么python是如何支持多线程的呢？</p>
+</blockquote>
+<p>在操作系统中系统通过<code>时钟中断</code>进行<code>进程的调度</code>，而Python正是参考这个原理。</p>
+<p>在python内部维护了一个内部的时钟，来记录每个线程每个时钟周期执行命令的数量。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> sys</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>sys.getcheckinterval() <span class="comment">#获取一个始终周期内执行指令数</span></span><br><span class="line"><span class="number">100</span></span><br></pre></td></tr></table></figure>
-<p>当一个线程获得了python虚拟机的GIL后可以按顺序执行100条指令，然后挂起当前进程，切换下一个等待执行的线程。</p>
-<pre><code>那么python如何选择下一个需要执行的线程呢？
-</code></pre><p>python并没有去实现一个线程优先级调度算法，而是将线程选择问题交给了底层的操作系统，也就是说python借用了底层操作系统所提供的线程调度机制来决定下一个执行的线程。</p>
-<p>因此，python使用的就是操作系统原生的线程，只是python在其基础之上提供了一套统一的抽象机制。</p>
-<h2 id="线程切换"><a href="#线程切换" class="headerlink" title="线程切换"></a>线程切换</h2><p>在操作系统中，进程之间的切换需要不断保存和恢复进程之间的上下文环境，保证每一个进行都能在其对应的上下文环境中运行。python正是参考操作系统的切换机制，为每一个线程创建一个保存线程状态信息的PyFrameObject对象。在python中有有一个全局变量<code>PyThreadState *_PyThreadState_Current</code>用来保存当前活动线程的线程状态对象。</p>
-<pre><code>下一线程切换需要的线程状态如何获取？
-</code></pre><p>在python中通过一个单项链表来管理所有的python线程对象(保护线程的状态信息和线程信息，例如线程id)，当需要寻找一个线程对应的状态对象时，就遍历这个链表，搜索其对应的状态对象。</p>
+<blockquote>
+<p>线程执行100条指令会发生线程切换。</p>
+</blockquote>
+<p>当一个线程获得了<code>Python虚拟机</code>的<code>GIL</code>后可以按顺序执行<code>100</code>条指令，然后挂起当前进程，切换下一个等待执行的线程。</p>
+<blockquote>
+<p>那么Python如何选择下一个需要执行的线程呢？</p>
+</blockquote>
+<p><code>Python</code>并没有去实现一个线程优先级调度算法，而是将线程选择问题交给了底层的操作系统。</p>
+<blockquote>
+<p><code>Python</code>借用了底层操作系统所提供的线程调度机制来决定下一个执行的线程。</p>
+</blockquote>
+<p>因此，Python使用的就是操作系统原生的线程，只是Python在其基础之上提供了一套统一的抽象机制。</p>
+<h2 id="线程切换"><a href="#线程切换" class="headerlink" title="线程切换"></a>线程切换</h2><p>在操作系统中，进程之间的切换需要不断保存和恢复进程之间的上下文环境，保证每一个进行都能在其对应的上下文环境中运行。</p>
+<p>Python正是参考操作系统的切换机制，为每一个线程创建一个保存线程状态信息的PyFrameObject对象。</p>
+<p>在Python中有有一个全局变量<code>PyThreadState *_PyThreadState_Current</code>用来保存当前活动线程的线程状态对象。</p>
+<blockquote>
+<p>下一线程切换需要的线程状态如何获取？</p>
+</blockquote>
+<p>在Python中通过一个单项链表来管理所有的python线程对象(保护线程的状态信息和线程信息，例如线程id)，当需要寻找一个线程对应的状态对象时，就遍历这个链表，搜索其对应的状态对象。</p>
 <p>这个状态对象链表并不会受到GIL的保护，而是有其专用的锁。</p>
 <p><strong>需要注意</strong></p>
-<p>当前活动的python线程不一定是获得了GIL的线程，例如“主线程获得了GIL，子线程还没有申请到GIL时也没有挂起，而且主线程和子线程都是操作系统原生的线程，操作系统可能在主线程和子线程之间进行切换（操作系统的线程切换是不受python虚拟机控制的，属于操作系统自身行为）”。python虚拟机的调度是一定是获得GIL基础之上的，而操作系统级的就不一定获得GIL了。</p>
+<p>当前活动的Python线程不一定是获得了GIL的线程。</p>
+<blockquote>
+<p>例如：</p>
+<p>主线程获得了GIL，子线程还没有申请到GIL时也没有挂起，而且主线程和子线程都是操作系统原生的线程，操作系统可能在主线程和子线程之间进行切换。</p>
+<p>操作系统的线程切换是不受python虚拟机控制的，属于操作系统自身行为。</p>
+<p>Python虚拟机的调度是一定是获得GIL基础之上的，而操作系统级的线程是不一定获得GIL。</p>
+</blockquote>
 <p>虽有操作系统会把未获得GIL的线程切换为活动线程，但是该线程发现自身并没有获得GIL会自动挂起。</p>
-<p>只有当所有线程都完成了初始化操作，操作系统的线程调度和Python线程调度才会一致。那时，python的线程调度会迫使当前活动线程释放GIL，导致触发GIL中维护的Event内核对象，从而触发操作系统的线程调度。（在初始化完成之前，python线程调度和操作系统调度之间没有因果关系）</p>
+<p>只有当所有线程都完成了初始化操作，操作系统的线程调度和Python线程调度才会一致。</p>
+<p>Python的线程调度会迫使当前活动线程释放GIL，导致触发GIL中维护的Event内核对象，从而触发操作系统的线程调度。</p>
 <h2 id="阻塞调度和线程销毁"><a href="#阻塞调度和线程销毁" class="headerlink" title="阻塞调度和线程销毁"></a>阻塞调度和线程销毁</h2><p>在python中如果有raw_input等待输入的操作时将自身阻塞后，并将等待GIL线程唤醒，这种情况成为阻塞调度。</p>
 <p>在线程通过阻塞调度切换时，python内部的时钟周期技术<code>_Py_Ticker</code>依然会被保持，不会被重置。</p>
 <p>python的主线程销毁和子线程销毁是不同的，子线程只需要维护引用计数，而主线程还需要销毁运行环境。</p>
-<h2 id="用户级互斥和同步"><a href="#用户级互斥和同步" class="headerlink" title="用户级互斥和同步"></a>用户级互斥和同步</h2><p>上面讨论的GIL属于python内合计互斥，实现了保护内存的共享资源。而用户级互斥保护了用户程序中的共享资源。</p>
-<p>python中提供了lock机制来实现线程之间的互斥。当线程通过lock.acquire获得lock之后，子线程会因为等待lock而挂起，直到主线程释放lock之后才会被Python的线程调度机制唤醒。</p>
-<p>在线程执行过程中如果出现需要等待另一个lock资源的时候，需要将GIL转交给其他等待GIL的线程以避免死锁。</p>
+<h2 id="用户级互斥和同步"><a href="#用户级互斥和同步" class="headerlink" title="用户级互斥和同步"></a>用户级互斥和同步</h2><p><code>GIL</code>实现了保护<code>内存的共享资源</code>，而<code>用户级互斥</code>保护了<code>用户程序中的共享资源</code>。</p>
+<p><code>Python</code>中提供了<code>Lock机制</code>来实现<code>线程之间的互斥</code>。</p>
+<p>当线程通过<code>Lock.acquire</code>获得<code>Lock</code>之后，子线程会因为等待<code>Lock</code>而挂起，直到主线程释放<code>Lock</code>之后才会被Python的线程调度机制唤醒。</p>
+<p>在线程执行过程中如果出现需要等待另一个<code>Lock资源</code>的时候，需要将<code>GIL</code>转交给其他等待GIL的线程以避免死锁。</p>
 
     
 	</div>
@@ -112,7 +136,7 @@
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          SVM-线性可分支持向量机
+          SVM 线性可分支持向量机
         
       </div>
     </a>
@@ -122,7 +146,7 @@
       <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">
         
-          python virtualenv
+          Python virtualenv
         
       </div>
     </a>

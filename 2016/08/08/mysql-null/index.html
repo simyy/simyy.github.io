@@ -3,20 +3,20 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>mysql中的null | simyy</title>
+  <title>MySQL null | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="null一般用来代表某个字段还没有被赋值，而not null被认为某字段不允许为空，那么在使用中到底该注意哪些内容？">
-<meta name="keywords" content="mysql">
+  <meta name="description" content="记录下MySQL中null对于查询及存储的影响。">
+<meta name="keywords" content="MySQL">
 <meta property="og:type" content="article">
-<meta property="og:title" content="mysql中的null">
+<meta property="og:title" content="MySQL null">
 <meta property="og:url" content="http://simyy.cn/2016/08/08/mysql-null/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="null一般用来代表某个字段还没有被赋值，而not null被认为某字段不允许为空，那么在使用中到底该注意哪些内容？">
+<meta property="og:description" content="记录下MySQL中null对于查询及存储的影响。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-04-08T09:28:54.000Z">
+<meta property="og:updated_time" content="2019-11-28T09:44:14.573Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="mysql中的null">
-<meta name="twitter:description" content="null一般用来代表某个字段还没有被赋值，而not null被认为某字段不允许为空，那么在使用中到底该注意哪些内容？">
+<meta name="twitter:title" content="MySQL null">
+<meta name="twitter:description" content="记录下MySQL中null对于查询及存储的影响。">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -58,7 +58,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -71,14 +71,15 @@
 		
   
     <h1 class="article-title entry-title" itemprop="name">
-      mysql中的null
+      MySQL null
     </h1>
   
 
 	</header>
 	<div class="entry-content">
 		
-    	<p>null一般用来代表某个字段还没有被赋值，而not null被认为某字段不允许为空，那么在使用中到底该注意哪些内容？<br><a id="more"></a></p>
+    	<p>记录下MySQL中null对于查询及存储的影响。<br><a id="more"></a></p>
+<p>null一般用来代表某个字段还没有被赋值，而not null被认为某字段不允许为空，那么在使用中到底该注意哪些内容？</p>
 <h2 id="query"><a href="#query" class="headerlink" title="query"></a>query</h2><p>如果需要查询字段内容为null的数据，不可以直接用<code>expr = null</code>来查询，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from test where name = null;</span><br></pre></td></tr></table></figure></p>
 <p>上面的查询是错误的，因为<code>expr = null</code> 永远都是false，及时expr字段被设置为null。<br>应该使用下面的方式<code>expr is null</code>来过滤，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from test where name is null;</span><br></pre></td></tr></table></figure></p>
 <p>在<code>GROUP BY</code>中，null会被认为是相同的；<br>在<code>ORDER BY ... ASC</code>中, null会被放在最前面。</p>
@@ -97,7 +98,7 @@
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          python 迭代器和生成器
+          Python 迭代器和生成器
         
       </div>
     </a>
@@ -107,7 +108,7 @@
       <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">
         
-          ZeroCopy零拷贝
+          ZeroCopy
         
       </div>
     </a>

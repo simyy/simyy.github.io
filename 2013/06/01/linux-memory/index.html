@@ -3,20 +3,20 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>Linux内核设计与实现笔记（二） 内存管理、进程地址空间 | simyy</title>
+  <title>Linux 内存管理、进程地址空间 | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="linux内存管理。">
-<meta name="keywords" content="linux">
+  <meta name="description" content="Linux内存管理笔记。">
+<meta name="keywords" content="计算机">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Linux内核设计与实现笔记（二） 内存管理、进程地址空间">
+<meta property="og:title" content="Linux 内存管理、进程地址空间">
 <meta property="og:url" content="http://simyy.cn/2013/06/01/linux-memory/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="linux内存管理。">
+<meta property="og:description" content="Linux内存管理笔记。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-04-08T09:34:47.000Z">
+<meta property="og:updated_time" content="2019-11-28T10:45:25.346Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Linux内核设计与实现笔记（二） 内存管理、进程地址空间">
-<meta name="twitter:description" content="linux内存管理。">
+<meta name="twitter:title" content="Linux 内存管理、进程地址空间">
+<meta name="twitter:description" content="Linux内存管理笔记。">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -58,7 +58,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/计算机/">计算机</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -71,14 +71,15 @@
 		
   
     <h1 class="article-title entry-title" itemprop="name">
-      Linux内核设计与实现笔记（二） 内存管理、进程地址空间
+      Linux 内存管理、进程地址空间
     </h1>
   
 
 	</header>
 	<div class="entry-content">
 		
-    	<p>linux内存管理。<br><a id="more"></a></p>
+    	<p>Linux内存管理笔记。</p>
+<a id="more"></a>
 <h2 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h2><h3 id="页"><a href="#页" class="headerlink" title="页"></a>页</h3><p>物理页作为内存管理的基本单位。<br>内存管理单元通常以页<code>page</code>为单位进行处理。</p>
 <h3 id="区"><a href="#区" class="headerlink" title="区"></a>区</h3><p>由于页位于内存中特定的物理地址上，所以不能将其用于一些特定的任务，故内核把页划分为不同的区。</p>
 <blockquote>

@@ -3,20 +3,20 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>golang反射 | simyy</title>
+  <title>Golang 反射 | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="go语言中reflect反射机制。详细原文：地址">
-<meta name="keywords" content="go">
+  <meta name="description" content="Golang语言中reflect反射机制。详细原文：地址">
+<meta name="keywords" content="Golang">
 <meta property="og:type" content="article">
-<meta property="og:title" content="golang反射">
+<meta property="og:title" content="Golang 反射">
 <meta property="og:url" content="http://simyy.cn/2015/10/15/go-reflect/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="go语言中reflect反射机制。详细原文：地址">
+<meta property="og:description" content="Golang语言中reflect反射机制。详细原文：地址">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-04-08T09:30:50.000Z">
+<meta property="og:updated_time" content="2019-11-28T10:45:17.507Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="golang反射">
-<meta name="twitter:description" content="go语言中reflect反射机制。详细原文：地址">
+<meta name="twitter:title" content="Golang 反射">
+<meta name="twitter:description" content="Golang语言中reflect反射机制。详细原文：地址">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -58,7 +58,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/go/">go</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Golang/">Golang</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -71,14 +71,14 @@
 		
   
     <h1 class="article-title entry-title" itemprop="name">
-      golang反射
+      Golang 反射
     </h1>
   
 
 	</header>
 	<div class="entry-content">
 		
-    	<p>go语言中reflect反射机制。详细原文：<a href="http://blog.golang.org/laws-of-reflection" target="_blank" rel="noopener">地址</a><br><a id="more"></a><br>在go中，反射是建立在类型基础之上，每一个变量都会有一个静态类型。</p>
+    	<p>Golang语言中reflect反射机制。详细原文：<a href="http://blog.golang.org/laws-of-reflection" target="_blank" rel="noopener">地址</a><br><a id="more"></a><br>在go中，反射是建立在类型基础之上，每一个变量都会有一个静态类型。</p>
 <h2 id="接口值到反射对象"><a href="#接口值到反射对象" class="headerlink" title="接口值到反射对象"></a>接口值到反射对象</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">    <span class="string">"reflect"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> x <span class="keyword">int</span> = <span class="number">1</span></span><br><span class="line">    fmt.Println(<span class="string">"type: "</span>, reflect.TypeOf(x))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">type:  int</span><br></pre></td></tr></table></figure>
 <p><code>TypeOf</code>函数的定义如下，参数为接口类型，返回值为类型<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TypeOf</span><span class="params">(i <span class="keyword">interface</span> &#123;&#125;)</span> <span class="title">Type</span></span></span><br></pre></td></tr></table></figure></p>
@@ -119,7 +119,7 @@
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          mysql存储过程
+          MySQL 存储过程
         
       </div>
     </a>

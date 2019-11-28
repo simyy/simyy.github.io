@@ -3,20 +3,20 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>python 守护进程 | simyy</title>
+  <title>Python 守护进程 | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="python守护进程与linux c实现原理是一样的。">
-<meta name="keywords" content="python">
+  <meta name="description" content="守护进程在Python中的实现原理同linux c一样。">
+<meta name="keywords" content="Python">
 <meta property="og:type" content="article">
-<meta property="og:title" content="python 守护进程">
+<meta property="og:title" content="Python 守护进程">
 <meta property="og:url" content="http://simyy.cn/2014/10/22/python-deamon/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="python守护进程与linux c实现原理是一样的。">
+<meta property="og:description" content="守护进程在Python中的实现原理同linux c一样。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-04-08T09:28:06.000Z">
+<meta property="og:updated_time" content="2019-11-28T09:44:20.565Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="python 守护进程">
-<meta name="twitter:description" content="python守护进程与linux c实现原理是一样的。">
+<meta name="twitter:title" content="Python 守护进程">
+<meta name="twitter:description" content="守护进程在Python中的实现原理同linux c一样。">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -58,7 +58,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/">Python</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -71,14 +71,15 @@
 		
   
     <h1 class="article-title entry-title" itemprop="name">
-      python 守护进程
+      Python 守护进程
     </h1>
   
 
 	</header>
 	<div class="entry-content">
 		
-    	<p>python守护进程与linux c实现原理是一样的。<br><a id="more"></a></p>
+    	<p><code>守护进程</code>在Python中的实现原理同<code>linux c</code>一样。</p>
+<a id="more"></a>
 <p>第一个fork是为了让shell返回，同时让你完成setsid（从你的控制终端移除，这样就不会意外地收到信号）。setsid使得这个进程成为“会话领导（session leader）”，即如果这个进程打开任何终端，该终端就会成为此进程的控制终端。我们不需要一个守护进程有任何控制终端，所以我们又fork一次。在第二次fork之后，此进程不再是一个“会话领导”，这样它就能打开任何文件（包括终端）且不会意外地再次获得一个控制终端</p>
 <p>另外说明：<br>umask()函数为进程设置文件模式创建屏蔽字，并返回以前的值<br>在shell命令行输入：umask 就可知当前文件模式创建屏蔽字<br>常见的几种umask值是002，022和027，002阻止其他用户写你的文件，022阻止同组成员和其他用户写你的文件，027阻止同组成员写你的文件以及其他用户读写或执行你的文件<br>rwx-rwx-rwx  代表是777  所有的人都具有权限读写与执行</p>
 <p>chmod()改变文件的权限位<br>int dup(int filedes) 返回新文件描述符一定是当前文件描述符中的最小数值<br>int dup2(int filedes, int filedes2);这两个函数返回的新文件描述符与参数filedes共享同一个文件表项。</p>
@@ -90,11 +91,11 @@
     
 <nav id="article-nav">
   
-    <a href="/2014/11/01/python-list/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2014/11/09/python-decorator/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          python 序列
+          Python 装饰器
         
       </div>
     </a>
@@ -104,7 +105,7 @@
       <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">
         
-          webpy中的session实现
+          Session In Webpy
         
       </div>
     </a>

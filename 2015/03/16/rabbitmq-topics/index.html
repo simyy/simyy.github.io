@@ -5,18 +5,18 @@
   
   <title>RabbitMQ topics | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="rabbitmq中的topic exchange将路由键和某模式进行匹配，从而类似于正则匹配的方式去接收喜欢的信息。">
-<meta name="keywords" content="rabbitmq">
+  <meta name="description" content="RabbitMQ中的topic exchange将路由键和某模式进行匹配，从而类似于正则匹配的方式去接收喜欢的信息。">
+<meta name="keywords" content="RabbitMQ">
 <meta property="og:type" content="article">
 <meta property="og:title" content="RabbitMQ topics">
 <meta property="og:url" content="http://simyy.cn/2015/03/16/rabbitmq-topics/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="rabbitmq中的topic exchange将路由键和某模式进行匹配，从而类似于正则匹配的方式去接收喜欢的信息。">
+<meta property="og:description" content="RabbitMQ中的topic exchange将路由键和某模式进行匹配，从而类似于正则匹配的方式去接收喜欢的信息。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-04-08T09:26:24.000Z">
+<meta property="og:updated_time" content="2019-11-28T08:38:43.051Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="RabbitMQ topics">
-<meta name="twitter:description" content="rabbitmq中的topic exchange将路由键和某模式进行匹配，从而类似于正则匹配的方式去接收喜欢的信息。">
+<meta name="twitter:description" content="RabbitMQ中的topic exchange将路由键和某模式进行匹配，从而类似于正则匹配的方式去接收喜欢的信息。">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -58,7 +58,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rabbitmq/">rabbitmq</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RabbitMQ/">RabbitMQ</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -78,7 +78,8 @@
 	</header>
 	<div class="entry-content">
 		
-    	<p><code>rabbitmq</code>中的<code>topic exchange</code>将路由键和某模式进行匹配，从而类似于正则匹配的方式去接收喜欢的信息。<br><a id="more"></a></p>
+    	<p><code>RabbitMQ</code>中的<code>topic exchange</code>将路由键和某模式进行匹配，从而类似于正则匹配的方式去接收喜欢的信息。</p>
+<a id="more"></a>
 <h2 id="topic-exchange"><a href="#topic-exchange" class="headerlink" title="topic exchange"></a>topic exchange</h2><p>如果想使用<code>topic</code>模式，那么可以随意设置<code>routing_key</code>。相反，需要按照一定的要求设定该值。</p>
 <p><code>routing_key</code>在topic模式中应该选择一组拥有特定属性的单词作为该值。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">\* (star) can substitute for exactly one word.</span><br><span class="line"># (hash) can substitute for zero or more words.</span><br></pre></td></tr></table></figure>
@@ -128,7 +129,7 @@ channel.start_consuming()
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          redis（一） 安装以及基本数据类型操作
+          Redis安装及操作
         
       </div>
     </a>

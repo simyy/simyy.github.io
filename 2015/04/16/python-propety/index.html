@@ -3,20 +3,20 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>python propety | simyy</title>
+  <title>Python Propety | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="在2.6版本中，添加了一种新的类成员函数的访问方式–property。">
-<meta name="keywords" content="python">
+  <meta name="description" content="在Python 2.6版本中，添加了一种新的类成员函数的访问方式property。">
+<meta name="keywords" content="Python">
 <meta property="og:type" content="article">
-<meta property="og:title" content="python propety">
+<meta property="og:title" content="Python Propety">
 <meta property="og:url" content="http://simyy.cn/2015/04/16/python-propety/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="在2.6版本中，添加了一种新的类成员函数的访问方式–property。">
+<meta property="og:description" content="在Python 2.6版本中，添加了一种新的类成员函数的访问方式property。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-04-08T09:27:26.000Z">
+<meta property="og:updated_time" content="2019-11-28T08:53:26.280Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="python propety">
-<meta name="twitter:description" content="在2.6版本中，添加了一种新的类成员函数的访问方式–property。">
+<meta name="twitter:title" content="Python Propety">
+<meta name="twitter:description" content="在Python 2.6版本中，添加了一种新的类成员函数的访问方式property。">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -58,7 +58,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/">Python</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -71,14 +71,15 @@
 		
   
     <h1 class="article-title entry-title" itemprop="name">
-      python propety
+      Python Propety
     </h1>
   
 
 	</header>
 	<div class="entry-content">
 		
-    	<p>在2.6版本中，添加了一种新的类成员函数的访问方式–property。<br><a id="more"></a></p>
+    	<p>在<code>Python 2.6</code>版本中，添加了一种新的类成员函数的访问方式<code>property</code>。</p>
+<a id="more"></a>
 <h2 id="原型"><a href="#原型" class="headerlink" title="原型"></a>原型</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">class property([fget[, fset[, fdel[, doc]]]])</span><br><span class="line">fget：获取属性</span><br><span class="line"></span><br><span class="line">fset：设置属性</span><br><span class="line"></span><br><span class="line">fdel：删除属性</span><br><span class="line"></span><br><span class="line">doc：属性含义</span><br></pre></td></tr></table></figure>
 <h2 id="用法"><a href="#用法" class="headerlink" title="用法"></a>用法</h2><h3 id="让成员函数通过属性方式调用"><a href="#让成员函数通过属性方式调用" class="headerlink" title="让成员函数通过属性方式调用"></a>让成员函数通过属性方式调用</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">C</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        self._x = <span class="keyword">None</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">getx</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> self._x</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">setx</span><span class="params">(self, value)</span>:</span></span><br><span class="line">        self._x = value</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">delx</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">del</span> self._x</span><br><span class="line">    x = property(getx, setx, delx, <span class="string">"I'm the 'x' property."</span>)</span><br><span class="line">a = C()</span><br><span class="line"><span class="keyword">print</span> C.x.__doc__ <span class="comment">#打印doc</span></span><br><span class="line"><span class="keyword">print</span> a.x <span class="comment">#调用a.getx()</span></span><br><span class="line"></span><br><span class="line">a.x = <span class="number">100</span> <span class="comment">#调用a.setx()</span></span><br><span class="line"><span class="keyword">print</span> a.x</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    <span class="keyword">del</span> a.x <span class="comment">#调用a.delx()</span></span><br><span class="line">    <span class="keyword">print</span> a.x <span class="comment">#已被删除，报错</span></span><br><span class="line"><span class="keyword">except</span> Exception, e:</span><br><span class="line">    <span class="keyword">print</span> e</span><br></pre></td></tr></table></figure>
 <p>输出结果：</p>
@@ -100,7 +101,7 @@
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          python sort
+          Python Sort
         
       </div>
     </a>

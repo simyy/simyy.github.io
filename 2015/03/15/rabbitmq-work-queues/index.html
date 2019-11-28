@@ -5,18 +5,18 @@
   
   <title>RabbitMQ Work Queues | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="RabbitMQ使用Work Queues的主要目的是为了避免资源使用密集的任务，它不同于定时任务处理的方式，而是把任务封装为消息添加到队列中。而消息队列正是共享于多个工作者中使用，它们可以随意pop出数据进行处理。">
-<meta name="keywords" content="rabbitmq">
+  <meta name="description" content="RabbitMQ使用Work Queues的主要目的是为了避免资源使用密集的任务。">
+<meta name="keywords" content="RabbitMQ">
 <meta property="og:type" content="article">
 <meta property="og:title" content="RabbitMQ Work Queues">
 <meta property="og:url" content="http://simyy.cn/2015/03/15/rabbitmq-work-queues/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="RabbitMQ使用Work Queues的主要目的是为了避免资源使用密集的任务，它不同于定时任务处理的方式，而是把任务封装为消息添加到队列中。而消息队列正是共享于多个工作者中使用，它们可以随意pop出数据进行处理。">
+<meta property="og:description" content="RabbitMQ使用Work Queues的主要目的是为了避免资源使用密集的任务。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-04-08T09:26:19.000Z">
+<meta property="og:updated_time" content="2019-11-28T08:38:45.788Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="RabbitMQ Work Queues">
-<meta name="twitter:description" content="RabbitMQ使用Work Queues的主要目的是为了避免资源使用密集的任务，它不同于定时任务处理的方式，而是把任务封装为消息添加到队列中。而消息队列正是共享于多个工作者中使用，它们可以随意pop出数据进行处理。">
+<meta name="twitter:description" content="RabbitMQ使用Work Queues的主要目的是为了避免资源使用密集的任务。">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -58,7 +58,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rabbitmq/">rabbitmq</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RabbitMQ/">RabbitMQ</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -78,7 +78,9 @@
 	</header>
 	<div class="entry-content">
 		
-    	<p>RabbitMQ使用Work Queues的主要目的是为了避免资源使用密集的任务，它不同于定时任务处理的方式，而是把任务封装为消息添加到队列中。而消息队列正是共享于多个工作者中使用，它们可以随意pop出数据进行处理。<br><a id="more"></a></p>
+    	<p><code>RabbitMQ</code>使用<code>Work Queues</code>的主要目的是为了避免资源使用密集的任务。</p>
+<a id="more"></a>
+<p>它不同于定时任务处理的方式，而是把任务封装为消息添加到队列中。而消息队列正是共享于多个工作者中使用，它们可以随意pop出数据进行处理。</p>
 <h2 id="消息的持久化-Message-durability"><a href="#消息的持久化-Message-durability" class="headerlink" title="消息的持久化 Message durability"></a>消息的持久化 Message durability</h2><p>为了保证<code>rabbitmq</code>意外重启等原因造成的消息丢失，通过设置消息的durable来实现数据的持久化，但是需要生产者和消费者同时设置持久化才能生效。</p>
 <p>需要注意的是，<code>rabbitmq</code>并不允许更改已经创建的消息队列的属性，假如之前已经创建过非持久化的hello消息队列，那么会返回一个错误信息。</p>
 <p>设置消息队列的可持久化属性（第二个参数）：</p>

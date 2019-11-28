@@ -3,20 +3,20 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>memcache 内存管理 | simyy</title>
+  <title>Memcached 内存管理 | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="memcached使用预申请的方式来管理内存的分配，从而避免内存碎片化的问题。如果采用mallo和free来动态的申请和销毁内存，必然会产生大量的内存碎片。">
-<meta name="keywords" content="memcache">
+  <meta name="description" content="Memcached使用预申请的方式来管理内存的分配，从而避免内存碎片化的问题。">
+<meta name="keywords" content="Memcached">
 <meta property="og:type" content="article">
-<meta property="og:title" content="memcache 内存管理">
+<meta property="og:title" content="Memcached 内存管理">
 <meta property="og:url" content="http://simyy.cn/2015/04/26/memcache-memory-management/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="memcached使用预申请的方式来管理内存的分配，从而避免内存碎片化的问题。如果采用mallo和free来动态的申请和销毁内存，必然会产生大量的内存碎片。">
+<meta property="og:description" content="Memcached使用预申请的方式来管理内存的分配，从而避免内存碎片化的问题。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-04-08T09:29:25.000Z">
+<meta property="og:updated_time" content="2019-11-28T09:44:10.023Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="memcache 内存管理">
-<meta name="twitter:description" content="memcached使用预申请的方式来管理内存的分配，从而避免内存碎片化的问题。如果采用mallo和free来动态的申请和销毁内存，必然会产生大量的内存碎片。">
+<meta name="twitter:title" content="Memcached 内存管理">
+<meta name="twitter:description" content="Memcached使用预申请的方式来管理内存的分配，从而避免内存碎片化的问题。">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -58,7 +58,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/memcache/">memcache</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Memcached/">Memcached</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -71,25 +71,27 @@
 		
   
     <h1 class="article-title entry-title" itemprop="name">
-      memcache 内存管理
+      Memcached 内存管理
     </h1>
   
 
 	</header>
 	<div class="entry-content">
 		
-    	<p>memcached使用预申请的方式来管理内存的分配，从而避免内存碎片化的问题。如果采用mallo和free来动态的申请和销毁内存，必然会产生大量的内存碎片。<br><a id="more"></a></p>
-<h2 id="基本知识"><a href="#基本知识" class="headerlink" title="基本知识"></a>基本知识</h2><p>slab：内存块是memcached一次申请内存的最小单元，在memcached中一个slab的默认大小为1M；</p>
-<p>slabclass：特定大小的chunk的组。</p>
-<p>chunk：缓存的内存空间，一个slab被划分为若干个chunk；</p>
-<p>item：存储数据的最小单元，每一个chunk都会包含一个item；</p>
-<p>factor:增长因子，默认为1.25，相邻slab中的item大小与factor成比例关系；</p>
-<h2 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h2><p>memcached使用预分配方法，避免频繁的调用malloc和free；</p>
-<p>memcached通过不同的slab来管理不同chunk大小的内存块，从而满足存储不同大小的数据。</p>
-<p>slab的申请是通过在使用item时申请slab大小的内存空间，然后再把内存切割为大小相同的item，挂在到slab的未使用链表上。</p>
+    	<p>Memcached使用预申请的方式来管理内存的分配，从而避免内存碎片化的问题。<br><a id="more"></a><br>如果采用mallo和free来动态的申请和销毁内存，必然会产生大量的内存碎片。</p>
+<h2 id="基本知识"><a href="#基本知识" class="headerlink" title="基本知识"></a>基本知识</h2><ul>
+<li><code>slab</code>：内存块是memcached一次申请内存的最小单元，在memcached中一个slab的默认大小为1M；</li>
+<li><code>slabclass</code>：特定大小的chunk的组。</li>
+<li><code>chunk</code>：缓存的内存空间，一个slab被划分为若干个chunk；</li>
+<li><code>item</code>：存储数据的最小单元，每一个chunk都会包含一个item；</li>
+<li><code>factor</code>:增长因子，默认为1.25，相邻slab中的item大小与factor成比例关系；</li>
+</ul>
+<h2 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h2><p><code>Memcached</code>使用<code>预分配</code>方法，避免频繁的调用malloc和free；</p>
+<p><code>Memcached</code>通过不同的<code>slab</code>来管理不同<code>chunk</code>大小的内存块，从而满足存储不同大小的数据。</p>
+<p><code>slab的申请</code>是通过在使用item时申请slab大小的内存空间，然后再把内存切割为大小相同的item，挂在到slab的未使用链表上。</p>
 <p>过期和被删除item并不会被free掉，memcached并不会删除已经分配的内存；</p>
-<p>Memcached会优先使用已超时的记录空间，通过LRU算法；</p>
-<p>memcached使用lazy expiration来判断元素是否过期，所以过期监视上不会占用cpu时间。</p>
+<p>Memcached会优先使用已超时的记录空间(通过<code>LRU算法</code>)；</p>
+<p>Memcached使用<code>lazy expiration</code>来判断元素是否过期，所以过期监视上不会占用cpu时间。</p>
 <h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><p>下面主要分析memcached的内存申请和存储相关代码。</p>
 <h3 id="item"><a href="#item" class="headerlink" title="item"></a>item</h3><p>item是key/value的存储单元。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">stritem</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> _<span class="title">stritem</span> *<span class="title">next</span>;</span>      <span class="comment">/* 前后指针用于在链表slab-&gt;slots中连接前后数据 */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> _<span class="title">stritem</span> *<span class="title">prev</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> _<span class="title">stritem</span> *<span class="title">h_next</span>;</span>    <span class="comment">/* hash chain next */</span></span><br><span class="line">    <span class="keyword">rel_time_t</span>      time;       <span class="comment">/* 最后一次访问时间 */</span></span><br><span class="line">    <span class="keyword">rel_time_t</span>      exptime;    <span class="comment">/* 过期时间 */</span></span><br><span class="line">    <span class="keyword">int</span>             nbytes;     <span class="comment">/* 数据大小 */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">short</span>  refcount;   <span class="comment">/* 引用次数 */</span></span><br><span class="line">    <span class="keyword">uint8_t</span>         nsuffix;    <span class="comment">/* suffix长度 */</span></span><br><span class="line">    <span class="keyword">uint8_t</span>         it_flags;   <span class="comment">/* ITEM_* above */</span></span><br><span class="line">    <span class="keyword">uint8_t</span>         slabs_clsid;<span class="comment">/* 所有slab的id */</span></span><br><span class="line">    <span class="keyword">uint8_t</span>         nkey;       <span class="comment">/* key长度 */</span></span><br><span class="line">    <span class="comment">/* this odd type prevents type-punning issues when we do</span></span><br><span class="line"><span class="comment">     * the little shuffle to save space when not using CAS. */</span></span><br><span class="line">    <span class="keyword">union</span> &#123;</span><br><span class="line">        <span class="keyword">uint64_t</span> cas;</span><br><span class="line">        <span class="keyword">char</span> end;</span><br><span class="line">    &#125; data[]; <span class="comment">/* cas|key|suffix|value */</span></span><br><span class="line">&#125; item;</span><br></pre></td></tr></table></figure>
@@ -126,7 +128,7 @@
       <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">
         
-          Python实现web框架simfish
+          Python实现Web框架
         
       </div>
     </a>

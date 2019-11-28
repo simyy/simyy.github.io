@@ -3,20 +3,20 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>redis（一） 安装以及基本数据类型操作 | simyy</title>
+  <title>Redis安装及操作 | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="介绍redis基本用法。">
-<meta name="keywords" content="redis">
+  <meta name="description" content="介绍Redis安装及操作。">
+<meta name="keywords" content="Redis">
 <meta property="og:type" content="article">
-<meta property="og:title" content="redis（一） 安装以及基本数据类型操作">
+<meta property="og:title" content="Redis安装及操作">
 <meta property="og:url" content="http://simyy.cn/2015/04/04/redis-install-base-op/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="介绍redis基本用法。">
+<meta property="og:description" content="介绍Redis安装及操作。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-04-08T09:26:00.000Z">
+<meta property="og:updated_time" content="2019-11-28T08:38:47.957Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="redis（一） 安装以及基本数据类型操作">
-<meta name="twitter:description" content="介绍redis基本用法。">
+<meta name="twitter:title" content="Redis安装及操作">
+<meta name="twitter:description" content="介绍Redis安装及操作。">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -58,7 +58,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/">redis</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/">Redis</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -71,20 +71,24 @@
 		
   
     <h1 class="article-title entry-title" itemprop="name">
-      redis（一） 安装以及基本数据类型操作
+      Redis安装及操作
     </h1>
   
 
 	</header>
 	<div class="entry-content">
 		
-    	<p>介绍redis基本用法。<br><a id="more"></a></p>
+    	<p>介绍Redis安装及操作。</p>
+<a id="more"></a>
 <h2 id="redis安装和使用"><a href="#redis安装和使用" class="headerlink" title="redis安装和使用"></a>redis安装和使用</h2><h3 id="redis安装"><a href="#redis安装" class="headerlink" title="redis安装"></a>redis安装</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget http://download.redis.io/redis-stable.tar.gz</span><br><span class="line">tar zxvf redis-stable.tar.gz</span><br><span class="line">cd redis-stable.tar.gz</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
 <h3 id="redis启动"><a href="#redis启动" class="headerlink" title="redis启动"></a>redis启动</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">redis-server</span><br><span class="line">redis关闭</span><br><span class="line">redis-cli shutdown</span><br></pre></td></tr></table></figure>
-<h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><p>方法一<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">redis-server /path/to/redis.conf</span><br><span class="line">redis-server /path/to/redis.conf --loglevel warning //设置日志级别</span><br></pre></td></tr></table></figure></p>
-<p>方法二<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">redis-cli</span><br><span class="line">redis &gt; CONFIG SET loglevel warning</span><br></pre></td></tr></table></figure></p>
-<h3 id="多数据库的选择"><a href="#多数据库的选择" class="headerlink" title="多数据库的选择"></a>多数据库的选择</h3><p>默认情况下，客户端自动选择0号数据库。<br>可以使用select命令来选择其他数据库。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select 1</span><br></pre></td></tr></table></figure></p>
-<p>redis不可以设置数据库的名称，数据库是通过编号来使用的。<br>redis只有一个全局的密码，不存在访问某个数据库的密码。</p>
+<h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><p><strong>方法一</strong>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">redis-server /path/to/redis.conf</span><br><span class="line">redis-server /path/to/redis.conf --loglevel warning //设置日志级别</span><br></pre></td></tr></table></figure>
+<p><strong>方法二</strong>:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">redis-cli</span><br><span class="line">redis &gt; CONFIG SET loglevel warning</span><br></pre></td></tr></table></figure></p>
+<h3 id="多数据库的选择"><a href="#多数据库的选择" class="headerlink" title="多数据库的选择"></a>多数据库的选择</h3><p>默认情况下，客户端自动选择0号数据库，可以使用<code>select命令</code>来选择其他数据库，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select 1</span><br></pre></td></tr></table></figure>
+<p>Redis不可以设置数据库的名称，数据库是通过编号来使用的。</p>
+<p>Redis只有一个全局的密码，不存在访问某个数据库的密码。</p>
 <h2 id="数据库基本操作"><a href="#数据库基本操作" class="headerlink" title="数据库基本操作"></a>数据库基本操作</h2><p>（1）添加数据和查找数据，通过set/get命令添加和获取数据<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; select 1</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379[1]&gt; set bar 1</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379[1]&gt; get bar</span><br><span class="line">&quot;1&quot;</span><br><span class="line">127.0.0.1:6379[1]&gt; get aaa</span><br><span class="line">(nil)</span><br></pre></td></tr></table></figure></p>
 <p>（2）判断一个键是否存在，exists命令可以判断key是否存在，存在返回1，不存在返回0<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379[1]&gt; exists bar</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379[1]&gt; exists aaa</span><br><span class="line">(integer) 0</span><br></pre></td></tr></table></figure></p>
 <p>（3）删除数据，del命令删除key，返回值为成功删除key的个数<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379[1]&gt; del aaa</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379[1]&gt; del bar</span><br><span class="line">(integer) 1</span><br></pre></td></tr></table></figure></p>
@@ -95,7 +99,7 @@
 <p>（8）获取字符串长度，strlen获取value的长度<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379[1]&gt; STRLEN key</span><br><span class="line">(integer) 10</span><br></pre></td></tr></table></figure></p>
 <p>（9）批量设置和获取，通过mset和mget命令可以批量执行设置和获取<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379[1]&gt; mset key1 va1 key2 va2</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379[1]&gt; mget key1 key2</span><br><span class="line">1) &quot;va1&quot;</span><br><span class="line">2) &quot;va2&quot;</span><br></pre></td></tr></table></figure></p>
 <p>（10）位操作<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">getbit key offset</span><br><span class="line">setbit key offset</span><br><span class="line">bitcount key [start] [end]</span><br><span class="line">bitop operation destkey key [key ...]</span><br></pre></td></tr></table></figure></p>
-<h2 id="散列类型"><a href="#散列类型" class="headerlink" title="散列类型"></a>散列类型</h2><p>其实这里的散列类型就是类似于非结构化数据，json数据一样。<br>{<br>    “id”:1,<br>    “name”:”test”<br>}</p>
+<h2 id="散列类型"><a href="#散列类型" class="headerlink" title="散列类型"></a>散列类型</h2><p>其实这里的散列类型就是类似于非结构化数据，json数据一样。<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"id"</span>:<span class="number">1</span>,</span><br><span class="line">    <span class="attr">"name"</span>:<span class="string">"test"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <h3 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h3><p>（1）存储方法，可以通过hset和hget来设置和获取数据<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379[1]&gt; hset user id 1</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379[1]&gt; hset user name test</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379[1]&gt; hget user id</span><br><span class="line">&quot;1&quot;</span><br><span class="line">127.0.0.1:6379[1]&gt; hget user name</span><br><span class="line">&quot;test&quot;</span><br></pre></td></tr></table></figure></p>
 <p>（2）判断字段是否存在，hexists命令，返回1存在，返回0不存在<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379[1]&gt; hexists user id</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379[1]&gt; hexists user age</span><br><span class="line">(integer) 0</span><br></pre></td></tr></table></figure></p>
 <p>（3）使用hsetnx(hset if not exists)如果不存在赋值<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379[1]&gt; hsetnx user age 111</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379[1]&gt; hget user age</span><br><span class="line">&quot;111&quot;</span><br></pre></td></tr></table></figure></p>
@@ -159,7 +163,7 @@
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          redis（二）高级用法
+          Redis高级用法
         
       </div>
     </a>

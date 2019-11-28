@@ -3,20 +3,20 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>webpy中的session实现 | simyy</title>
+  <title>Session In Webpy | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="虽然工作中使用的是django，但是自己并不喜欢那种大而全的东西~什么都给你准备好了，自己好像一个机器人一样赶着重复的基本工作，从在学校时候就养成了追究原理的习惯，从而有了这篇session的使用和说明。">
-<meta name="keywords" content="framework,python">
+  <meta name="description" content="Webpy中Session的实现原理。">
+<meta name="keywords" content="Python">
 <meta property="og:type" content="article">
-<meta property="og:title" content="webpy中的session实现">
+<meta property="og:title" content="Session In Webpy">
 <meta property="og:url" content="http://simyy.cn/2014/10/22/python-webpy-session/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="虽然工作中使用的是django，但是自己并不喜欢那种大而全的东西~什么都给你准备好了，自己好像一个机器人一样赶着重复的基本工作，从在学校时候就养成了追究原理的习惯，从而有了这篇session的使用和说明。">
+<meta property="og:description" content="Webpy中Session的实现原理。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-04-08T09:27:00.000Z">
+<meta property="og:updated_time" content="2019-11-28T08:42:22.028Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="webpy中的session实现">
-<meta name="twitter:description" content="虽然工作中使用的是django，但是自己并不喜欢那种大而全的东西~什么都给你准备好了，自己好像一个机器人一样赶着重复的基本工作，从在学校时候就养成了追究原理的习惯，从而有了这篇session的使用和说明。">
+<meta name="twitter:title" content="Session In Webpy">
+<meta name="twitter:description" content="Webpy中Session的实现原理。">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -58,7 +58,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/framework/">framework</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/">Python</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -71,14 +71,16 @@
 		
   
     <h1 class="article-title entry-title" itemprop="name">
-      webpy中的session实现
+      Session In Webpy
     </h1>
   
 
 	</header>
 	<div class="entry-content">
 		
-    	<p>虽然工作中使用的是django，但是自己并不喜欢那种大而全的东西~什么都给你准备好了，自己好像一个机器人一样赶着重复的基本工作，从在学校时候就养成了追究原理的习惯，从而有了这篇session的使用和说明。<br><a id="more"></a></p>
+    	<p>Webpy中Session的实现原理。</p>
+<a id="more"></a>
+<p>虽然工作中使用的是django，但是自己并不喜欢那种大而全的东西~什么都给你准备好了，自己好像一个机器人一样赶着重复的基本工作，从在学校时候就养成了追究原理的习惯，从而有了这篇session的使用和说明。</p>
 <h2 id="webpy中的session"><a href="#webpy中的session" class="headerlink" title="webpy中的session"></a>webpy中的session</h2><p>下面为官方的例子，用session来存储页面访问的次数，从而实现对访问次数的记录。</p>
 <p>需要注意的是，官方说明在调试情况下，session并不能正常的运行，所以需要在非调试摸下测试，那么就有了下面的这个例子。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> web</span><br><span class="line"></span><br><span class="line"><span class="comment">#非调试模式</span></span><br><span class="line">web.config.debug = <span class="keyword">False</span></span><br><span class="line">urls = (</span><br><span class="line">    <span class="string">"/count"</span>, <span class="string">"count"</span>,</span><br><span class="line">    <span class="string">"/reset"</span>, <span class="string">"reset"</span></span><br><span class="line">)</span><br><span class="line">app = web.application(urls, locals())</span><br><span class="line">session = web.session.Session(app, web.session.DiskStore(<span class="string">'sessions'</span>), initializer=&#123;<span class="string">'count'</span>: <span class="number">0</span>&#125;)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">count</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">GET</span><span class="params">(self)</span>:</span></span><br><span class="line">        session.count += <span class="number">1</span></span><br><span class="line">        <span class="keyword">return</span> str(session.count)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">reset</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">GET</span><span class="params">(self)</span>:</span></span><br><span class="line">        session.kill()</span><br><span class="line">        <span class="keyword">return</span> <span class="string">""</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    app.run()</span><br></pre></td></tr></table></figure>
@@ -121,7 +123,7 @@
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          python 守护进程
+          Python 守护进程
         
       </div>
     </a>

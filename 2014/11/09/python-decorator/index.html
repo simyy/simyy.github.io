@@ -3,20 +3,20 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>python 装饰器 | simyy</title>
+  <title>Python 装饰器 | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="python装饰器为python提供了一种语法糖，本质上是一个Python函数，它可以让其他函数在不需要做任何代码变动的前提下增加额外功能，装饰器的返回值也是一个函数对象。">
-<meta name="keywords" content="python">
+  <meta name="description" content="装饰器为Python提供了一种语法糖，本质上是一个Python函数。">
+<meta name="keywords" content="Python">
 <meta property="og:type" content="article">
-<meta property="og:title" content="python 装饰器">
+<meta property="og:title" content="Python 装饰器">
 <meta property="og:url" content="http://simyy.cn/2014/11/09/python-decorator/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="python装饰器为python提供了一种语法糖，本质上是一个Python函数，它可以让其他函数在不需要做任何代码变动的前提下增加额外功能，装饰器的返回值也是一个函数对象。">
+<meta property="og:description" content="装饰器为Python提供了一种语法糖，本质上是一个Python函数。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-04-08T09:28:01.000Z">
+<meta property="og:updated_time" content="2019-11-28T09:44:21.503Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="python 装饰器">
-<meta name="twitter:description" content="python装饰器为python提供了一种语法糖，本质上是一个Python函数，它可以让其他函数在不需要做任何代码变动的前提下增加额外功能，装饰器的返回值也是一个函数对象。">
+<meta name="twitter:title" content="Python 装饰器">
+<meta name="twitter:description" content="装饰器为Python提供了一种语法糖，本质上是一个Python函数。">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -58,7 +58,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/">Python</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -71,14 +71,16 @@
 		
   
     <h1 class="article-title entry-title" itemprop="name">
-      python 装饰器
+      Python 装饰器
     </h1>
   
 
 	</header>
 	<div class="entry-content">
 		
-    	<p>python装饰器为python提供了一种语法糖，本质上是一个Python函数，它可以让其他函数在不需要做任何代码变动的前提下增加额外功能，装饰器的返回值也是一个函数对象。<br><a id="more"></a></p>
+    	<p><code>装饰器</code>为Python提供了一种语法糖，本质上是一个Python函数。</p>
+<a id="more"></a>
+<p>它可以让其他函数在不需要做任何代码变动的前提下增加额外功能，装饰器的返回值也是一个函数对象。</p>
 <h2 id="未使用装饰器的函数嵌套"><a href="#未使用装饰器的函数嵌套" class="headerlink" title="未使用装饰器的函数嵌套"></a>未使用装饰器的函数嵌套</h2><p>deco运行，但myfunc并没有运行</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">deco</span><span class="params">(func)</span>:</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">'before func'</span></span><br><span class="line">    <span class="keyword">return</span> func </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">myfunc</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">'myfunc() called'</span></span><br><span class="line"> </span><br><span class="line">myfunc = deco(myfunc)</span><br></pre></td></tr></table></figure>
 <p>需要的deco中调用myfunc，这样才可以执行</p>
@@ -109,17 +111,17 @@
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          python 文件操作
+          Python 文件操作
         
       </div>
     </a>
   
   
-    <a href="/2014/11/01/python-list/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2014/10/22/python-deamon/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">
         
-          python 序列
+          Python 守护进程
         
       </div>
     </a>

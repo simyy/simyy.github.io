@@ -5,18 +5,18 @@
   
   <title>Python __setattr__, __getattr__, __delattr__, __call__ | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="介绍python的几个内建函数。">
-<meta name="keywords" content="python">
+  <meta name="description" content="介绍Python的几个内建函数。">
+<meta name="keywords" content="Python">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Python __setattr__, __getattr__, __delattr__, __call__">
 <meta property="og:url" content="http://simyy.cn/2015/03/05/python-set-get-del-call-attr/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="介绍python的几个内建函数。">
+<meta property="og:description" content="介绍Python的几个内建函数。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-04-08T09:27:22.000Z">
+<meta property="og:updated_time" content="2019-11-28T08:52:57.832Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Python __setattr__, __getattr__, __delattr__, __call__">
-<meta name="twitter:description" content="介绍python的几个内建函数。">
+<meta name="twitter:description" content="介绍Python的几个内建函数。">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -58,7 +58,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/">Python</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -78,7 +78,7 @@
 	</header>
 	<div class="entry-content">
 		
-    	<p>介绍python的几个内建函数。<br><a id="more"></a></p>
+    	<p>介绍Python的几个内建函数。<br><a id="more"></a></p>
 <h2 id="getattr"><a href="#getattr" class="headerlink" title="getattr"></a>getattr</h2><p><code>getattr</code>函数属于内建函数，可以通过函数名称获取<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">value = obj.attribute</span><br><span class="line">value = getattr(obj, <span class="string">"attribute"</span>)</span><br></pre></td></tr></table></figure></p>
 <p>使用<code>getattr</code>来实现工厂模式</p>
 <p>一个模块支持html、text、xml等格式的打印，根据传入的formate参数的不同，调用不同的函数实现几种格式的输出<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> statsout </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">output</span><span class="params">(data, format=<span class="string">"text"</span>)</span>:</span>                           </span><br><span class="line">    output_function = getattr(statsout, <span class="string">"output_%s"</span> %format) </span><br><span class="line">    <span class="keyword">return</span> output_function(data)</span><br></pre></td></tr></table></figure></p>
@@ -103,7 +103,7 @@
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          php后台开发（一）hello world
+          PHP Hello World
         
       </div>
     </a>
@@ -113,7 +113,7 @@
       <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">
         
-          memcache 事件模型
+          Memcached 事件模型
         
       </div>
     </a>

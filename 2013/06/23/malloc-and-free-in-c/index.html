@@ -5,18 +5,18 @@
   
   <title>C语言中的内存分配与释放 | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="对C语言一直都是抱着学习的态度，很多都不懂，今天突然被问道C语言的内存分配问题，说了一些自己知道的，但感觉回答的并不完善，所以才有这篇笔记，总结一下C语言中内存分配的主要内容。">
-<meta name="keywords" content="c">
+  <meta name="description" content="对C语言一直都是抱着学习的态度，很多都不懂，今天突然被问到C语言的内存分配问题，说了一些自己知道的，但感觉回答的并不完善，所以才有这篇笔记，总结一下C语言中内存分配的主要内容。">
+<meta name="keywords" content="C&#x2F;C++">
 <meta property="og:type" content="article">
 <meta property="og:title" content="C语言中的内存分配与释放">
 <meta property="og:url" content="http://simyy.cn/2013/06/23/malloc-and-free-in-c/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="对C语言一直都是抱着学习的态度，很多都不懂，今天突然被问道C语言的内存分配问题，说了一些自己知道的，但感觉回答的并不完善，所以才有这篇笔记，总结一下C语言中内存分配的主要内容。">
+<meta property="og:description" content="对C语言一直都是抱着学习的态度，很多都不懂，今天突然被问到C语言的内存分配问题，说了一些自己知道的，但感觉回答的并不完善，所以才有这篇笔记，总结一下C语言中内存分配的主要内容。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-04-08T09:29:43.000Z">
+<meta property="og:updated_time" content="2019-11-28T09:47:59.646Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="C语言中的内存分配与释放">
-<meta name="twitter:description" content="对C语言一直都是抱着学习的态度，很多都不懂，今天突然被问道C语言的内存分配问题，说了一些自己知道的，但感觉回答的并不完善，所以才有这篇笔记，总结一下C语言中内存分配的主要内容。">
+<meta name="twitter:description" content="对C语言一直都是抱着学习的态度，很多都不懂，今天突然被问到C语言的内存分配问题，说了一些自己知道的，但感觉回答的并不完善，所以才有这篇笔记，总结一下C语言中内存分配的主要内容。">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -58,7 +58,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/c/">c</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/">C/C++</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -78,7 +78,7 @@
 	</header>
 	<div class="entry-content">
 		
-    	<p>对C语言一直都是抱着学习的态度，很多都不懂，今天突然被问道C语言的内存分配问题，说了一些自己知道的，但感觉回答的并不完善，所以才有这篇笔记，总结一下C语言中内存分配的主要内容。<br><a id="more"></a></p>
+    	<p>对C语言一直都是抱着学习的态度，很多都不懂，今天突然被问到C语言的内存分配问题，说了一些自己知道的，但感觉回答的并不完善，所以才有这篇笔记，总结一下C语言中内存分配的主要内容。<br><a id="more"></a></p>
 <h2 id="相关问题"><a href="#相关问题" class="headerlink" title="相关问题　"></a>相关问题　</h2><p>刚刚在一篇博文看到一个简单的问题：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//code1</span></span><br><span class="line"><span class="function"><span class="keyword">char</span>* <span class="title">toStr</span><span class="params">()</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> *s = <span class="string">"abcdefghijkl"</span>;</span><br><span class="line">    <span class="keyword">return</span> s;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; toStr() &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//code2</span></span><br><span class="line"><span class="function"><span class="keyword">char</span>* <span class="title">toStr</span><span class="params">()</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> s[] = <span class="string">"abcdefghijkl"</span>;</span><br><span class="line">    <span class="keyword">return</span> s;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; toStr() &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>两段代码都很简单，输出一段字符，类型不同，一个是char*字符串，一个是char[]数据。</p>
@@ -120,7 +120,7 @@
       <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">
         
-          Linux内核设计与实现笔记（二） 内存管理、进程地址空间
+          Linux 内存管理、进程地址空间
         
       </div>
     </a>

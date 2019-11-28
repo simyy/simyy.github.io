@@ -3,20 +3,20 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>python 对象 | simyy</title>
+  <title>Python PyObject | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="在python中，对象就是为C中的结构体在堆上申请的一块内存，一般来说，对象是不能被静态初始化的，并且不能再栈空间上生存。本文主要对Python的基本数据类型做简单的介绍。">
-<meta name="keywords" content="python">
+  <meta name="description" content="本文主要对Python的基本数据类型做简单的介绍">
+<meta name="keywords" content="Python">
 <meta property="og:type" content="article">
-<meta property="og:title" content="python 对象">
+<meta property="og:title" content="Python PyObject">
 <meta property="og:url" content="http://simyy.cn/2015/05/24/python-object/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="在python中，对象就是为C中的结构体在堆上申请的一块内存，一般来说，对象是不能被静态初始化的，并且不能再栈空间上生存。本文主要对Python的基本数据类型做简单的介绍。">
+<meta property="og:description" content="本文主要对Python的基本数据类型做简单的介绍">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-04-08T09:27:31.000Z">
+<meta property="og:updated_time" content="2019-11-28T08:54:13.157Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="python 对象">
-<meta name="twitter:description" content="在python中，对象就是为C中的结构体在堆上申请的一块内存，一般来说，对象是不能被静态初始化的，并且不能再栈空间上生存。本文主要对Python的基本数据类型做简单的介绍。">
+<meta name="twitter:title" content="Python PyObject">
+<meta name="twitter:description" content="本文主要对Python的基本数据类型做简单的介绍">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -58,7 +58,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/">Python</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -71,14 +71,15 @@
 		
   
     <h1 class="article-title entry-title" itemprop="name">
-      python 对象
+      Python PyObject
     </h1>
   
 
 	</header>
 	<div class="entry-content">
 		
-    	<p>在python中，对象就是为C中的结构体在堆上申请的一块内存，一般来说，对象是不能被静态初始化的，并且不能再栈空间上生存。本文主要对Python的基本数据类型做简单的介绍。<br><a id="more"></a></p>
+    	<p>本文主要对Python的基本数据类型做简单的介绍<br><a id="more"></a></p>
+<p>在Python中，对象就是为C中的结构体在堆上申请的一块内存，一般来说，对象是不能被静态初始化的，并且不能再栈空间上生存。</p>
 <h2 id="PyObject"><a href="#PyObject" class="headerlink" title="PyObject"></a>PyObject</h2><p>在python中，所有东西都是对象，而所欲的对象都拥有一些共性（object.h/PyObject）。<br>PyObject是整个python对象机制的核心。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">object</span> &#123;</span></span><br><span class="line">    PyObject_HEAD</span><br><span class="line">&#125; PyObject;</span><br></pre></td></tr></table></figure>
 <p>在release模式下编译python时，PyObject如下：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">object</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> ob_refcnt; <span class="comment">//引用计数</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> _<span class="title">typeobject</span> *<span class="title">ob_type</span>;</span> <span class="comment">//类型</span></span><br><span class="line">&#125; PyObject;</span><br></pre></td></tr></table></figure></p>
@@ -142,7 +143,7 @@
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          python 名字、作用域和命名空间
+          Python 命名空间及作用域
         
       </div>
     </a>

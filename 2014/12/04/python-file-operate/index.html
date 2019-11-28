@@ -3,20 +3,20 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>python 文件操作 | simyy</title>
+  <title>Python 文件操作 | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="python文件相关操作涉及到的函数介绍。">
-<meta name="keywords" content="python">
+  <meta name="description" content="Python文件相关操作涉及到的函数介绍。">
+<meta name="keywords" content="Python">
 <meta property="og:type" content="article">
-<meta property="og:title" content="python 文件操作">
+<meta property="og:title" content="Python 文件操作">
 <meta property="og:url" content="http://simyy.cn/2014/12/04/python-file-operate/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="python文件相关操作涉及到的函数介绍。">
+<meta property="og:description" content="Python文件相关操作涉及到的函数介绍。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-04-08T09:27:56.000Z">
+<meta property="og:updated_time" content="2019-11-28T09:44:22.348Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="python 文件操作">
-<meta name="twitter:description" content="python文件相关操作涉及到的函数介绍。">
+<meta name="twitter:title" content="Python 文件操作">
+<meta name="twitter:description" content="Python文件相关操作涉及到的函数介绍。">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -58,7 +58,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/">Python</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -71,14 +71,14 @@
 		
   
     <h1 class="article-title entry-title" itemprop="name">
-      python 文件操作
+      Python 文件操作
     </h1>
   
 
 	</header>
 	<div class="entry-content">
 		
-    	<p>python文件相关操作涉及到的函数介绍。<br><a id="more"></a></p>
+    	<p>Python文件相关操作涉及到的函数介绍。<br><a id="more"></a></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"># os 模块</span><br><span class="line"></span><br><span class="line">os.sep 可以取代操作系统特定的路径分隔符。windows下为 &apos;\\&apos;</span><br><span class="line">os.name 字符串指示你正在使用的平台。比如对于Windows，它是&apos;nt&apos;，而对于Linux/Unix用户，它是 &apos;posix&apos;</span><br><span class="line">os.getcwd() 函数得到当前工作目录，即当前Python脚本工作的目录路径</span><br><span class="line">os.getenv() 获取一个环境变量，如果没有返回none</span><br><span class="line">os.putenv(key, value) 设置一个环境变量值</span><br><span class="line">os.listdir(path) 返回指定目录下的所有文件和目录名</span><br><span class="line">os.remove(path) 函数用来删除一个文件</span><br><span class="line">os.system(command) 函数用来运行shell命令</span><br><span class="line">os.linesep 字符串给出当前平台使用的行终止符。例如，Windows使用 &apos;\r\n&apos;，Linux使用 &apos;\n&apos; 而Mac使用 &apos;\r&apos;</span><br><span class="line">os.path.split(path)  函数返回一个路径的目录名和文件名</span><br><span class="line">os.path.isfile() 和os.path.isdir()函数分别检验给出的路径是一个文件还是目录</span><br><span class="line">os.path.exists() 函数用来检验给出的路径是否真地存在</span><br><span class="line">os.curdir  返回当前目录 (&apos;.&apos;)</span><br><span class="line">os.mkdir(path) 创建一个目录</span><br><span class="line">os.makedirs(path) 递归的创建目录</span><br><span class="line">os.chdir(dirname) 改变工作目录到dirname    </span><br><span class="line">os.path.getsize(name) 获得文件大小，如果name是目录返回0L</span><br><span class="line">os.path.abspath(name) 获得绝对路径</span><br><span class="line">os.path.normpath(path) 规范path字符串形式</span><br><span class="line">os.path.splitext()  分离文件名与扩展名</span><br><span class="line">os.path.join(path,name) 连接目录与文件名或目录</span><br><span class="line">os.path.basename(path) 返回文件名</span><br><span class="line">os.path.dirname(path) 返回文件路径</span><br><span class="line">os.walk(top,topdown=True,onerror=None)  遍历迭代目录</span><br><span class="line">os.rename(src, dst)  重命名file或者directory src到dst 如果dst是一个存在的directory, 将抛出OSError. 在Unix, 如果dst在存且是一个file, 如果用户有权限的话，它将被安静的替换. 操作将会失败在某些Unix 中如果src和dst在不同的文件系统中. 如果成功, 这命名操作将会是一个原子操作 (这是POSIX 需要). 在 Windows上, 如果dst已经存在, 将抛出OSError，即使它是一个文件. 在unix，Windows中有效。</span><br><span class="line">os.renames(old, new) 递归重命名文件夹或者文件。像rename()</span><br><span class="line"></span><br><span class="line"># shutil 模块</span><br><span class="line"></span><br><span class="line">shutil.copyfile( src, dst) 从源src复制到dst中去。当然前提是目标地址是具备可写权限。抛出的异常信息为IOException. 如果当前的dst已存在的话就会被覆盖掉</span><br><span class="line">shutil.move( src, dst)  移动文件或重命名</span><br><span class="line">shutil.copymode( src, dst) 只是会复制其权限其他的东西是不会被复制的</span><br><span class="line">shutil.copystat( src, dst) 复制权限、最后访问时间、最后修改时间</span><br><span class="line">shutil.copy( src, dst)  复制一个文件到一个文件或一个目录</span><br><span class="line">shutil.copy2( src, dst)  在copy上的基础上再复制文件最后访问时间与修改时间也复制过来了，类似于cp –p的东西</span><br><span class="line">shutil.copy2( src, dst)  如果两个位置的文件系统是一样的话相当于是rename操作，只是改名；如果是不在相同的文件系统的话就是做move操作</span><br><span class="line">shutil.copytree( olddir, newdir, True/Flase)</span><br><span class="line">把olddir拷贝一份newdir，如果第3个参数是True，则复制目录时将保持文件夹下的符号连接，如果第3个参数是False，则将在复制的目录下生成物理副本来替代符号连接</span><br><span class="line">shutil.rmtree( src ) 递归删除一个目录以及目录内的所有内容</span><br></pre></td></tr></table></figure>
 
     
@@ -91,7 +91,7 @@
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          memcache 概述
+          Memcached
         
       </div>
     </a>
@@ -101,7 +101,7 @@
       <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">
         
-          python 装饰器
+          Python 装饰器
         
       </div>
     </a>

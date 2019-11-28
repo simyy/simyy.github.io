@@ -3,20 +3,20 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>Python实现web框架simfish | simyy</title>
+  <title>Python实现Web框架 | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="本文主要记录本人利用Python实现web框架simfish的过程。源码github地址：simfish">
-<meta name="keywords" content="framework,python">
+  <meta name="description" content="本文主要记录本人利用Python实现Web框架simfish的过程。">
+<meta name="keywords" content="Python">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Python实现web框架simfish">
+<meta property="og:title" content="Python实现Web框架">
 <meta property="og:url" content="http://simyy.cn/2015/04/26/simfish-framework/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="本文主要记录本人利用Python实现web框架simfish的过程。源码github地址：simfish">
+<meta property="og:description" content="本文主要记录本人利用Python实现Web框架simfish的过程。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-04-08T09:25:12.000Z">
+<meta property="og:updated_time" content="2019-11-28T07:43:00.679Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Python实现web框架simfish">
-<meta name="twitter:description" content="本文主要记录本人利用Python实现web框架simfish的过程。源码github地址：simfish">
+<meta name="twitter:title" content="Python实现Web框架">
+<meta name="twitter:description" content="本文主要记录本人利用Python实现Web框架simfish的过程。">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -58,7 +58,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/framework/">framework</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/">Python</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -71,15 +71,17 @@
 		
   
     <h1 class="article-title entry-title" itemprop="name">
-      Python实现web框架simfish
+      Python实现Web框架
     </h1>
   
 
 	</header>
 	<div class="entry-content">
 		
-    	<p>本文主要记录本人利用Python实现web框架simfish的过程。源码github地址：<a href="https://github.com/yxd123/simfish" target="_blank" rel="noopener">simfish</a><br><a id="more"></a></p>
-<h2 id="WSGI-HTTP-Server"><a href="#WSGI-HTTP-Server" class="headerlink" title="WSGI HTTP Server"></a>WSGI HTTP Server</h2><p>wsgi模块提供了简单的simple_server，</p>
+    	<p>本文主要记录本人利用<code>Python</code>实现Web框架<code>simfish</code>的过程。</p>
+<a id="more"></a>
+<p>源码github地址：<a href="https://github.com/simyy/simfish" target="_blank" rel="noopener">simfish</a></p>
+<h2 id="WSGI-HTTP-Server"><a href="#WSGI-HTTP-Server" class="headerlink" title="WSGI HTTP Server"></a>WSGI HTTP Server</h2><p>wsgi模块提供了简单的<code>simple_server</code>，</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wsgiref.simple_server.make_server(host, port, app, server_class=WSGIServer, handler_class=WSGIRequestHandler)</span><br></pre></td></tr></table></figure>
 <p>官方提供的例子，</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">from wsgiref.simple_server import make_server, demo_app</span><br><span class="line"></span><br><span class="line">httpd = make_server(&apos;&apos;, 8000, demo_app)</span><br><span class="line">print &quot;Serving HTTP on port 8000...&quot;</span><br><span class="line"></span><br><span class="line"># Respond to requests until process is killed</span><br><span class="line">httpd.serve_forever()</span><br><span class="line"></span><br><span class="line"># Alternative: serve one request, then exit</span><br><span class="line">httpd.handle_request()</span><br></pre></td></tr></table></figure>
@@ -90,15 +92,15 @@
 <p>实现自己的hello_app，替换demo_app即可。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello_app</span><span class="params">(environ, start_response)</span>:</span></span><br><span class="line">    status = <span class="string">'200 OK'</span></span><br><span class="line">    response_headers = [(<span class="string">'Content-type'</span>, <span class="string">'text/plain'</span>)]</span><br><span class="line">    start_response(status, response_headers)</span><br><span class="line">    <span class="keyword">return</span> [<span class="string">'Hello world!\n'</span>]</span><br></pre></td></tr></table></figure>
 <p>更多的基础细节请参考：<a href="http://www.tuicool.com/articles/aYBRBz" target="_blank" rel="noopener">http://www.tuicool.com/articles/aYBRBz</a></p>
-<h2 id="simfish的实现"><a href="#simfish的实现" class="headerlink" title="simfish的实现"></a>simfish的实现</h2><p>web框架其实并不复杂，仅仅负责请求的分发和处理，让web后台开发变得简单、规范的一种方法。</p>
-<p>本框架主要参考了bottle和webpy的源码。</p>
-<h3 id="路由"><a href="#路由" class="headerlink" title="路由"></a>路由</h3><p>使用过web框架的人对路由并不陌生，路由就是用来记录url和callback function的映射关系。</p>
-<p>在simfish中实现了三种添加路由的方法（装饰器、一次加载、随时添加），源码如下（具体内容参考注释）：</p>
+<h2 id="Simfish-Web框架"><a href="#Simfish-Web框架" class="headerlink" title="Simfish Web框架"></a>Simfish Web框架</h2><p><code>Web框架</code>其实并不复杂，仅仅负责请求的分发和处理，让Web开发变得简单、规范的一种方法。</p>
+<p>本框架主要参考了<code>bottle</code>和<code>webpy</code>的源码。</p>
+<h3 id="路由"><a href="#路由" class="headerlink" title="路由"></a>路由</h3><p>使用过<code>Web框架</code>的人对<code>路由</code>并不陌生，路由就是用来记录<code>url</code>和<code>callback function</code>的映射关系。</p>
+<p>在<code>Simfish</code>中实现了三种添加路由的方法（<code>装饰器</code>、<code>一次加载</code>、<code>随时添加</code>），源码如下（具体内容参考注释）：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Route</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Routes</span>:</span></span><br><span class="line">    <span class="string">"""FrameWork Routes"""</span></span><br><span class="line">    ROUTES = &#123;&#125; <span class="comment">#存储所有的url到callback function的映射</span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(cls, url, handler)</span>:</span> </span><br><span class="line">        <span class="string">"""add route and handler to ROUTES"""</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> url.startswith(<span class="string">'/'</span>):</span><br><span class="line">            url = <span class="string">'/'</span> + url</span><br><span class="line">        <span class="keyword">if</span> re.match(<span class="string">r'^/(\w+/)*\w*$'</span>, url): <span class="comment">#这里需要使用re模块来获取正确的url</span></span><br><span class="line">            cls.ROUTES[url] = handler</span><br><span class="line"></span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">match</span><span class="params">(cls, url)</span>:</span> <span class="comment">#用来寻找url对象的处理函数</span></span><br><span class="line">        <span class="string">"""match url in ROUTES"""</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> url:</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">None</span></span><br><span class="line">        url = url.strip()</span><br><span class="line">        route = cls.ROUTES.get(url,<span class="keyword">None</span>) <span class="comment">#从ROUTES中查找结果</span></span><br><span class="line">        <span class="keyword">return</span> route</span><br><span class="line"></span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">load_urls</span><span class="params">(cls, urls)</span>:</span> <span class="comment">#用于类似webpy中urls加载的方式</span></span><br><span class="line">        <span class="keyword">for</span> item <span class="keyword">in</span> urls:</span><br><span class="line">            cls.add(item[<span class="number">0</span>], item[<span class="number">1</span>])</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">route</span><span class="params">(url, **kargs)</span>:</span> <span class="comment">#这是一个装饰器，@route('/')</span></span><br><span class="line">    <span class="string">"""Decorator for request handler. Same as Routes.route(url, handler)."""</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span><span class="params">(handler)</span>:</span></span><br><span class="line">        Routes.add(url, handler, **kargs)</span><br><span class="line">        <span class="keyword">return</span> handler</span><br><span class="line">    <span class="keyword">return</span> wrapper</span><br></pre></td></tr></table></figure>
 <p>具体使用方法参考：<a href="https://github.com/yxd123/simfish#routing" target="_blank" rel="noopener">routing</a></p>
 <h3 id="封装request"><a href="#封装request" class="headerlink" title="封装request"></a>封装request</h3><p>在demo_app中的参数environ（它是一个字典啊！！！）中包含了request中需要的所有信息，那么我们需要把environ添加到request类中，</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Request</span><span class="params">(threading.local)</span>:</span></span><br><span class="line">    <span class="string">"""Represents a single request using thread-local namespace"""</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">bind</span><span class="params">(self, environ)</span>:</span></span><br><span class="line">        <span class="string">"""Bind the enviroment"""</span></span><br><span class="line">        self._environ = environ</span><br></pre></td></tr></table></figure>
-<p>添加获取请求方方法的方法，使用@propery让method方法可以直接调用，注意保持方法的大写（GET/POST）</p>
+<p>添加获取请求方方法的方法，使用<code>@propery</code>让method方法可以直接调用，注意保持方法的大写（GET/POST）</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@property</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">method</span><span class="params">(self)</span>:</span></span><br><span class="line">    <span class="string">"""Returns the request method (GET,POST,PUT,DELETE,...)"""</span></span><br><span class="line">    <span class="keyword">return</span> self._environ.get(<span class="string">'REQUEST_METHOD'</span>, <span class="string">'GET'</span>).upper()</span><br></pre></td></tr></table></figure>
 <p>如果获取请求参数呢？在django中使用如下的方法，</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">request.GET.get(<span class="string">'param'</span>, <span class="string">''</span>)</span><br><span class="line">request.POST.get(<span class="string">'param'</span>, <span class="string">''</span>)</span><br></pre></td></tr></table></figure>
@@ -135,7 +137,7 @@
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          memcache 内存管理
+          Memcached 内存管理
         
       </div>
     </a>
@@ -145,7 +147,7 @@
       <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">
         
-          python sort
+          Python Sort
         
       </div>
     </a>

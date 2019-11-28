@@ -3,25 +3,25 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>MySQL实现嵌套集合模型(Nested Set Model) | simyy</title>
+  <title>MySQL 嵌套集合模型(Nested Set Model) | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="译文主要是介绍如何用MySQL来存储嵌套集合数据。在其中会增加一些自己的理解，也会删除掉一些自认为无用的废话。">
-<meta name="keywords" content="mysql">
+  <meta name="description" content="[译文]主要是介绍如何用MySQL来存储嵌套集合数据。">
+<meta name="keywords" content="MySQL,译文">
 <meta property="og:type" content="article">
-<meta property="og:title" content="MySQL实现嵌套集合模型(Nested Set Model)">
+<meta property="og:title" content="MySQL 嵌套集合模型(Nested Set Model)">
 <meta property="og:url" content="http://simyy.cn/2015/09/22/Nested-Set-Model/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="译文主要是介绍如何用MySQL来存储嵌套集合数据。在其中会增加一些自己的理解，也会删除掉一些自认为无用的废话。">
+<meta property="og:description" content="[译文]主要是介绍如何用MySQL来存储嵌套集合数据。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://simyy.cn/images/Nested-Set-Model-1.png">
 <meta property="og:image" content="http://simyy.cn/images/Nested-Set-Model-2.png">
 <meta property="og:image" content="http://simyy.cn/images/Nested-Set-Model-3.png">
 <meta property="og:image" content="http://simyy.cn/images/Nested-Set-Model-4.png">
 <meta property="og:image" content="http://simyy.cn/images/Nested-Set-Model-5.png">
-<meta property="og:updated_time" content="2017-04-08T09:28:43.000Z">
+<meta property="og:updated_time" content="2019-11-28T09:44:18.386Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="MySQL实现嵌套集合模型(Nested Set Model)">
-<meta name="twitter:description" content="译文主要是介绍如何用MySQL来存储嵌套集合数据。在其中会增加一些自己的理解，也会删除掉一些自认为无用的废话。">
+<meta name="twitter:title" content="MySQL 嵌套集合模型(Nested Set Model)">
+<meta name="twitter:description" content="[译文]主要是介绍如何用MySQL来存储嵌套集合数据。">
 <meta name="twitter:image" content="http://simyy.cn/images/Nested-Set-Model-1.png">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
@@ -64,7 +64,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/译文/">译文</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -77,14 +77,16 @@
 		
   
     <h1 class="article-title entry-title" itemprop="name">
-      MySQL实现嵌套集合模型(Nested Set Model)
+      MySQL 嵌套集合模型(Nested Set Model)
     </h1>
   
 
 	</header>
 	<div class="entry-content">
 		
-    	<p>译文主要是介绍如何用MySQL来存储嵌套集合数据。在其中会增加一些自己的理解，也会删除掉一些自认为无用的废话。<br><a id="more"></a><br>这篇文章主要讲的是嵌套集合模型，所以邻接表不是本文的重点，简单略过就好。</p>
+    	<p>[译文]主要是介绍如何用MySQL来存储嵌套集合数据。</p>
+<a id="more"></a>
+<p>这篇文章主要讲的是嵌套集合模型，所以邻接表不是本文的重点，简单略过就好。</p>
 <p>也许这是<a href="http://mikehillyer.com/articles/managing-hierarchical-data-in-mysql/" target="_blank" rel="noopener">原文地址</a>，因为我也不知道这是不是原文。</p>
 <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p><strong>什么是分层数据？</strong><br>类似于树形结构，除了根节点和叶子节点外，所有节点都有用一个父节点和多个子节点。</p>
 <p><img src="/images/Nested-Set-Model-1.png" alt=""></p>
@@ -149,7 +151,7 @@
       <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">
         
-          Go项目结构和模块导入
+          Golang 项目结构和模块导入
         
       </div>
     </a>

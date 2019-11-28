@@ -3,21 +3,21 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>memcache 事件模型 | simyy</title>
+  <title>Memcached 事件模型 | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="在memcachedd中，作者为了专注于缓存的设计，使用了libevent来开发事件模型。memcachedd的时间模型同nginx的类似，拥有一个主进行（master）以及多个工作者线程（woker）。">
-<meta name="keywords" content="memcache">
+  <meta name="description" content="在Memcached中，作者为了专注于缓存的设计，使用了libevent来开发事件模型。">
+<meta name="keywords" content="Memcached">
 <meta property="og:type" content="article">
-<meta property="og:title" content="memcache 事件模型">
+<meta property="og:title" content="Memcached 事件模型">
 <meta property="og:url" content="http://simyy.cn/2015/02/09/memcache-event-model/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="在memcachedd中，作者为了专注于缓存的设计，使用了libevent来开发事件模型。memcachedd的时间模型同nginx的类似，拥有一个主进行（master）以及多个工作者线程（woker）。">
+<meta property="og:description" content="在Memcached中，作者为了专注于缓存的设计，使用了libevent来开发事件模型。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://simyy.cn/images/memcache-event-model-1.jpg">
-<meta property="og:updated_time" content="2017-04-08T09:29:28.000Z">
+<meta property="og:updated_time" content="2019-11-28T09:44:09.031Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="memcache 事件模型">
-<meta name="twitter:description" content="在memcachedd中，作者为了专注于缓存的设计，使用了libevent来开发事件模型。memcachedd的时间模型同nginx的类似，拥有一个主进行（master）以及多个工作者线程（woker）。">
+<meta name="twitter:title" content="Memcached 事件模型">
+<meta name="twitter:description" content="在Memcached中，作者为了专注于缓存的设计，使用了libevent来开发事件模型。">
 <meta name="twitter:image" content="http://simyy.cn/images/memcache-event-model-1.jpg">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
@@ -60,7 +60,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/memcache/">memcache</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Memcached/">Memcached</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -73,16 +73,18 @@
 		
   
     <h1 class="article-title entry-title" itemprop="name">
-      memcache 事件模型
+      Memcached 事件模型
     </h1>
   
 
 	</header>
 	<div class="entry-content">
 		
-    	<p>在memcachedd中，作者为了专注于缓存的设计，使用了libevent来开发事件模型。memcachedd的时间模型同nginx的类似，拥有一个主进行（master）以及多个工作者线程（woker）。<br><a id="more"></a></p>
-<h2 id="流程图"><a href="#流程图" class="headerlink" title="流程图"></a>流程图</h2><p>在memcached中，是先对工作者线程进行初始化并启动，然后才会创建启动主线程。<br><img src="/images/memcache-event-model-1.jpg" alt="memcache_event_model"></p>
-<h2 id="工作者线程"><a href="#工作者线程" class="headerlink" title="工作者线程"></a>工作者线程</h2><h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p>memcached对工作者线程进行初始化，参数分别为线程数量以及<code>main_base</code>，</p>
+    	<p>在Memcached中，作者为了专注于缓存的设计，使用了libevent来开发事件模型。<br><a id="more"></a></p>
+<p>Memcached的事件模型同<code>nginx</code>的类似，拥有一个<code>主进行（master）</code>以及<code>多个工作者线程（woker）</code>。</p>
+<h2 id="流程图"><a href="#流程图" class="headerlink" title="流程图"></a>流程图</h2><p>在Memcached中，是先对工作者线程进行初始化并启动，然后才会创建启动主线程。</p>
+<p><img src="/images/memcache-event-model-1.jpg" alt="memcache_event_model"></p>
+<h2 id="工作者线程"><a href="#工作者线程" class="headerlink" title="工作者线程"></a>工作者线程</h2><h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p>Memcached对工作者线程进行初始化，参数分别为线程数量以及<code>main_base</code>，</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* start up worker threads if MT mode */</span></span><br><span class="line">thread_init(settings.num_threads, main_base);</span><br></pre></td></tr></table></figure>
 <p>在memcachedd中为了避免多线程共享资源的使用使用了很多锁，这里对锁不做介绍。</p>
 <h3 id="线程的结构体"><a href="#线程的结构体" class="headerlink" title="线程的结构体"></a>线程的结构体</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="keyword">pthread_t</span> thread_id;        <span class="comment">/* unique ID of this thread 线程ID*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">event_base</span> *<span class="title">base</span>;</span>    <span class="comment">/* libevent handle this thread uses libevent事件*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">event</span> <span class="title">notify_event</span>;</span>  <span class="comment">/* listen event for notify pipe 注册事件*/</span></span><br><span class="line">    <span class="keyword">int</span> notify_receive_fd;      <span class="comment">/* receiving end of notify pipe 管道中接收端*/</span></span><br><span class="line">    <span class="keyword">int</span> notify_send_fd;         <span class="comment">/* sending end of notify pipe 管道中发送端*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">thread_stats</span> <span class="title">stats</span>;</span>  <span class="comment">/* Stats generated by this thread 线程状态*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">conn_queue</span> *<span class="title">new_conn_queue</span>;</span> <span class="comment">/* queue of new connections to handle 消息队列*/</span></span><br><span class="line">    <span class="keyword">cache_t</span> *suffix_cache;      <span class="comment">/* suffix cache */</span></span><br><span class="line">    <span class="keyword">uint8_t</span> item_lock_type;     <span class="comment">/* use fine-grained or global item lock */</span></span><br><span class="line">&#125; LIBEVENT_THREAD;</span><br></pre></td></tr></table></figure>
@@ -126,7 +128,7 @@
       <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">
         
-          memcache 概述
+          Memcached
         
       </div>
     </a>

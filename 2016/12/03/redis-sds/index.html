@@ -3,21 +3,21 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>redis 字符串 | simyy</title>
+  <title>Redis 字符串 | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="介绍和分析redis数据类型-sds。">
-<meta name="keywords" content="redis">
+  <meta name="description" content="介绍和分析Redis数据类型sds。">
+<meta name="keywords" content="Redis">
 <meta property="og:type" content="article">
-<meta property="og:title" content="redis 字符串">
+<meta property="og:title" content="Redis 字符串">
 <meta property="og:url" content="http://simyy.cn/2016/12/03/redis-sds/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="介绍和分析redis数据类型-sds。">
+<meta property="og:description" content="介绍和分析Redis数据类型sds。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://simyy.cn/images/redis-sds.png">
-<meta property="og:updated_time" content="2017-04-08T09:25:55.000Z">
+<meta property="og:updated_time" content="2019-11-28T08:38:48.644Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="redis 字符串">
-<meta name="twitter:description" content="介绍和分析redis数据类型-sds。">
+<meta name="twitter:title" content="Redis 字符串">
+<meta name="twitter:description" content="介绍和分析Redis数据类型sds。">
 <meta name="twitter:image" content="http://simyy.cn/images/redis-sds.png">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
@@ -60,7 +60,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/">redis</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/">Redis</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -73,15 +73,17 @@
 		
   
     <h1 class="article-title entry-title" itemprop="name">
-      redis 字符串
+      Redis 字符串
     </h1>
   
 
 	</header>
 	<div class="entry-content">
 		
-    	<p>介绍和分析redis数据类型-sds。<br><a id="more"></a></p>
-<h2 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h2><p>在<code>redis</code>中，字符串的基本结构如下，其中，<code>len</code>表示字符串的长度，<code>alloc</code>表示字符串的最大容量，<code>flags</code>表示header的类型。<br><figure class="highlight cc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr8</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint8_t</span> len; <span class="comment">/* 已占用buf长度 */</span></span><br><span class="line">    <span class="keyword">uint8_t</span> alloc; <span class="comment">/* 申请的buf长度 */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="keyword">char</span> buf[];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+    	<p>介绍和分析Redis数据类型<code>sds</code>。</p>
+<a id="more"></a>
+<h2 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h2><p>在<code>redis</code>中，字符串的基本结构如下，其中，<code>len</code>表示字符串的长度，<code>alloc</code>表示字符串的最大容量，<code>flags</code>表示header的类型。</p>
+<figure class="highlight cc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr8</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint8_t</span> len; <span class="comment">/* 已占用buf长度 */</span></span><br><span class="line">    <span class="keyword">uint8_t</span> alloc; <span class="comment">/* 申请的buf长度 */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="keyword">char</span> buf[];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p><code>buf</code>表示需要存储的字符数组，数组的长度为len+1（由于需要存储一个结束符’\0’）。</p>
 <p>具体结构如下，</p>
 <p><img src="/images/redis-sds.png" alt=""></p>
@@ -93,7 +95,8 @@
 <p>为sds增加可用空间，<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">sds <span class="title">sdsMakeRoomFor</span><span class="params">(sds s, <span class="keyword">size_t</span> addlen)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">void</span> *sh, *newsh;</span><br><span class="line">    <span class="keyword">size_t</span> avail = sdsavail(s);</span><br><span class="line">    <span class="keyword">size_t</span> len, newlen;</span><br><span class="line">    <span class="keyword">char</span> type, oldtype = s[<span class="number">-1</span>] &amp; SDS_TYPE_MASK; <span class="comment">// 获取数据类型</span></span><br><span class="line">    <span class="keyword">int</span> hdrlen;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Return ASAP if there is enough space left. */</span></span><br><span class="line">    <span class="keyword">if</span> (avail &gt;= addlen) <span class="keyword">return</span> s; <span class="comment">// 如果可用空间大于请求的长度，则不需要增加空间</span></span><br><span class="line"></span><br><span class="line">    len = sdslen(s);</span><br><span class="line">    sh = (<span class="keyword">char</span>*)s-sdsHdrSize(oldtype);</span><br><span class="line">    newlen = (len+addlen);</span><br><span class="line">    <span class="keyword">if</span> (newlen &lt; SDS_MAX_PREALLOC) <span class="comment">// 2倍的新长度</span></span><br><span class="line">        newlen *= <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        newlen += SDS_MAX_PREALLOC;</span><br><span class="line"></span><br><span class="line">    type = sdsReqType(newlen);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Don't use type 5: the user is appending to the string and type 5 is</span></span><br><span class="line"><span class="comment">     * not able to remember empty space, so sdsMakeRoomFor() must be called</span></span><br><span class="line"><span class="comment">     * at every appending operation. */</span></span><br><span class="line">    <span class="keyword">if</span> (type == SDS_TYPE_5) type = SDS_TYPE_8;</span><br><span class="line"></span><br><span class="line">    hdrlen = sdsHdrSize(type);</span><br><span class="line">    <span class="keyword">if</span> (oldtype==type) &#123;</span><br><span class="line">        newsh = s_realloc(sh, hdrlen+newlen+<span class="number">1</span>);  <span class="comment">// 如果类型保持不变，则增加原有长度</span></span><br><span class="line">        <span class="keyword">if</span> (newsh == <span class="literal">NULL</span>) <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">        s = (<span class="keyword">char</span>*)newsh+hdrlen;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">/* Since the header size changes, need to move the string forward,</span></span><br><span class="line"><span class="comment">         * and can't use realloc */</span></span><br><span class="line">        newsh = s_malloc(hdrlen+newlen+<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">if</span> (newsh == <span class="literal">NULL</span>) <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">        <span class="built_in">memcpy</span>((<span class="keyword">char</span>*)newsh+hdrlen, s, len+<span class="number">1</span>); <span class="comment">// 如果类型发生改变，则重新申请新类型数据，并拷贝buf数据</span></span><br><span class="line">        s_free(sh);</span><br><span class="line">        s = (<span class="keyword">char</span>*)newsh+hdrlen;</span><br><span class="line">        s[<span class="number">-1</span>] = type;</span><br><span class="line">        sdssetlen(s, len);</span><br><span class="line">    &#125;</span><br><span class="line">    sdssetalloc(s, newlen);</span><br><span class="line">    <span class="keyword">return</span> s;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <h2 id="sds与普通string的区别"><a href="#sds与普通string的区别" class="headerlink" title="sds与普通string的区别"></a>sds与普通string的区别</h2><h3 id="获取字符串长度复杂度"><a href="#获取字符串长度复杂度" class="headerlink" title="获取字符串长度复杂度"></a>获取字符串长度复杂度</h3><p>string获取字符串长度的时间复杂度为O(N)，需要遍历整个字符串；而sds不再需要遍历字符串，通过len字段可以直接获取存储在buf内字符串的长度，时间复杂度为O(1)。</p>
 <h3 id="空间分配和释放"><a href="#空间分配和释放" class="headerlink" title="空间分配和释放"></a>空间分配和释放</h3><p>对于C语言来说，每一次字符串长度的增加，都会造成一次内存分配的操作；每一次字符串长度的减少，都会造成一次内存释放操作。如果redis同样需要平凡的内存分配和释放，对性能会造成严重的影响。</p>
-<p>sds通过alloc字段来记录预分配空间的大小，len字段来记录当前存储字符串的长度。当有资源需要释放时，sds只是减少len的大小；当需要增加空间时，只有当剩余的空位不足，才会重新申请新的空间，否则只需要增加len的大小。</p>
+<p>sds通过alloc字段来记录预分配空间的大小，len字段来记录当前存储字符串的长度。</p>
+<p>当有资源需要释放时，sds只是减少len的大小；当需要增加空间时，只有当剩余的空位不足，才会重新申请新的空间，否则只需要增加len的大小。</p>
 
     
 	</div>
@@ -105,7 +108,7 @@
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          redis 字典
+          Redis 字典
         
       </div>
     </a>
@@ -115,7 +118,7 @@
       <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">
         
-          tire tree算法
+          Tire Tree
         
       </div>
     </a>

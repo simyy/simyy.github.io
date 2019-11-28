@@ -5,18 +5,18 @@
   
   <title>RabbitMQ Publish/Subscribe | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="rabbitmq支持一对多的模式，一般称为发布/订阅。也就是说，生产者产生一条消息后，rabbitmq会把该消息分发给所有的消费者。">
-<meta name="keywords" content="rabbitmq">
+  <meta name="description" content="RabbitMQ支持一对多的模式，一般称为发布/订阅。也就是说，生产者产生一条消息后，RabbitMQ会把该消息分发给所有的消费者。">
+<meta name="keywords" content="RabbitMQ">
 <meta property="og:type" content="article">
 <meta property="og:title" content="RabbitMQ Publish&#x2F;Subscribe">
 <meta property="og:url" content="http://simyy.cn/2015/03/16/rabbitmq-publish-subscribe/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="rabbitmq支持一对多的模式，一般称为发布/订阅。也就是说，生产者产生一条消息后，rabbitmq会把该消息分发给所有的消费者。">
+<meta property="og:description" content="RabbitMQ支持一对多的模式，一般称为发布/订阅。也就是说，生产者产生一条消息后，RabbitMQ会把该消息分发给所有的消费者。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-04-08T09:26:32.000Z">
+<meta property="og:updated_time" content="2019-11-28T08:42:26.763Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="RabbitMQ Publish&#x2F;Subscribe">
-<meta name="twitter:description" content="rabbitmq支持一对多的模式，一般称为发布/订阅。也就是说，生产者产生一条消息后，rabbitmq会把该消息分发给所有的消费者。">
+<meta name="twitter:description" content="RabbitMQ支持一对多的模式，一般称为发布/订阅。也就是说，生产者产生一条消息后，RabbitMQ会把该消息分发给所有的消费者。">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -58,7 +58,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rabbitmq/">rabbitmq</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RabbitMQ/">RabbitMQ</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -78,7 +78,7 @@
 	</header>
 	<div class="entry-content">
 		
-    	<p><code>rabbitmq</code>支持一对多的模式，一般称为发布/订阅。也就是说，生产者产生一条消息后，<code>rabbitmq</code>会把该消息分发给所有的消费者。<br><a id="more"></a></p>
+    	<p><code>RabbitMQ</code>支持一对多的模式，一般称为发布/订阅。也就是说，生产者产生一条消息后，<code>RabbitMQ</code>会把该消息分发给所有的消费者。<br><a id="more"></a></p>
 <h2 id="Exchanges"><a href="#Exchanges" class="headerlink" title="Exchanges"></a>Exchanges</h2><p>之前的教程中，仅仅使用了基本的消息模型：</p>
 <ul>
 <li>生产者产生消息</li>
@@ -87,7 +87,7 @@
 </ul>
 <p>而在<code>rabbitmq完整的消息模型</code>中，并不是这样的。事实上，生产者并不知道消息是否发送到队列，而是把消息直接发送给<code>Exchanges</code>。</p>
 <p><code>Exchanges</code>的功能理解起来非常简单，它只负责接收生产者发送的数据并把这些数据添加到消息队列。但是，在存在多个消息队列的情况下，<code>Exchanges</code>必须知道每条消息要添加到哪一个消息队列。</p>
-<p><code>rabbitmq</code>提供了几种<code>Exchanges</code>，包括:<code>direct</code>, <code>topic</code>, <code>headers</code> and <code>fanout</code>。</p>
+<p><code>RabbitMQ</code>提供了几种<code>Exchanges</code>，包括:<code>direct</code>, <code>topic</code>, <code>headers</code> and <code>fanout</code>。</p>
 <p>这里，仅仅介绍fanout的使用。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">channel.exchange_declare(exchange=&apos;news&apos;, type=&apos;fanout&apos;)</span><br></pre></td></tr></table></figure>
 <p>那么，发布消息：</p>

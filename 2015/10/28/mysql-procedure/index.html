@@ -6,14 +6,14 @@
   <title>MySQL 存储过程 | simyy</title>
   <meta name="viewport" content="width=device-width">
   <meta name="description" content="存储过程是通过给定的语法格式编写自定义的数据库API，类似于给数据库编写可执行函数。">
-<meta name="keywords" content="MySQL">
+<meta name="keywords" content="MySQL,数据库">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MySQL 存储过程">
 <meta property="og:url" content="http://simyy.cn/2015/10/28/mysql-procedure/index.html">
 <meta property="og:site_name" content="simyy">
 <meta property="og:description" content="存储过程是通过给定的语法格式编写自定义的数据库API，类似于给数据库编写可执行函数。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-11-28T09:44:15.263Z">
+<meta property="og:updated_time" content="2019-11-29T05:44:35.297Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL 存储过程">
 <meta name="twitter:description" content="存储过程是通过给定的语法格式编写自定义的数据库API，类似于给数据库编写可执行函数。">
@@ -38,7 +38,7 @@
 	</h1>
 	<nav class="nav">
 		<ul>
-			<li><a href="/">主页</a></li><li><a href="/archives">文章</a></li><li><a href="/tags">标签</a></li>
+			<li><a href="/">主页</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
 			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
 			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
 		</ul>
@@ -61,7 +61,7 @@
 		</span>
         <span class="tags">
 	       	
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/数据库/">数据库</a></li></ul>
 
 		</span>
 		<!--span class="meta-elements author">simyy</span-->
@@ -86,7 +86,7 @@
 <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>存储过程是一组为了完成特定功能的SQL语句集合，是经过编译后存储在数据库中。</p>
 <p>存储过程增强了SQL语言的功能和灵活性，它可以使用流控制语句编写来完成复杂的判断和计算。</p>
 <p>存储过程是把完成特定功能的SQL语句集合统一在数据库中进行处理，避免了多次网络IO请求造成的网络负载。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">mysql&gt;</span><span class="bash"> DELIMITER //</span></span><br><span class="line"><span class="meta">mysql&gt;</span><span class="bash"> CREATE PROCEDURE proc1(OUT s int)</span></span><br><span class="line">        -&gt; BEGIN</span><br><span class="line">        -&gt; SELECT COUNT(*) INTO s FROM person;</span><br><span class="line">        -&gt; END //</span><br><span class="line"><span class="meta">mysql&gt;</span><span class="bash"> DELIMITER;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">mysql&gt;</span> DELIMITER //</span><br><span class="line"><span class="meta">mysql&gt;</span> CREATE PROCEDURE proc1(OUT s int)</span><br><span class="line">        -&gt; BEGIN</span><br><span class="line">        -&gt; SELECT COUNT(*) INTO s FROM person;</span><br><span class="line">        -&gt; END //</span><br><span class="line"><span class="meta">mysql&gt;</span> DELIMITER;</span><br></pre></td></tr></table></figure>
 <h2 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h2><p><strong>基本结构</strong></p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">DELIMITER //</span><br><span class="line"><span class="keyword">DROP</span> <span class="keyword">PROCEDURE</span> <span class="keyword">IF</span> <span class="keyword">EXISTS</span> some_func;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">PROCEDURE</span> some_func</span><br><span class="line">(</span><br><span class="line">    <span class="keyword">IN</span> param1 <span class="built_in">INT</span>,</span><br><span class="line">    <span class="keyword">IN</span> param2 <span class="built_in">VARCHAR</span>(<span class="number">32</span>),</span><br><span class="line">    <span class="keyword">OUT</span> res <span class="built_in">INT</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line">    <span class="keyword">SQL</span>-SCRIPT</span><br><span class="line"><span class="keyword">END</span> //</span><br><span class="line">DELIMITER;</span><br></pre></td></tr></table></figure>
 <p>调用语句如下，</p>

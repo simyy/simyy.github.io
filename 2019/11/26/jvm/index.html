@@ -17,7 +17,7 @@
 <meta property="og:image" content="http://simyy.cn/images/JVM_2.jpg">
 <meta property="og:image" content="http://simyy.cn/images/JVM_3.jpg">
 <meta property="og:image" content="http://simyy.cn/images/JVM_4.jpg">
-<meta property="og:updated_time" content="2019-11-29T05:36:26.669Z">
+<meta property="og:updated_time" content="2019-12-05T14:27:00.606Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java 虚拟机">
 <meta name="twitter:description" content="Java虚拟机（Java Virtual Machine）是一种能够运行Java字节码的虚拟机。">
@@ -141,6 +141,10 @@
 <li>其他VM都不存在永久代，例如，<code>JRockitVM</code>就没有<code>永久代</code>。</li>
 </ul>
 </blockquote>
+<blockquote>
+<p><code>JDK1.8</code>中JVM进程占用的内存会多出来1G？</p>
+</blockquote>
+<p>由于<code>JDK1.8</code>默认开启了<code>-XX:+UseCompressedClassPointers</code>，<code>CompressedClassSpace</code>默认值为<code>1G</code>，因此会发现JVM进程占用的内存会多出来1G。</p>
 <hr>
 <p><strong>堆</strong>：<code>线程共享</code>，用于存储对象，是<code>GC</code>的主要区域。</p>
 <p>与<code>C/C++</code>不同之处就在于此，<code>Java虚拟机</code>为开发者省去了内存管理的麻烦，也降低了软件开发和维护的难度。</p>
@@ -162,6 +166,15 @@
 	
     
 <nav id="article-nav">
+  
+    <a href="/2019/12/08/distributed-job-dispatch/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          distributed_job_dispatch
+        
+      </div>
+    </a>
   
   
     <a href="/2019/11/10/topological-sort/" id="article-nav-older" class="article-nav-link-wrap">

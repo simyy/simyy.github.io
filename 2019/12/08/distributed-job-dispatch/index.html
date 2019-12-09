@@ -6,7 +6,7 @@
   <title>分布式任务调度 | simyy</title>
   <meta name="viewport" content="width=device-width">
   <meta name="description" content="任务调度解决定时触发的问题，分布式解决单点触发的问题。">
-<meta name="keywords" content="分布式,架构,任务调度">
+<meta name="keywords" content="架构,分布式,任务调度">
 <meta property="og:type" content="article">
 <meta property="og:title" content="分布式任务调度">
 <meta property="og:url" content="http://simyy.cn/2019/12/08/distributed-job-dispatch/index.html">
@@ -16,7 +16,7 @@
 <meta property="og:image" content="http://simyy.cn/images/distributed_job_dispatch_1.png">
 <meta property="og:image" content="http://simyy.cn/images/distributed_job_dispatch_2.png">
 <meta property="og:image" content="http://simyy.cn/images/distributed_job_dispatch_3.png">
-<meta property="og:updated_time" content="2019-12-08T04:25:06.120Z">
+<meta property="og:updated_time" content="2019-12-09T02:25:40.322Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="分布式任务调度">
 <meta name="twitter:description" content="任务调度解决定时触发的问题，分布式解决单点触发的问题。">
@@ -176,6 +176,9 @@
 <p>任务分片的关键问题：<code>任务的拆分</code>。</p>
 <p>可以分片的任务一定是可以<code>逻辑拆分</code>的，拆分之后的子任务没有任何关联关系。</p>
 <p>例如，为每一个用户统计他最近一天的消费信息，可以按照用户id的取模方式来实现任务的拆分：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1. id % 5 = 任务拆分为5个子任务</span><br><span class="line">2. 5个子任务分配分配到集群的5个节点来并发执行</span><br></pre></td></tr></table></figure></p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>任务调度的目的是准时触发任务，分布式的目的是解决单点问题，通过zookeeper和etcd等组件来实现集群的状态管理。</p>
+<p>为了试下准时触发和优先级触发，实例节点需要配置对应的线程池来实现高低优先级任务的隔离。</p>
+<h5 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h5><p><a href="https://zhuanlan.zhihu.com/p/26493355" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/26493355</a><br><a href="https://juejin.im/post/5c55ac0bf265da2da771a216" target="_blank" rel="noopener">https://juejin.im/post/5c55ac0bf265da2da771a216</a><br><a href="https://www.cnblogs.com/davidwang456/p/9057839.html" target="_blank" rel="noopener">https://www.cnblogs.com/davidwang456/p/9057839.html</a></p>
 
     
 	</div>

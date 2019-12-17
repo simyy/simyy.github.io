@@ -5,18 +5,18 @@
   
   <title>同步、异步、阻塞、非阻塞 | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="简单介绍同步、异步、阻塞等问题。">
+  <meta name="description" content="简单介绍同步/异步、阻塞/非阻塞。">
 <meta name="keywords" content="网络">
 <meta property="og:type" content="article">
 <meta property="og:title" content="同步、异步、阻塞、非阻塞">
 <meta property="og:url" content="http://simyy.cn/2016/04/26/block-sync/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="简单介绍同步、异步、阻塞等问题。">
+<meta property="og:description" content="简单介绍同步/异步、阻塞/非阻塞。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-11-29T05:47:46.368Z">
+<meta property="og:updated_time" content="2019-12-15T09:09:15.325Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="同步、异步、阻塞、非阻塞">
-<meta name="twitter:description" content="简单介绍同步、异步、阻塞等问题。">
+<meta name="twitter:description" content="简单介绍同步/异步、阻塞/非阻塞。">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -81,19 +81,23 @@
 	</header>
 	<div class="entry-content">
 		
-    	<p>简单介绍同步、异步、阻塞等问题。<br><a id="more"></a></p>
+    	<p>简单介绍同步/异步、阻塞/非阻塞。</p>
+<a id="more"></a>
+<h2 id="同步和异步"><a href="#同步和异步" class="headerlink" title="同步和异步"></a>同步和异步</h2><blockquote>
+<p>同步和异步的区别在于应用程序和系统内核之间状态通信机制的不同。</p>
+</blockquote>
+<p>当用户进程发起一个IO操作后，后续用户和系统内核之间的交互方式确定了<code>同步/非同步</code>。</p>
+<h3 id="同步-synchronous"><a href="#同步-synchronous" class="headerlink" title="同步 synchronous"></a>同步 synchronous</h3><p>当用户进程发起一个IO操作后，在没有得到结果之前，当前进程会进入<code>等待</code>或者<code>轮询检查</code>IO操作是否就绪。</p>
+<p><code>进程的等待和轮询</code>是一种主动的主动过方式，需要用户端主动的等在那里，所以是同步的。</p>
+<h3 id="异步-asynchronous"><a href="#异步-asynchronous" class="headerlink" title="异步 asynchronous"></a>异步 asynchronous</h3><p>用户进程发起一个IO操作后，直接返回，从而继续其他操作，IO操作完成后会通过其他方式来<code>回调</code>用户进程。</p>
+<p><code>进程的回调</code>是一种被动的触发方式，不需要用户端等在那里，当IO操作就绪后（完成后），系统会自动回调用户进程。</p>
 <h2 id="阻塞和非阻塞"><a href="#阻塞和非阻塞" class="headerlink" title="阻塞和非阻塞"></a>阻塞和非阻塞</h2><blockquote>
 <p>阻塞和非阻塞的区别之处在于程序等待调用结果后的状态（等待与否）。</p>
 </blockquote>
 <h3 id="阻塞-blocking"><a href="#阻塞-blocking" class="headerlink" title="阻塞 blocking"></a>阻塞 blocking</h3><p>调用结果返回前，程序会被挂起，直到调用结果返回。</p>
+<p>例如，当对文件描述符进行读写操作时，如果当时没有东西可读或暂时不可写，程序就进入等待状态，直到有东西可读或可写为止。</p>
 <h3 id="非阻塞-non-blocking"><a href="#非阻塞-non-blocking" class="headerlink" title="非阻塞 non blocking"></a>非阻塞 non blocking</h3><p>程序不会等待调用结果的返回，不会导致当前程序的挂起。</p>
-<p>socket read操作：<br>阻塞情况：内核请求从缓冲区读取数据，程序挂起，直到缓冲区内数据准备好，数据从内核拷贝到read进程中<br>非阻塞情况：内核请求从缓冲区读取数据，如果未准备好，不等待，直接返回，重复上面的过程</p>
-<h2 id="同步和异步"><a href="#同步和异步" class="headerlink" title="同步和异步"></a>同步和异步</h2><blockquote>
-<p>同步和异步的区别在于消息的通信机制。</p>
-</blockquote>
-<h3 id="同步-synchronous"><a href="#同步-synchronous" class="headerlink" title="同步 synchronous"></a>同步 synchronous</h3><p>发起一个调用后，在没有得到结果之前，调用不会返回，直到返回调用结果。</p>
-<h3 id="异步-asynchronous"><a href="#异步-asynchronous" class="headerlink" title="异步 asynchronous"></a>异步 asynchronous</h3><p>发起一个调用后，直接返回，而调用结果通过其他方式来通知调用者（利用触发机制来通知处理消息者）。</p>
-<p>可以参考node.js中的异步操作</p>
+<p>例如，当对文件描述符进行读写操作时，如果没有东西可读或不可写，读写函数马上返回，而不会等待，下一次重复此操作即可。</p>
 
     
 	</div>

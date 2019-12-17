@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>Reactor &amp; Proactor | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="总结常见的两种网络模型设计模式Reactor和Proactor。">
+<meta name="keywords" content="网络,中间件,网络模型">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Reactor &amp; Proactor">
+<meta property="og:url" content="http://simyy.cn/2019/12/16/re-pro-actor/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="总结常见的两种网络模型设计模式Reactor和Proactor。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://simyy.cn/images/RE_PRO_ACTOR_1.png">
+<meta property="og:image" content="http://simyy.cn/images/RE_PRO_ACTOR_2.png">
+<meta property="og:image" content="http://simyy.cn/images/RE_PRO_ACTOR_3.png">
+<meta property="og:image" content="http://simyy.cn/images/RE_PRO_ACTOR_4.png">
+<meta property="og:updated_time" content="2019-12-17T02:15:21.190Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Reactor &amp; Proactor">
+<meta name="twitter:description" content="总结常见的两种网络模型设计模式Reactor和Proactor。">
+<meta name="twitter:image" content="http://simyy.cn/images/RE_PRO_ACTOR_1.png">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">主页</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      
+
+
+<article id="post-re-pro-actor" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2019/12/16/re-pro-actor/" class="article-date">
+  <time datetime="2019-12-16T14:52:17.000Z" itemprop="datePublished">2019-12-16</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/中间件/">中间件</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/网络/">网络</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/网络模型/">网络模型</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      Reactor &amp; Proactor
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>总结常见的两种网络模型设计模式Reactor和Proactor。</p>
+<a id="more"></a>
+<h3 id="网络模型"><a href="#网络模型" class="headerlink" title="网络模型"></a>网络模型</h3><p>在网络模型设计中，有两个的高性能模型：<code>Reactor</code>和<code>Proactor</code>。</p>
+<p>这里会涉及到<code>同步/异步</code>、<code>阻塞/非阻塞</code>两个知识点。</p>
+<p><strong>同步/异步</strong>：应用程序和系统内核之间交互（通信）方式，主动监听还是被动通知。</p>
+<p><code>select/poll/epoll</code>都需要用户程序不断轮询检查IO操作是否就绪，所以它们都属于<code>同步IO</code>。</p>
+<p><code>Boost.Asio</code>通过对<code>epoll</code>的二次封装实现了<code>异步IO</code>，WIN下的<code>IOCP</code>同样也属于<code>异步IO</code>；</p>
+<p><strong>阻塞/非阻塞</strong>：用户进程执行IO操作后如何等待调用结果。</p>
+<p>进程挂起等待属于<code>阻塞</code>，进程直接返回等待下次重试属于<code>非阻塞</code>。</p>
+<h3 id="Reactor"><a href="#Reactor" class="headerlink" title="Reactor"></a>Reactor</h3><p><code>Reactor</code>属于<code>同步非阻塞</code>模型。</p>
+<p><strong>同步</strong>：同步监听，需要用户端主动监听IO就绪状态。</p>
+<p><strong>非阻塞</strong>：用户进程执行IO操作后不会导致用户进程的挂起，会通过重试的方式来尝试获取执行结果。</p>
+<p>Reactor模型中，主要分为<code>Acceptor</code>、<code>Reactor</code>、<code>Handler</code>三个主要组件。</p>
+<ul>
+<li><strong>Acceptor</strong>：获取客户端链接，绑定客户端注册事件。</li>
+<li><strong>Reactor</strong>：监控触发的事件，并分发给对应的事件处理器。</li>
+<li><strong>Handler</strong>：处理对应的事件请求，例如，读写处理器、加解密处理器、命令执行处理器等。</li>
+</ul>
+<p><code>Reactor组件</code>是模型中的关键组件（也是和<code>Proactor</code>的不同之处），包括以下两部分：</p>
+<ul>
+<li>通过不断轮询<code>select/epoll</code>来监听准备就绪的事件；</li>
+<li>通过<code>Dispatch</code>来分发事件到对应的时间处理器。</li>
+</ul>
+<blockquote>
+<p><code>Reactor</code>中的读和写是由<code>应用程序</code>来决定何时操作的。</p>
+</blockquote>
+<p>Reactor模型的实现方式：<code>单Reactor单处理器</code>、<code>单Reactor多处理器</code>、<code>多Reactor多处理器</code>。</p>
+<h5 id="单Reactor单处理器"><a href="#单Reactor单处理器" class="headerlink" title="单Reactor单处理器"></a>单Reactor单处理器</h5><p><code>单Reactor单处理器</code>也就是简单的单线程模型。</p>
+<p><img src="/images/RE_PRO_ACTOR_1.png" alt=""></p>
+<h5 id="单Reactor多处理器"><a href="#单Reactor多处理器" class="headerlink" title="单Reactor多处理器"></a>单Reactor多处理器</h5><p><code>单Reactor多处理器</code>是通过处理器多线程化来实现并发能力，但是需要考虑多处理器的并发情况下<code>资源竞争</code>的问题。</p>
+<p><img src="/images/RE_PRO_ACTOR_2.png" alt=""></p>
+<h5 id="多Reactor多处理器"><a href="#多Reactor多处理器" class="headerlink" title="多Reactor多处理器"></a>多Reactor多处理器</h5><p><code>多Reactor多处理器</code>是在<code>单Reactor多处理器</code>的基础之上，分离了<code>Acceptor</code>的能力，并且增加多个<code>子Reactor</code>来实现分而治之的方法。</p>
+<p><img src="/images/RE_PRO_ACTOR_3.png" alt=""></p>
+<h3 id="Proactor"><a href="#Proactor" class="headerlink" title="Proactor"></a>Proactor</h3><p><code>Reactor</code>属于<code>异步非阻塞</code>模型。</p>
+<p><strong>异步</strong>：异步回调，系统自动回调用户程序通知IO就绪状态。</p>
+<p><strong>非阻塞</strong>：同<code>Reactor</code>。</p>
+<p><code>Proactor</code>模型中，主要分为<code>Proactor</code>、<code>Proactor Initiator</code>、<code>Handler</code>、<code>Asynchronous Operation Processor</code>四个主要组件。</p>
+<ul>
+<li><strong>Asynchronous Operation Processor</strong>：异步操作处理器，操作系统提供；</li>
+<li><strong>Proactor Initiator</strong>：事件注册器，用于注册事件以及对应的事件处理器；</li>
+<li><strong>Proactor</strong>：用于监听触发的事件，并分发给不同的事件处理器处理；</li>
+<li><strong>Handler</strong>：同<code>Reactor</code>。</li>
+</ul>
+<p><img src="/images/RE_PRO_ACTOR_4.png" alt=""></p>
+<blockquote>
+<p>在<code>Proactor</code>中，<code>数据的读写</code>都是由<code>系统内核</code>来实现的，<code>应用程序</code>只是从<code>缓存区</code>上进行读写。</p>
+</blockquote>
+<p>Proactor模型的关键在于系统提供的<code>Asynchronous Operation Processor</code>异步操作处理器。</p>
+<blockquote>
+<p>由于基于<code>缓存区的</code>交互方式，<code>Proactor</code>中的读和写是<code>操作系统</code>来决定何时操作的。</p>
+</blockquote>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p><code>Reactor</code>和<code>Proactor</code>均为非阻塞I/O模型。</p>
+<p><code>Reactor</code>是同步的（主动查询），<code>Proactor</code>是异步的（被动通知）。</p>
+<p><code>Proactor</code>接收到的是IO操作已完成事件（缓存区），<code>Reactor</code>接收到的是IO操作就绪事件。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://mp.weixin.qq.com/s?__biz=MzUyNzgyNzAwNg==&amp;mid=2247483941&amp;idx=1&amp;sn=97628f4d69d8607badf39bfeb7557457&amp;scene=21#wechat_redirect" target="_blank" rel="noopener">彻底搞懂Java的网络IO</a><br><a href="https://zhuanlan.zhihu.com/p/35065251" target="_blank" rel="noopener">Linux 的 IO 通信 以及 Reactor 线程模型浅析</a></p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2019/12/08/distributed-job-dispatch/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          分布式任务调度
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2019 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

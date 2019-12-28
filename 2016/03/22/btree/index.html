@@ -16,7 +16,7 @@
 <meta property="og:image" content="http://simyy.cn/images/btree-1.png">
 <meta property="og:image" content="http://simyy.cn/images/btree-2.png">
 <meta property="og:image" content="http://simyy.cn/images/btree-3.png">
-<meta property="og:updated_time" content="2019-12-17T02:33:51.802Z">
+<meta property="og:updated_time" content="2019-12-17T06:16:48.676Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Btree 索引">
 <meta name="twitter:description" content="索引是帮助数据库高效获取数据的一种数据结构，通过提取句子主干，就可以得到索引的本质。">
@@ -85,10 +85,7 @@
 	</header>
 	<div class="entry-content">
 		
-    	<blockquote>
-<p>索引是帮助数据库高效获取数据的一种数据结构，通过提取句子主干，就可以得到索引的本质。</p>
-</blockquote>
-<a id="more"></a>
+    	<p>索引是帮助数据库高效获取数据的一种数据结构，通过提取句子主干，就可以得到索引的本质。<br><a id="more"></a></p>
 <h2 id="m-way查找树"><a href="#m-way查找树" class="headerlink" title="m-way查找树"></a>m-way查找树</h2><p>如果想了解<code>Btree</code>，需要首先了解<code>m-way</code>数据结构。<br><!--more--></p>
 <p><code>m-way</code>查找树是是一种树形的存储结构，主要特点如下，</p>
 <ul>
@@ -120,7 +117,12 @@
 <li>所有key都存在叶子节点中</li>
 </ul>
 <p><img src="/images/btree-3.png" alt=""></p>
-<h3 id="为什么使用Btree结构"><a href="#为什么使用Btree结构" class="headerlink" title="为什么使用Btree结构"></a>为什么使用Btree结构</h3><p>索引本身也很大，不可能全部存储在内存中，因此索引往往以索引文件的形式存储的磁盘上。<br>索引查找过程中就要产生磁盘I/O消耗，相对于内存存取，I/O存取的消耗要高几个数量级，所以评价一个数据结构作为索引的优劣最重要的指标就是在查找过程中磁盘I/O操作次数的渐进复杂度。（换句话说，索引的结构组织要尽量减少查找过程中磁盘I/O的存取次数。）</p>
+<h3 id="为什么使用B-tree结构"><a href="#为什么使用B-tree结构" class="headerlink" title="为什么使用B+tree结构"></a>为什么使用B+tree结构</h3><p>索引本身也很大，不可能全部存储在内存中，因此索引往往以索引文件的形式存储的磁盘上。</p>
+<blockquote>
+<p>评价一个数据结构作为索引的优劣最重要的指标就是<code>在查找过程中磁盘I/O操作次数的渐进复杂度</code>。</p>
+</blockquote>
+<p>索引查找过程中就要产生磁盘I/O消耗，相对于内存存取，I/O存取的消耗要高几个数量级。</p>
+<p>换句话说，索引的结构组织要尽量减少查找过程中磁盘I/O的存取次数。</p>
 <p><strong>为了达到降低磁盘I/O的目的</strong></p>
 <ul>
 <li>磁盘按需读取，要求每次都会预读的长度一般为页的整数倍， 数据库系统将一个节点的大小设为等于一个页，这样每个节点的元素数据只需要一次I/O就可以完全载入</li>

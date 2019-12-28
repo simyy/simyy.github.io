@@ -6,7 +6,7 @@
   <title>计算机内存架构 &amp; JMM | simyy</title>
   <meta name="viewport" content="width=device-width">
   <meta name="description" content="总结下计算机内存架构的基本原理以及JMM的不同之处。">
-<meta name="keywords" content="Java,Linux,计算机原理">
+<meta name="keywords" content="计算机原理,Java,Linux">
 <meta property="og:type" content="article">
 <meta property="og:title" content="计算机内存架构 &amp; JMM">
 <meta property="og:url" content="http://simyy.cn/2019/09/02/memory-and-jmm/index.html">
@@ -14,9 +14,11 @@
 <meta property="og:description" content="总结下计算机内存架构的基本原理以及JMM的不同之处。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://simyy.cn/images/memory_and_jmm_1.jpg">
+<meta property="og:image" content="http://simyy.cn/images/memory_and_jmm_0.png">
+<meta property="og:image" content="http://simyy.cn/images/memory_and_jmm_0_1.png">
 <meta property="og:image" content="http://simyy.cn/images/memory_and_jmm_2.jpg">
 <meta property="og:image" content="http://simyy.cn/images/memory_and_jmm_3.jpg">
-<meta property="og:updated_time" content="2019-12-17T02:30:49.657Z">
+<meta property="og:updated_time" content="2019-12-23T06:07:36.432Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="计算机内存架构 &amp; JMM">
 <meta name="twitter:description" content="总结下计算机内存架构的基本原理以及JMM的不同之处。">
@@ -95,11 +97,52 @@
 </blockquote>
 <p>由于处理器和内存之间的性能差距，当代所有计算机系统都加入了一层<code>高速缓存</code>来间接缓冲数据（可以理解为业务中使用的本地缓存、分布式缓存等）。</p>
 <p><strong>访问速度比较</strong>：<code>寄存器</code> &gt; <code>高速缓存</code> &gt; <code>主内存</code>，有些计算机架构中存在多级缓存（例如，Linux多级缓存）。</p>
-<h5 id="缓存一致性"><a href="#缓存一致性" class="headerlink" title="缓存一致性"></a>缓存一致性</h5><p><code>高速缓存</code>类似一种代理模式，在CPU和主内存质之间构建一条高速公路，但也会造成缓存一直性问题。</p>
+<h5 id="多级缓存"><a href="#多级缓存" class="headerlink" title="多级缓存"></a>多级缓存</h5><p>计算机提供了多级缓存来提高系统的读写效率。</p>
+<p><img src="/images/memory_and_jmm_0.png" alt="多级缓存"></p>
+<hr>
+<p><strong>Core 内部：</strong></p>
 <blockquote>
-<p><code>缓存一致性问题</code>：当多个处理器同时共享同一块主内存时，将可能导致各自的高速缓存数据不一致的情况。</p>
+<p>CPU内部意味着L0、L1、L2都属于CPU的一部分，因此每一个CPU都拥有独占的LO、L1、L2。</p>
+</blockquote>
+<ul>
+<li>L0：寄存器</li>
+<li>L1：L1高速缓存（SRAM），划分为一级数据缓存（L1 D-Cache）和一级指令缓存（L1 I-Cache）</li>
+<li>L2：L2高速缓存（SRAM）</li>
+</ul>
+<hr>
+<p><strong>Core 共享：</strong></p>
+<ul>
+<li>L3：L3高速缓存（SRAM），会造成伪共享（False Sharing）</li>
+<li>L4：主内存（DRAM）</li>
+<li>L5：本地二级存储（本地磁盘）</li>
+<li>L6：远程二级存储（分布式文件系统）</li>
+</ul>
+<hr>
+<p><img src="/images/memory_and_jmm_0_1.png" alt="多级缓存"></p>
+<p>从图中可以看到，每个处理器都有自己的高速缓存，而它们又共享同一主内存。</p>
+<p>当多个处理器的运算任务都涉及同一块主内存区域时，将可能导致各自的缓存数据不一致。</p>
+<h5 id="缓存一致性"><a href="#缓存一致性" class="headerlink" title="缓存一致性"></a>缓存一致性</h5><p><code>高速缓存</code>类似一种代理模式，在CPU和主内存质之间构建一条高速公路，但也会造成缓存一致性问题。</p>
+<blockquote>
+<p>当多个处理器同时共享同一块主内存时，将可能导致高速缓存的<code>一致性问题</code>。</p>
 </blockquote>
 <p>为了解决这个问题，提出了<code>缓存一致性协议</code>，常见的协议包括MSI、MESI等。</p>
+<blockquote>
+<p>缓存一致性的大体思想：当CPU写数据时，如果发现操作的变量是共享变量，即在其他CPU中也存在该变量的副本，会发出信号通知其他CPU将该变量的缓存行置为无效状态，因此当其他CPU需要读取这个变量时，发现自己缓存中缓存该变量的缓存行是无效的，那么它就会从内存重新读取。</p>
+</blockquote>
+<h6 id="伪共享"><a href="#伪共享" class="headerlink" title="伪共享"></a>伪共享</h6><p>CPU缓存系统是按<code>缓存行(Cache Line)</code>为单位存储的。</p>
+<blockquote>
+<p>缓存行(Cache Line)：CPU缓存的最小单位，大小一般为64bytes。</p>
+</blockquote>
+<p>CPU加载主内存到缓存是按照缓存行来加载的，也就是说，一个缓存行可以存储多个变量。</p>
+<p>在多线程情况下，如果需要修改共享在同一个缓存行的变量，也会造成共享缓存行中其他变量的缓存失效，从而影响彼此的性能，这就是<code>伪共享（False Sharing）</code>。</p>
+<blockquote>
+<p><strong>解决方法：</strong>利用单个数据填充一个缓存行，空间换时间的方式，避免多个变量共享同一个缓存行。</p>
+</blockquote>
+<p>Java8中新增了一个注解<a href="mailto:`@sun.misc.Contended" target="_blank" rel="noopener">`@sun.misc.Contended</a>`用于解决伪共享的问题。</p>
+<blockquote>
+<p><a href="mailto:`@sun.misc.Contended" target="_blank" rel="noopener">`@sun.misc.Contended</a>`：通过在对象或字段前后追加padding，使数据长度达到128bytes（2被缓存行的大小），从而避免相邻扇区预取导致的伪共享冲突。</p>
+</blockquote>
+<p>具体参考：<a href="https://www.jianshu.com/p/c3c108c3dcfd" target="_blank" rel="noopener">Java8使用@sun.misc.Contended避免伪共享</a></p>
 <h5 id="指令重排"><a href="#指令重排" class="headerlink" title="指令重排"></a>指令重排</h5><p>即使存在高速缓存也不能把CPU的性能充分利用，因此提出了<code>指令重排</code>。</p>
 <blockquote>
 <p><code>指令重排</code>：处理器会对输入的代码进行乱序优化，在保证结果不变的情况下，优化指令排序，从而实现CPU的充分利用。</p>
@@ -126,7 +169,7 @@
 </blockquote>
 <p>为了保证内存可见性，Java编译器在生成指令序列的适当位置会插入<code>内存屏障指令</code>来禁止特定类型的处理器重排序。</p>
 <p><code>volatile</code>也提供了禁止指令重排序的功能。</p>
-<h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><p><a href="https://zhuanlan.zhihu.com/p/29881777" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/29881777</a><br><a href="https://blog.csdn.net/muxiqingyang/article/details/6615199" target="_blank" rel="noopener">https://blog.csdn.net/muxiqingyang/article/details/6615199</a></p>
+<h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><p><a href="https://zhuanlan.zhihu.com/p/29881777" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/29881777</a><br><a href="https://blog.csdn.net/muxiqingyang/article/details/6615199" target="_blank" rel="noopener">https://blog.csdn.net/muxiqingyang/article/details/6615199</a><br><a href="https://www.yuque.com/crow/xriqpk/hm5s0s?language=en-us" target="_blank" rel="noopener">https://www.yuque.com/crow/xriqpk/hm5s0s?language=en-us</a></p>
 
     
 	</div>

@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://simyy.cn/"/>
-  <updated>2019-12-17T02:25:10.605Z</updated>
+  <updated>2019-12-28T02:04:58.748Z</updated>
   <id>http://simyy.cn/</id>
   
   <author>
@@ -15,6 +15,54 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>分库分表</title>
+    <link href="http://simyy.cn/2019/12/28/sharding/"/>
+    <id>http://simyy.cn/2019/12/28/sharding/</id>
+    <published>2019-12-28T02:00:25.000Z</published>
+    <updated>2019-12-28T02:04:58.748Z</updated>
+    
+    <content type="html"><![CDATA[<p>分库分表是为了解决数据库读写的性能问题。</p><a id="more"></a><h4 id="分片方案"><a href="#分片方案" class="headerlink" title="分片方案"></a>分片方案</h4><p>分库分表的分片方案包括：<code>应用层分片</code>和<code>中间件分片</code>。</p><p><img src="/images/sharding_1.png" alt="分片方案"></p><hr><p><strong>应用层分片：</strong> 分片逻辑耦合在应用系统中，直连数据库。</p><p><strong>优势:</strong> 在于<code>直连</code>，性能更好，运维成本低。</p><p><strong>劣势:</strong> 由于耦合在应用系统中，升级问题较为麻烦，需要每个应用重新升级发布。</p><p>常见的方案有<code>Sharding-jdbc</code>、<code>TDDL</code>。</p><hr><p><strong>中间件分片：</strong> 分片逻辑作封装为独立中间件，独立部署，作为应用系统与数据库之间的代理。</p><p><strong>优势:</strong> 对应用系统无入侵，独立部署后也仅需升级中间件。</p><p><strong>劣势:</strong> 独立部署运维成本高，代理模式增加性能消耗。</p><p>常见的方案有<code>Atlas</code>、<code>Mycat</code>、<code>Cobar</code>.</p><hr><h4 id="数据切分"><a href="#数据切分" class="headerlink" title="数据切分"></a>数据切分</h4><blockquote><p>数据的切分方式分为两种：<code>垂直切分</code>和<code>水平切分</code>。</p></blockquote><p><code>垂直切分</code>是基于<code>业务边界</code>拆分的，数据相对独立，拆分几乎无副作用。</p><p><code>水平切分</code>是基于<code>业务逻辑</code>拆分的，是为了解决大表的拆分策略。</p><blockquote><p>在系统演进的过程中一般都会先经历<code>垂直切分</code>然后再经历<code>水平切分</code>。</p></blockquote><h5 id="垂直切分"><a href="#垂直切分" class="headerlink" title="垂直切分"></a>垂直切分</h5><p><code>垂直切分</code>是指按照业务将表进行分类，重新分配到不同的数据库上，从而实现请求压力的拆分。</p><p><img src="/images/sharding_1.png" alt="垂直切分"></p><p><strong>优点：</strong></p><ul><li>切分规则清晰（划分数据边界）</li><li>切分后数据维护性不变（原有<code>SQL</code>无影响）</li><li>切分后请求压力会由不同业务数据库独自承担（业务之间无影响）</li></ul><p><strong>缺点：</strong></p><ul><li>不同业务之间的事务处理复杂（涉及到分布式事务）</li><li>不同业务之间的表无法<code>JOIN</code>，需要做关联查询（<code>HTTP/RPC</code>）</li></ul><p>在垂直切分情况下，可能存在一张表拆分为多张表的情况，那么原有的<code>直接查询</code>可能就需要修改为<code>关联查询</code>。</p><p>为了避免<code>关联查询</code>带来的性能损耗，在满足业务的情况下，可以冗余部分字段信息来避免关联查询。</p><h5 id="水平切分"><a href="#水平切分" class="headerlink" title="水平切分"></a>水平切分</h5><p><code>水平切分</code>是指按业务逻辑对表中数据行的切分，把单表数据分配到多个数据库及多个表中，从而实现请求压力的拆分。</p><p><code>水平切分</code>注重的是<code>大表的切分</code>，是基于大表中<code>某个字段</code>的<code>某种规则</code>的切分。</p><blockquote><p>什么是大表？</p><p>业界公认MySQL单表容量在<code>1KW</code>以下是最佳状态，因为这时它的<code>B+TREE索引树高在3~5之间</code>。</p></blockquote><p><img src="/images/sharding_1.png" alt="水平切分"></p><p><strong>优点：</strong></p><ul><li>切分后不存在单库大表，读写性能更好</li></ul><p><strong>缺点：</strong></p><ul><li>切分规则会对SQL存在影响（任何SQL都需要带有<code>Sharding Key</code>）</li><li>跨库查询性能差，跨库事务处理复杂（涉及到分布式事务）</li><li>需要考虑后期数据的二次扩展</li><li>数据归档与归档查询</li><li>跨库<code>JOIN</code>性能差</li></ul><h4 id="切分策略"><a href="#切分策略" class="headerlink" title="切分策略"></a>切分策略</h4><p>由于<code>垂直切分</code>是基于业务边界的切分，需要问题在于业务边界的划分，这里不再讨论。</p><p>这里仅分析<code>水平切分</code>。</p><blockquote><p><code>切分策略</code>可以分为：<code>Hash切分</code>和<code>Range切分</code>。</p></blockquote><p><code>数据切分</code>都是基于<code>Sharding Key</code>的，而<code>Sharding Key</code>的选择与业务SQL是强关联的。</p><p>例如，数据库应存在1亿的用户数据，此时需要对用户表进行切分，考虑到业务场景下，大部分的请求都是基于用户纬度来查询的，因此使用用户ID作为<code>Sharding Key</code>来做数据切分。</p><h5 id="Hash切分"><a href="#Hash切分" class="headerlink" title="Hash切分"></a>Hash切分</h5><p><code>Hash切分</code>是最为常用的切分策略，一般采用<code>取模MOD</code>来切分数据表，但其水平扩展会造成<code>数据的迁移</code>。</p><p><img src="/images/sharding_4.png" alt="Hash切分"></p><p>建议取模方式：<code>MOD（2^n）</code>，可以避免部署数据的迁移，例如，</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">10 % 4 == 10 % 8 == 2</span><br></pre></td></tr></table></figure><blockquote><p>考虑到水平扩展的性能，可以使用一致性Hash算法来切分数据。</p></blockquote><h6 id="一致性Hash切分"><a href="#一致性Hash切分" class="headerlink" title="一致性Hash切分"></a>一致性Hash切分</h6><p>与哈希方法一样，<code>Hash环</code>利用环形形状来表示<code>取模MOD</code>后节点分布情况。</p><p>但是在节点扩容的情况下，不再需要</p><blockquote><p>一致性Hash的优势在于：节点扩容和缩容不会导致大量数据的迁移。</p></blockquote><p><code>一致性Hash</code>的关键：</p><ul><li><code>顺序针</code>寻找最近的节点作为存储数据存储节点</li><li>利用<code>虚拟节点</code>来均衡各个节点的负载情况</li></ul><p><img src="/images/sharding_5.png" alt="一致性Hash"></p><h5 id="Range切分"><a href="#Range切分" class="headerlink" title="Range切分"></a>Range切分</h5><p><code>Range切分</code>是利用数据<code>时间</code>或<code>ID</code>来切分数据表，常用于日志、归档数据的切分，是一种顺序切分。</p><p>切分规则可控，水平扩展不会造成数据迁移，扩展更容易。</p><p>由于数据是按顺序切分的，无法解决集中写入瓶颈的问题，而且存在跨库跨表查询性能查。</p><p><img src="/images/sharding_6.png" alt="Range切分"></p><h4 id="拆分数量"><a href="#拆分数量" class="headerlink" title="拆分数量"></a>拆分数量</h4><p>数据库一般被部署在物理机上，其性能受物理机的影响。</p><blockquote><p>数据库的性能与CPU、内存有直接关系。</p></blockquote><p>常见情况下，一台物理机部署多个数据库实例，多个数据库实例共享同一台主机的性能。</p><p>由于物理机的性能有限，所以在同一台物理机上增加过多的实例是无效的。</p><blockquote><p><strong>集群性能的定义：</strong></p><p><code>Sharding集群性能 = Sharding集群物理机的数量 * 单台物理机的性能</code></p></blockquote><p>具体拆分方式不仅需要通过业务场景来决定的，而且需要DBA合理部署<code>Sharding集群</code>，从而才能实现Sharding集群性能的最大化。</p><h4 id="分布式唯一ID"><a href="#分布式唯一ID" class="headerlink" title="分布式唯一ID"></a>分布式唯一ID</h4><p>在单库单表的情况下，直接使用数据库<code>自增ID</code>。</p><p>在分库分表的情况下，数据分布在不同库表上，无法使用数据库<code>自增特性</code>，需要使用<code>分布式唯一ID</code>。</p><h5 id="UUID"><a href="#UUID" class="headerlink" title="UUID"></a>UUID</h5><p><code>UUID</code>一般通过本地网卡、时间和随记数来生成。</p><ul><li>16字节128位，36个字符长度不适合做主键，存储成本高</li><li>无序，作为主键时会导致B+树索引在写的时候有过多的随机写操作</li></ul><blockquote><p>聚集主键的InnoDB会按照主键进行数据排序，因此要求分布式唯一ID具有<code>有序性</code>；</p></blockquote><h5 id="Redis"><a href="#Redis" class="headerlink" title="Redis"></a>Redis</h5><p><code>Redis</code>提供了<code>incr/increby</code>原子操作，从而可以用来生成分布式ID。</p><ul><li>基于内存自增生成ID，性能较好</li><li>内存自增操作保证ID有序</li><li>单机部署存在可用性问题，需要集群解决单点问题</li><li>双击部署、数据持久化</li></ul><blockquote><p>数据库在插入数据时对分布式ID是强依赖，如果出现问题会导致无法正常插入数据，所以需要保证分布式ID生成器的高可用。</p></blockquote><p>使用<code>incr</code>仅可以生成一个ID；<br>使用<code>increby</code>可以批量生成多个ID，可用于批量插入数据；</p><h5 id="Snowflake"><a href="#Snowflake" class="headerlink" title="Snowflake"></a>Snowflake</h5><p><code>Snowflake</code>是<code>Twitter</code>利用<code>Zookeeper</code>实现了一个全局ID生成的服务。</p><p><code>Snowflake</code>生成的<code>分布式唯一ID</code>的组成 (由高位到低位):</p><ul><li>41 bits: Timestamp (毫秒级)</li><li>10 bits: 节点 ID (datacenter ID 5 bits + worker ID 5 bits)</li><li>12 bits: sequence number</li></ul><p><img src="/images/sharding_7.png" alt="雪花算法"></p><p><strong>优点：</strong></p><ul><li>高性能，低延迟</li><li>按时间有序</li></ul><p><strong>缺点：</strong></p><ul><li>强依赖机器时钟，如果机器上时钟回拨，会导致发号重复或者服务会处于不可用状态</li></ul><h5 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h5><p><a href="https://tech.meituan.com/2017/04/21/mt-leaf.html" target="_blank" rel="noopener">Leaf——美团点评分布式ID生成系统</a></p><h4 id="数据迁移"><a href="#数据迁移" class="headerlink" title="数据迁移"></a>数据迁移</h4><p><code>数据迁移</code>是分库分表的重要工作，按照切分逻辑把历史数据迁移至新的分库分表数据库中。</p><p>常见的两种方式：<code>停机迁移</code>和<code>在线迁移</code>。</p><h5 id="停机迁移"><a href="#停机迁移" class="headerlink" title="停机迁移"></a>停机迁移</h5><p> 数据迁移过程中需要<code>停止相关服务</code>，优势在于迁移过程简单。</p><p> 由于迁移过程中不会产生新的数据，所以迁移过程仅需要一次，迁移完成后恢复服务运行。</p><p> 此方法仅适用于那些调用频次低、暂时停机无影响的服务。</p><h5 id="在线迁移"><a href="#在线迁移" class="headerlink" title="在线迁移"></a>在线迁移</h5><p>数据迁移过程中服务正常运行，优势在于不影响系统运行，但迁移过程复杂。</p><p><strong>迁移步骤为：</strong></p><ul><li>在不影响主库的情况下，基于从库同步历史数据到目标库表中</li><li>上一步同步完成后，切换数据写入开关状态到<code>双写状态1</code>（同步写入历史库表、异步写入切分库表）</li><li>定期检查历史库表和切分库表的数据差异，如果存在数据差异，再次同步差异数据到切分库表</li><li>当数据基本无差异的情况下，切换数据开关状态到<code>双写状态2</code>（同步写入切分库表、异步写入历史库表），此时读写迁移至切分库表</li><li>定期检查历史库表和切分库表的数据差异，如果存在数据差异，再次同步差异数据到历史库表</li><li>稳定运行一段时间后才可以停止历史库表的写入，否则无法实现切分的回滚</li></ul><blockquote><p><code>双写状态</code>这里需要注意下，尽量避免双数据源的同步写入，辅助同步逻辑可以通过异步方式实现。</p></blockquote><p><img src="/images/sharding_8.png" alt="数据迁移"></p><h4 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h4><blockquote><p>只有当数据库性能不能满足业务发展时，才真的需要进行分库分表。</p></blockquote><p>分库分表只会给系统增加复杂度，原本一条SQL可以处理的数据，跨库操作存在大量的网络延迟及数据聚合，将会带来大量的性能损耗。</p><hr><blockquote><p>分库分表不是必须的！</p></blockquote><p>有些场景下，数据是可以通过<code>归档的方式</code>来减少数据的量级。</p><p><code>ES+HBase</code>是比较常见的归档方案，其中，<code>ES</code>仅存储索引字段，<code>HBase</code>存储全量数据。</p><h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><p><a href="https://www.infoq.cn/article/ZMlCBpIhOThWJeqmZD4I" target="_blank" rel="noopener">数据库分库分表基础和实践</a><br><a href="https://www.cnblogs.com/405845829qq/p/7552750.html" target="_blank" rel="noopener">MySQL分库分表方案</a><br><a href="https://zhuanlan.zhihu.com/p/24036067" target="_blank" rel="noopener">大众点评订单系统分库分表实践</a><br><a href="https://cloud.tencent.com/developer/article/1448626" target="_blank" rel="noopener">分库分表最佳实践</a></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;分库分表是为了解决数据库读写的性能问题。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="架构" scheme="http://simyy.cn/categories/%E6%9E%B6%E6%9E%84/"/>
+    
+    
+      <category term="架构" scheme="http://simyy.cn/tags/%E6%9E%B6%E6%9E%84/"/>
+    
+      <category term="Sharding" scheme="http://simyy.cn/tags/Sharding/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>SOLID设计原则</title>
+    <link href="http://simyy.cn/2019/12/21/solid-priciple/"/>
+    <id>http://simyy.cn/2019/12/21/solid-priciple/</id>
+    <published>2019-12-21T08:14:27.000Z</published>
+    <updated>2019-12-21T09:26:17.483Z</updated>
+    
+    <content type="html"><![CDATA[<p>SOLID设计原则主要用于解决如何构建可持续性的软件架构。</p><a id="more"></a><h4 id="SRP"><a href="#SRP" class="headerlink" title="SRP"></a>SRP</h4><p><code>SRP</code>全称为<code>Single Responsibility Principle</code>，译为<code>单一职责原则</code>。</p><p><strong>定义：</strong></p><blockquote><p>There should never be more than one reason for a class to change.</p><p><code>任何一个软件模块都应该有且仅有一个被修改的原因</code>。</p></blockquote><p>在<code>Clean Architecture</code>中，重新定义如下:</p><blockquote><p><code>任何一个软件模块都应该只针对某一类行为负责</code>。</p></blockquote><p>相比之下，第二种定义更让人容易理解，因为它是站在<code>职责边界</code>的角度来分析职责的划分。</p><p>在面向对象的设计中，<code>高内聚、低耦合</code>是评判一个软件设计好坏的标准。</p><blockquote><p><code>内聚</code>：模块内部元素之间关联的程度。<br><code>耦合</code>：模块之间关联的程度。</p></blockquote><p><code>高内聚</code>与<code>低耦合</code>相辅相成，<code>高内聚</code>自然会带来<code>低耦合</code>的效果。</p><p>在软件设计层面上，<code>SRP</code>是一种抽象概念，与<code>高内聚、低耦合</code>是同样的目的，都是为了实现模块功能的职责独立。</p><p>“模块仅负责<code>某一类行为</code>“ 不就是<code>高内聚</code>的一种表现方式。</p><hr><blockquote><p>如何实现<code>SPR</code>？</p></blockquote><p>上面有提到实现<code>SPR</code>的关键在于<code>聚类行为</code>，那么行为如何聚类呢？</p><p>利用<code>领域驱动设计</code>的思想找到模块的边界，从而实现行为的归类。</p><hr><h4 id="OCP"><a href="#OCP" class="headerlink" title="OCP"></a>OCP</h4><p><code>OCP</code>全称为<code>Open Closed Principle</code>，译为<code>开闭原则</code>。</p><p><strong>定义：</strong></p><blockquote><p>Software entities (classes, modules, functions, etc.) should be open for extension, but closed for modification.</p><p><code>一个软件实体（如类，模块和函数）应该对扩展开放，对修改关闭。</code></p></blockquote><p><code>Open</code>对应的是<code>扩展</code>，<code>Closed</code>对应的是<code>修改</code>。</p><p>换一个角度来思考<code>OCP</code>，面对需求变化是否需要修改历史代码？</p><blockquote><p><code>软件设计应该通过扩展来实现变化，而不是通过修改来实现变化。</code></p></blockquote><p><code>修改</code>意味着改变原有逻辑，变化可能带来副作用，尤其对于那些年久失修、无人维护的代码来说。</p><p>因此，强调通过<code>扩展</code>的方式来拥抱需求变化更为合适，而这里的扩展的手段是<code>抽象化</code>。</p><hr><blockquote><p>如何实现<code>OCP</code>？</p></blockquote><p><code>抽象化</code>是实现<code>OCP</code>的关键，具体可以通过<code>面向接口编程</code>和<code>面向抽象编程</code>。</p><p>通过<code>接口和抽象</code>来限定功能范围，具体行为通过具体实现来控制（<code>多态</code>和<code>继承</code>）。</p><p>模块之间的依赖仅通过<code>接口和抽象</code>来关联，与具体逻辑无关，每当需求发生变更的时候，在不改变<code>接口和抽象</code>的前提下通过增加新的实现来满足需求。</p><hr><h4 id="LSP"><a href="#LSP" class="headerlink" title="LSP"></a>LSP</h4><p><code>LSP</code>全称为<code>Liskov Substitution Principle</code>，译为<code>里氏替换原则</code>。</p><p><strong>定义：</strong></p><blockquote><p>Functions that use pointers or references to base classes must be able to useobjects of derived classes without knowing it.</p><p>引用基类的地方都可以透明地使用其子类对象。</p></blockquote><p><code>LSP</code>的关键在于<code>可替换</code>。</p><p>在面向对象的编程方式中，<code>可替换</code>可以基于<code>继承</code>来实现。</p><p><code>继承</code>的特点是<code>子类</code>拥有<code>父类</code>所有堆外暴露的功能。</p><p>在实际情况下，<code>继承</code>的使用方式：</p><ul><li><code>代码复用</code>，父类实现共享方法，父类方法不可被重写，父类可实例化</li><li><code>代码复用+多态</code>，父类实现共享方法，并提供待子类实现的抽象方法，<code>父类一般为抽象类，不允许实例化</code></li></ul><p><code>LSP</code>中的<code>可替换</code>也就是多态的一种表现，通过<code>接口</code>和<code>抽象类</code>来做模块之间的关联，与模块的具体实现无关。</p><blockquote><p><code>OCP</code>和<code>LSP</code>是相辅相成的，</p><p>前者关注<code>扩展</code>来解决模块内部变化的问题，后者关注<code>可替换</code>来解决模块之间逻辑变化的问题。</p></blockquote><h4 id="ISP"><a href="#ISP" class="headerlink" title="ISP"></a>ISP</h4><p><code>ISP</code>全称为<code>Interface Segregation Principle</code>，译为<code>接口隔离原则</code>。</p><p><strong>定义：</strong></p><blockquote><p>The dependency of one class to another one should depend on the smallest possible interface.</p><p>类间的依赖关系应该建立在最小的接口上。</p></blockquote><p><code>ISP</code>的关键在于<code>功能的划分</code>。</p><p><code>ISP</code>的目的在于避免过多的功能暴露给依赖方，也就是解决<code>Fat Interface</code>。</p><p><code>SRP</code>的目的在于<code>职责的划分</code>，属于边界划分的范畴，而<code>ISP</code>更倾向于<code>功能聚类</code>，让依赖者不必关心不需要的功能方法。</p><p>职责下所涉及的功能如果太多，可以划分为多个功能聚类来简化功能的检索，不仅可以帮忙开发者更好管理功能，也可以帮忙依赖方对接口功能的划分更加清晰。</p><hr><blockquote><p>先满足<code>ISP</code>还是<code>SRP</code>？</p></blockquote><p>在软件设计初期需要考虑的是<code>SRP</code>，职责的划分更为重要。</p><p>在解决职责问题之后，在功能设计阶段就需要考虑<code>ISP</code>，包括</p><ul><li>解决<code>Fat Interface</code>的问题</li><li>功能方法聚类，隔离无关功能，让依赖变得更简单</li></ul><hr><h4 id="DIP"><a href="#DIP" class="headerlink" title="DIP"></a>DIP</h4><p><code>DIP</code>全称为<code>Dependency Inversion Principle</code>，译为<code>依赖倒置原则</code>。</p><p><strong>定义：</strong></p><blockquote><p>High level modules should not depend upon low level modules. Both should depend upon abstractions. Abstractions should not depend upon details. Details should depend upon abstractions.</p><p>高层模块不应该依赖于低层模块，两者都应该依赖于抽象；抽象不应该依赖于细节，细节应该依赖于抽象。</p></blockquote><p>当修改接口的时必然会修改实现，但修改实现不需要修改接口。</p><blockquote><p>接口比实现更稳定。</p></blockquote><p>任何具体逻辑的实现及修改和接口抽象无关，依赖方只需要关注接口是否变化，并不需要关注细节本身（这往往是分工开发中需要注意的问题）。</p><blockquote><p><code>DIP</code>是一种<code>松耦合</code>的设计原则。</p></blockquote><p><code>DIP</code>是站在抽象的角度上来建立模型，更类似于伪代码，确定整体的设计思路（模块或功能间的耦合关系）。</p><p><code>OCP</code>、<code>LSP</code>是具体的实现方式，通过<code>扩展</code>和<code>替换</code>来实现不同逻辑细节。</p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;SOLID设计原则主要用于解决如何构建可持续性的软件架构。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="架构" scheme="http://simyy.cn/categories/%E6%9E%B6%E6%9E%84/"/>
+    
+    
+      <category term="架构" scheme="http://simyy.cn/tags/%E6%9E%B6%E6%9E%84/"/>
+    
+      <category term="软件设计" scheme="http://simyy.cn/tags/%E8%BD%AF%E4%BB%B6%E8%AE%BE%E8%AE%A1/"/>
+    
+  </entry>
   
   <entry>
     <title>Reactor &amp; Proactor</title>
@@ -34,11 +82,11 @@
       <category term="架构" scheme="http://simyy.cn/categories/%E6%9E%B6%E6%9E%84/"/>
     
     
+      <category term="中间件" scheme="http://simyy.cn/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
+    
       <category term="网络" scheme="http://simyy.cn/tags/%E7%BD%91%E7%BB%9C/"/>
     
       <category term="架构" scheme="http://simyy.cn/tags/%E6%9E%B6%E6%9E%84/"/>
-    
-      <category term="中间件" scheme="http://simyy.cn/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
     
       <category term="网络模型" scheme="http://simyy.cn/tags/%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/"/>
     
@@ -64,13 +112,13 @@
       <category term="中间件" scheme="http://simyy.cn/categories/%E6%9E%B6%E6%9E%84/%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
     
     
-      <category term="分布式" scheme="http://simyy.cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+      <category term="中间件" scheme="http://simyy.cn/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
     
       <category term="架构" scheme="http://simyy.cn/tags/%E6%9E%B6%E6%9E%84/"/>
     
-      <category term="任务调度" scheme="http://simyy.cn/tags/%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6/"/>
+      <category term="分布式" scheme="http://simyy.cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
     
-      <category term="中间件" scheme="http://simyy.cn/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
+      <category term="任务调度" scheme="http://simyy.cn/tags/%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6/"/>
     
   </entry>
   
@@ -92,11 +140,11 @@
       <category term="编程语言" scheme="http://simyy.cn/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
     
     
+      <category term="编程语言" scheme="http://simyy.cn/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
+    
       <category term="Java" scheme="http://simyy.cn/tags/Java/"/>
     
       <category term="JVM" scheme="http://simyy.cn/tags/JVM/"/>
-    
-      <category term="编程语言" scheme="http://simyy.cn/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
     
   </entry>
   
@@ -118,9 +166,9 @@
       <category term="算法" scheme="http://simyy.cn/categories/%E7%AE%97%E6%B3%95/"/>
     
     
-      <category term="排序" scheme="http://simyy.cn/tags/%E6%8E%92%E5%BA%8F/"/>
-    
       <category term="算法" scheme="http://simyy.cn/tags/%E7%AE%97%E6%B3%95/"/>
+    
+      <category term="排序" scheme="http://simyy.cn/tags/%E6%8E%92%E5%BA%8F/"/>
     
   </entry>
   
@@ -142,9 +190,9 @@
       <category term="编程语言" scheme="http://simyy.cn/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
     
     
-      <category term="Java" scheme="http://simyy.cn/tags/Java/"/>
-    
       <category term="编程语言" scheme="http://simyy.cn/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
+    
+      <category term="Java" scheme="http://simyy.cn/tags/Java/"/>
     
   </entry>
   
@@ -153,9 +201,9 @@
     <link href="http://simyy.cn/2019/09/02/memory-and-jmm/"/>
     <id>http://simyy.cn/2019/09/02/memory-and-jmm/</id>
     <published>2019-09-02T14:26:24.000Z</published>
-    <updated>2019-12-17T02:30:49.657Z</updated>
+    <updated>2019-12-23T06:07:36.432Z</updated>
     
-    <content type="html"><![CDATA[<p>总结下计算机内存架构的基本原理以及JMM的不同之处。</p><a id="more"></a><h4 id="内存架构"><a href="#内存架构" class="headerlink" title="内存架构"></a>内存架构</h4><p><img src="/images/memory_and_jmm_1.jpg" alt="内存架构"></p><p>现代内存架构如上图所示。</p><blockquote><p><code>高速缓存</code>存在的意义？</p><p>计算机的<code>存储设备</code>与<code>处理器</code>的运算速度之间有着几个数量级的差距。</p></blockquote><p>由于处理器和内存之间的性能差距，当代所有计算机系统都加入了一层<code>高速缓存</code>来间接缓冲数据（可以理解为业务中使用的本地缓存、分布式缓存等）。</p><p><strong>访问速度比较</strong>：<code>寄存器</code> &gt; <code>高速缓存</code> &gt; <code>主内存</code>，有些计算机架构中存在多级缓存（例如，Linux多级缓存）。</p><h5 id="缓存一致性"><a href="#缓存一致性" class="headerlink" title="缓存一致性"></a>缓存一致性</h5><p><code>高速缓存</code>类似一种代理模式，在CPU和主内存质之间构建一条高速公路，但也会造成缓存一直性问题。</p><blockquote><p><code>缓存一致性问题</code>：当多个处理器同时共享同一块主内存时，将可能导致各自的高速缓存数据不一致的情况。</p></blockquote><p>为了解决这个问题，提出了<code>缓存一致性协议</code>，常见的协议包括MSI、MESI等。</p><h5 id="指令重排"><a href="#指令重排" class="headerlink" title="指令重排"></a>指令重排</h5><p>即使存在高速缓存也不能把CPU的性能充分利用，因此提出了<code>指令重排</code>。</p><blockquote><p><code>指令重排</code>：处理器会对输入的代码进行乱序优化，在保证结果不变的情况下，优化指令排序，从而实现CPU的充分利用。</p></blockquote><h4 id="JMM"><a href="#JMM" class="headerlink" title="JMM"></a>JMM</h4><p><code>JMM</code>的全程是<code>Java内存模型(Java Memory Model)</code>。</p><p><img src="/images/memory_and_jmm_2.jpg" alt="映射关系"></p><p><code>JMM</code>与硬件内存架构是不同的，区别在于：<strong>硬件内存架构未区分线程栈和堆</strong>。</p><p><code>JMM</code>中<code>工作内存（Working Memory）</code>是一个抽象概念，涵盖了CPU寄存器、高速缓存等。</p><p><img src="/images/memory_and_jmm_3.jpg" alt="Java内存模型"></p><h5 id="可见性"><a href="#可见性" class="headerlink" title="可见性"></a>可见性</h5><blockquote><p><code>可见性</code>：基于工作内存，在多线程的情况下，任意线程修改了共享变量的值，其他线程能够同步感知到变量的变化。</p></blockquote><p>Java提供了<code>volatile</code>来解决内存可见性问题。</p><p>当操作发生在<code>volatile</code>变量时，有如下规则：</p><ul><li><strong>写</strong>：<code>JMM</code>会把该线程对应的工作内存中的共享变量值刷新到主内存;</li><li><strong>读</strong>：<code>JMM</code>会把该线程对应的工作内存置为无效并从主内存中读取共享变量。</li></ul><blockquote><p>读写<code>volatile</code>变量会导致变量从主内存读写，这远比从CPU缓存读写更加耗时。</p></blockquote><h5 id="内存屏障"><a href="#内存屏障" class="headerlink" title="内存屏障"></a>内存屏障</h5><blockquote><p><code>内存屏障</code>：不仅可以保证屏障前后的指令顺序，也可以保证内存数据的可见性。</p></blockquote><p>为了保证内存可见性，Java编译器在生成指令序列的适当位置会插入<code>内存屏障指令</code>来禁止特定类型的处理器重排序。</p><p><code>volatile</code>也提供了禁止指令重排序的功能。</p><h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><p><a href="https://zhuanlan.zhihu.com/p/29881777" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/29881777</a><br><a href="https://blog.csdn.net/muxiqingyang/article/details/6615199" target="_blank" rel="noopener">https://blog.csdn.net/muxiqingyang/article/details/6615199</a></p>]]></content>
+    <content type="html"><![CDATA[<p>总结下计算机内存架构的基本原理以及JMM的不同之处。</p><a id="more"></a><h4 id="内存架构"><a href="#内存架构" class="headerlink" title="内存架构"></a>内存架构</h4><p><img src="/images/memory_and_jmm_1.jpg" alt="内存架构"></p><p>现代内存架构如上图所示。</p><blockquote><p><code>高速缓存</code>存在的意义？</p><p>计算机的<code>存储设备</code>与<code>处理器</code>的运算速度之间有着几个数量级的差距。</p></blockquote><p>由于处理器和内存之间的性能差距，当代所有计算机系统都加入了一层<code>高速缓存</code>来间接缓冲数据（可以理解为业务中使用的本地缓存、分布式缓存等）。</p><p><strong>访问速度比较</strong>：<code>寄存器</code> &gt; <code>高速缓存</code> &gt; <code>主内存</code>，有些计算机架构中存在多级缓存（例如，Linux多级缓存）。</p><h5 id="多级缓存"><a href="#多级缓存" class="headerlink" title="多级缓存"></a>多级缓存</h5><p>计算机提供了多级缓存来提高系统的读写效率。</p><p><img src="/images/memory_and_jmm_0.png" alt="多级缓存"></p><hr><p><strong>Core 内部：</strong></p><blockquote><p>CPU内部意味着L0、L1、L2都属于CPU的一部分，因此每一个CPU都拥有独占的LO、L1、L2。</p></blockquote><ul><li>L0：寄存器</li><li>L1：L1高速缓存（SRAM），划分为一级数据缓存（L1 D-Cache）和一级指令缓存（L1 I-Cache）</li><li>L2：L2高速缓存（SRAM）</li></ul><hr><p><strong>Core 共享：</strong></p><ul><li>L3：L3高速缓存（SRAM），会造成伪共享（False Sharing）</li><li>L4：主内存（DRAM）</li><li>L5：本地二级存储（本地磁盘）</li><li>L6：远程二级存储（分布式文件系统）</li></ul><hr><p><img src="/images/memory_and_jmm_0_1.png" alt="多级缓存"></p><p>从图中可以看到，每个处理器都有自己的高速缓存，而它们又共享同一主内存。</p><p>当多个处理器的运算任务都涉及同一块主内存区域时，将可能导致各自的缓存数据不一致。</p><h5 id="缓存一致性"><a href="#缓存一致性" class="headerlink" title="缓存一致性"></a>缓存一致性</h5><p><code>高速缓存</code>类似一种代理模式，在CPU和主内存质之间构建一条高速公路，但也会造成缓存一致性问题。</p><blockquote><p>当多个处理器同时共享同一块主内存时，将可能导致高速缓存的<code>一致性问题</code>。</p></blockquote><p>为了解决这个问题，提出了<code>缓存一致性协议</code>，常见的协议包括MSI、MESI等。</p><blockquote><p>缓存一致性的大体思想：当CPU写数据时，如果发现操作的变量是共享变量，即在其他CPU中也存在该变量的副本，会发出信号通知其他CPU将该变量的缓存行置为无效状态，因此当其他CPU需要读取这个变量时，发现自己缓存中缓存该变量的缓存行是无效的，那么它就会从内存重新读取。</p></blockquote><h6 id="伪共享"><a href="#伪共享" class="headerlink" title="伪共享"></a>伪共享</h6><p>CPU缓存系统是按<code>缓存行(Cache Line)</code>为单位存储的。</p><blockquote><p>缓存行(Cache Line)：CPU缓存的最小单位，大小一般为64bytes。</p></blockquote><p>CPU加载主内存到缓存是按照缓存行来加载的，也就是说，一个缓存行可以存储多个变量。</p><p>在多线程情况下，如果需要修改共享在同一个缓存行的变量，也会造成共享缓存行中其他变量的缓存失效，从而影响彼此的性能，这就是<code>伪共享（False Sharing）</code>。</p><blockquote><p><strong>解决方法：</strong>利用单个数据填充一个缓存行，空间换时间的方式，避免多个变量共享同一个缓存行。</p></blockquote><p>Java8中新增了一个注解<a href="mailto:`@sun.misc.Contended" target="_blank" rel="noopener">`@sun.misc.Contended</a>`用于解决伪共享的问题。</p><blockquote><p><a href="mailto:`@sun.misc.Contended" target="_blank" rel="noopener">`@sun.misc.Contended</a>`：通过在对象或字段前后追加padding，使数据长度达到128bytes（2被缓存行的大小），从而避免相邻扇区预取导致的伪共享冲突。</p></blockquote><p>具体参考：<a href="https://www.jianshu.com/p/c3c108c3dcfd" target="_blank" rel="noopener">Java8使用@sun.misc.Contended避免伪共享</a></p><h5 id="指令重排"><a href="#指令重排" class="headerlink" title="指令重排"></a>指令重排</h5><p>即使存在高速缓存也不能把CPU的性能充分利用，因此提出了<code>指令重排</code>。</p><blockquote><p><code>指令重排</code>：处理器会对输入的代码进行乱序优化，在保证结果不变的情况下，优化指令排序，从而实现CPU的充分利用。</p></blockquote><h4 id="JMM"><a href="#JMM" class="headerlink" title="JMM"></a>JMM</h4><p><code>JMM</code>的全程是<code>Java内存模型(Java Memory Model)</code>。</p><p><img src="/images/memory_and_jmm_2.jpg" alt="映射关系"></p><p><code>JMM</code>与硬件内存架构是不同的，区别在于：<strong>硬件内存架构未区分线程栈和堆</strong>。</p><p><code>JMM</code>中<code>工作内存（Working Memory）</code>是一个抽象概念，涵盖了CPU寄存器、高速缓存等。</p><p><img src="/images/memory_and_jmm_3.jpg" alt="Java内存模型"></p><h5 id="可见性"><a href="#可见性" class="headerlink" title="可见性"></a>可见性</h5><blockquote><p><code>可见性</code>：基于工作内存，在多线程的情况下，任意线程修改了共享变量的值，其他线程能够同步感知到变量的变化。</p></blockquote><p>Java提供了<code>volatile</code>来解决内存可见性问题。</p><p>当操作发生在<code>volatile</code>变量时，有如下规则：</p><ul><li><strong>写</strong>：<code>JMM</code>会把该线程对应的工作内存中的共享变量值刷新到主内存;</li><li><strong>读</strong>：<code>JMM</code>会把该线程对应的工作内存置为无效并从主内存中读取共享变量。</li></ul><blockquote><p>读写<code>volatile</code>变量会导致变量从主内存读写，这远比从CPU缓存读写更加耗时。</p></blockquote><h5 id="内存屏障"><a href="#内存屏障" class="headerlink" title="内存屏障"></a>内存屏障</h5><blockquote><p><code>内存屏障</code>：不仅可以保证屏障前后的指令顺序，也可以保证内存数据的可见性。</p></blockquote><p>为了保证内存可见性，Java编译器在生成指令序列的适当位置会插入<code>内存屏障指令</code>来禁止特定类型的处理器重排序。</p><p><code>volatile</code>也提供了禁止指令重排序的功能。</p><h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><p><a href="https://zhuanlan.zhihu.com/p/29881777" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/29881777</a><br><a href="https://blog.csdn.net/muxiqingyang/article/details/6615199" target="_blank" rel="noopener">https://blog.csdn.net/muxiqingyang/article/details/6615199</a><br><a href="https://www.yuque.com/crow/xriqpk/hm5s0s?language=en-us" target="_blank" rel="noopener">https://www.yuque.com/crow/xriqpk/hm5s0s?language=en-us</a></p>]]></content>
     
     <summary type="html">
     
@@ -166,11 +214,11 @@
       <category term="计算机原理" scheme="http://simyy.cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86/"/>
     
     
+      <category term="计算机原理" scheme="http://simyy.cn/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86/"/>
+    
       <category term="Java" scheme="http://simyy.cn/tags/Java/"/>
     
       <category term="Linux" scheme="http://simyy.cn/tags/Linux/"/>
-    
-      <category term="计算机原理" scheme="http://simyy.cn/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86/"/>
     
   </entry>
   
@@ -192,11 +240,11 @@
       <category term="计算机原理" scheme="http://simyy.cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86/"/>
     
     
+      <category term="计算机原理" scheme="http://simyy.cn/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86/"/>
+    
       <category term="Java" scheme="http://simyy.cn/tags/Java/"/>
     
       <category term="多线程" scheme="http://simyy.cn/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
-    
-      <category term="计算机原理" scheme="http://simyy.cn/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86/"/>
     
   </entry>
   
@@ -242,11 +290,11 @@
       <category term="编程语言" scheme="http://simyy.cn/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
     
     
+      <category term="编程语言" scheme="http://simyy.cn/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
+    
       <category term="Java" scheme="http://simyy.cn/tags/Java/"/>
     
       <category term="锁" scheme="http://simyy.cn/tags/%E9%94%81/"/>
-    
-      <category term="编程语言" scheme="http://simyy.cn/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
     
   </entry>
   
@@ -268,9 +316,9 @@
       <category term="编程语言" scheme="http://simyy.cn/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
     
     
-      <category term="Java" scheme="http://simyy.cn/tags/Java/"/>
-    
       <category term="编程语言" scheme="http://simyy.cn/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
+    
+      <category term="Java" scheme="http://simyy.cn/tags/Java/"/>
     
   </entry>
   
@@ -316,9 +364,9 @@
       <category term="计算机原理" scheme="http://simyy.cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86/"/>
     
     
-      <category term="Git" scheme="http://simyy.cn/tags/Git/"/>
-    
       <category term="计算机原理" scheme="http://simyy.cn/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86/"/>
+    
+      <category term="Git" scheme="http://simyy.cn/tags/Git/"/>
     
   </entry>
   
@@ -327,7 +375,7 @@
     <link href="http://simyy.cn/2017/12/21/block-chain/"/>
     <id>http://simyy.cn/2017/12/21/block-chain/</id>
     <published>2017-12-21T12:53:55.000Z</published>
-    <updated>2019-12-17T02:34:04.719Z</updated>
+    <updated>2019-12-17T02:40:23.996Z</updated>
     
     <content type="html"><![CDATA[<p>简单介绍区块链技术。</p><a id="more"></a><h3 id="什么是区块链"><a href="#什么是区块链" class="headerlink" title="什么是区块链"></a>什么是区块链</h3><p>区块链实际是一种去中心化的分布式数据库（记账系统）。</p><p>区块链的主要特点：</p><ul><li>去中心化：无中心节点，系统内节点的权利和义务是均等的</li><li>集体维护：系统中数据块由整个系统中所有节点共同维护</li><li>高度透明：源代码开源，保证了记账和规则的公开透明</li><li>去信任：从技术上保证在没有第三方机构的情况交易的信任问题</li><li>匿名：由于信任问题不需要考虑，所以交易可以在匿名下进行</li></ul><h2 id="中心化"><a href="#中心化" class="headerlink" title="中心化"></a>中心化</h2><p>区块链本质上是一个去中心化的巨大账本数据库。作为比特币的底层技术，区块链是由一串使用密码学相关联所产生的数据块组成，每一个数据块中包含了多次比特币网络有效确认（一次有效交易检验被称为一次确认）的信息。</p><h2 id="集体维护"><a href="#集体维护" class="headerlink" title="集体维护"></a>集体维护</h2><p>随着交易不断产生，矿工需要不断创造新的区块来记录最新的交易，因此会导致这个帐本会一直增长延长。</p><p>每一个节点（每台连击到区块链网络上的电脑）都有一份完整的已有区块链备份记录，而且区块链上保留有所有关于每个节点的比特币交易信息，这些信息也被记录在完整的区块链上。</p><p>区块链帐本完全对外公开，这意味着区块链的区块生成和交易都可以自行查询。</p><p>新区块的生成将奖励给首次挖取次区块的矿工，这使得矿工有利可图，从而成为了矿工挖矿的主要动机。</p><blockquote><p>值得注意是：矿工挖矿会得到奖励，从而激励矿工不断挖矿，挖矿的过程中会记录交易信息从而不断重复这个过程。</p></blockquote><h2 id="去信任"><a href="#去信任" class="headerlink" title="去信任"></a>去信任</h2><p>首先，交易信息要写入到当前最先产生的区块中。</p><p>有了区块链之后，当一个用户想要进行历史交易的验证时，可以通过一系列基于密码学与数据结构学的运算追踪交易所属的区块，从而完成验证。</p><p>此外，对于随机数答案难度的调整可以控制新区块的生成速度；私钥的保密性可以保证和实现匿名交易；对于历史交易数据的剪枝可以实现硬盘空间的回收：经过中本聪的测算，经过完全剪枝的区块链数据一年只生成4.2MB的数据量。</p><p>区块链系统同任何一个数字系统一样，都离不开计算机硬件的支持。区块链集体记账的特点要求每个支持交易的节点都能够为系统提供计算能力，由此提出了一种鼓励节点竞相提供计算能力的机制<code>挖矿</code>。</p><p>每个节点接收到交易信息以后，生成新的区块并计算该区块的随机数答案，最快得到答案的节点将促成这笔交易的实现，完成交易的区块记录，并将该区块广播至所有节点。同时该节点将有可能获得一枚新的电子货币作为奖励。由于其过程很像矿工挖矿，因此节点提供算力的过程也叫作挖矿。通过挖矿，可以强制性保证块链中的数据按时间顺序存储，保持比特币网络的中立性，且允许比特币网络上不同的计算机对系统状态达成一致。</p><h2 id="区块链原理"><a href="#区块链原理" class="headerlink" title="区块链原理"></a>区块链原理</h2><p>区块链是由多个区块构成的一个链式结构。</p><h3 id="区块计算方式"><a href="#区块计算方式" class="headerlink" title="区块计算方式"></a>区块计算方式</h3><p>哈希值是固定长度的数值，用来标识唯一数据。</p><p>哈希通过将索引、前个哈希、时间戳、数据、随机数作为输入后计算得出。</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CryptoJS.SHA256(index + previousHash + timestamp + data + nonce)</span><br></pre></td></tr></table></figure><p>哈希值类似于：0000018035a828da0…</p><p>开头的四个 0 是有效哈希的基本要求，开头 0 的个数被称为难度值（difficulty），这就是众所周知的工作量证明系统（Proof-of-Work）。</p><h3 id="如何避免区块修改"><a href="#如何避免区块修改" class="headerlink" title="如何避免区块修改"></a>如何避免区块修改</h3><p>由于每一个块的哈希值都是根据前一个块来计算的，而且</p><p>如果我们有一个这样的区块链 A → B → C，有人想修改区块 A 上的数据。会发生下面情况：</p><p>修改区块 A 上的数据。<br>区块 A 的哈希变动，因为计算哈希所用的数据变化了。<br>区块 A 无效，因为它的哈希不是四个 0 开头。<br>区块 B 的哈希变动，因为计算区块 B 的哈希所用到的区块 A 的哈希值变化了。<br>区块 B 无效，因为它的哈希不是四个 0 开头。<br>区块 C 的哈希变动，因为计算区块 C 的哈希所用到的区块 B 的哈希值变化了。<br>区块 C 无效，因为它的哈希不是四个 0 开头。<br>修改一个区块的唯一方式就是重新开采这个区块以及它之后的所有区块。因为新的区块不断增加，基本不可能修改区块链。</p><h2 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h2><blockquote><p>比特币是有限的?</p></blockquote><p>由于比特币总值是有限的，所以不能允许无穷无尽的通过挖矿来新增比特币，所以协议设定的挖矿所得新币数目会逐渐减少，而且该设计也使得新币是按照约定速率而产生的。</p><p>那么问题来了，如果当所有块都被挖出后，比特币将无法进行交易，那剩下的比特币改怎样？</p><blockquote><p>怎么确保一份交易账单真实有效？</p></blockquote><p>如何在一个没有信任中心的系统中认证一个事情的真假？这里有个假定，就是好人比坏人多，即整个系统内百分之五十以上的人会严格遵守比特币协议的规则。比特币对交易是由矿工来确认的，也就是说我们认为好矿工比坏矿工多，对于错误的账单，好矿工都是会拒绝的。那么坏人就无法进行伪造、篡改。</p><p>比特币的交易认证包含两个事情：一是各路矿工对新区块数学难题的求解，一是全体同志对求解出答案的矿工的答案进行验证。</p><p>挖矿的难度设计出了一个基本固定的十分钟时间，当你提出一笔交易，接下来这十分钟时间内比特币系统对你的这笔交易申请进行验证，看看你是不是有这笔钱。矿工们会努力进行求解，第一个算得结果的人会把结果广播出去，让大家来评判对错，如果对的话，大家就会认可这笔交易。</p><p>账单的确认实际上是在试图向区块链添加新的区块，也就是要计算出新的区块。</p><blockquote><p>比特币的神秘发明人</p></blockquote><p>比特币的发明人一直是个迷。2009年一个网名叫中本聪的人在密码学邮件列表里发了一篇论文，讲述了这种不依赖于信任关系的金融交易系统，随后中本聪开发了第一款比特币系统。可是没人知道他的真实身份，他有意隐藏自己的一切身份信息。无数技术牛人试图通过各种方式寻找这个天才黑客数学家的线索，都没能如愿。</p><p>目前来讲，我们不知道他是一个人还是一个团队，不知道他所在的地区和时区，只知道他精通英语、数学、计算机。</p><blockquote><p>如何看点比特币的疯狂？</p></blockquote><p>荷兰郁金香也不过如此，都是人性的贪婪造成的现象。</p><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://blog.jobbole.com/112551/" target="_blank" rel="noopener">http://blog.jobbole.com/112551/</a><br><a href="http://blog.jobbole.com/110860/" target="_blank" rel="noopener">http://blog.jobbole.com/110860/</a><br><a href="https://www.jianshu.com/p/214acff6c9bd" target="_blank" rel="noopener">https://www.jianshu.com/p/214acff6c9bd</a><br><a href="http://bitcoin-on-nodejs.ebookchain.org/1-%E4%BA%86%E8%A7%A3%E5%8A%A0%E5%AF%86%E8%B4%A7%E5%B8%81/5-%E5%8A%A0%E5%AF%86%E8%B4%A7%E5%B8%81%E5%B0%B1%E6%98%AF%E8%B4%A7%E5%B8%81.html" target="_blank" rel="noopener">http://bitcoin-on-nodejs.ebookchain.org/1-%E4%BA%86%E8%A7%A3%E5%8A%A0%E5%AF%86%E8%B4%A7%E5%B8%81/5-%E5%8A%A0%E5%AF%86%E8%B4%A7%E5%B8%81%E5%B0%B1%E6%98%AF%E8%B4%A7%E5%B8%81.html</a><br><a href="http://www.ruanyifeng.com/blog/2017/12/blockchain-tutorial.html" target="_blank" rel="noopener">http://www.ruanyifeng.com/blog/2017/12/blockchain-tutorial.html</a><br><a href="http://lucky521.github.io/blog/design/2015/12/26/bitcoin.html#%E6%AF%94%E7%89%B9%E5%B8%81%E5%8D%8F%E8%AE%AE" target="_blank" rel="noopener">http://lucky521.github.io/blog/design/2015/12/26/bitcoin.html#%E6%AF%94%E7%89%B9%E5%B8%81%E5%8D%8F%E8%AE%AE</a><br><a href="https://www.jianshu.com/p/e710a389a3f1" target="_blank" rel="noopener">https://www.jianshu.com/p/e710a389a3f1</a><br><a href="https://program-think.blogspot.com/2017/08/GFW-Resilio-Sync.html" target="_blank" rel="noopener">https://program-think.blogspot.com/2017/08/GFW-Resilio-Sync.html</a><br><a href="https://program-think.blogspot.com/2017/09/Introduction-DHT-Kademlia-Chord.html" target="_blank" rel="noopener">https://program-think.blogspot.com/2017/09/Introduction-DHT-Kademlia-Chord.html</a></p>]]></content>
     
@@ -340,9 +388,9 @@
       <category term="计算机原理" scheme="http://simyy.cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86/"/>
     
     
-      <category term="区块链" scheme="http://simyy.cn/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/"/>
-    
       <category term="计算机原理" scheme="http://simyy.cn/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86/"/>
+    
+      <category term="区块链" scheme="http://simyy.cn/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/"/>
     
   </entry>
   
@@ -358,6 +406,32 @@
     <summary type="html">
     
       &lt;p&gt;本文记录下对事务隔离的理解。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="中间件" scheme="http://simyy.cn/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
+    
+    
+      <category term="MySQL" scheme="http://simyy.cn/tags/MySQL/"/>
+    
+      <category term="数据库" scheme="http://simyy.cn/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    
+      <category term="中间件" scheme="http://simyy.cn/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>InnoDB B+tree索引</title>
+    <link href="http://simyy.cn/2017/12/05/mysql-btree/"/>
+    <id>http://simyy.cn/2017/12/05/mysql-btree/</id>
+    <published>2017-12-05T12:53:24.000Z</published>
+    <updated>2019-12-17T06:04:18.400Z</updated>
+    
+    <content type="html"><![CDATA[<p>分析InnoDB为什么使用B+tree作为索引结构。</p><a id="more"></a><blockquote><p>很久以前写的关于<a href="/2016/03/22/btree">B+tree</a>的介绍。</p></blockquote><p>MySQL作为数据库，读写性能是最关键的指标。</p><p>磁盘读写与内存读写的性能差距巨大，因此需要索引来加快数据检索的速度。</p><p>本文分别从<code>范围查询</code>、<code>数据加载</code>两个方面来分析<code>B+tree索引</code>的选择。</p><h4 id="数据检索"><a href="#数据检索" class="headerlink" title="数据检索"></a>数据检索</h4><p>数据检索实际上就是特定数据的范围查询，也就是SQL中的WHERE条件。</p><p>如果不使用索引来加速遍历的情况下，系统对磁盘的扫描属于随机I/O，查询性能非常差。</p><blockquote><p>只有有序的存储结构才可以支持范围查询（WHERE A &gt; 5 AND A &lt; 10）</p></blockquote><p><code>Hash索引</code>本身不支持范围查询，只可以通过遍历全表数据来实现，时间复杂度是O(n)。</p><p><code>有序队列</code>的组合索引可以实现范围查询，但是范围查询的时间复杂度O(n)。</p><p><code>有序树</code>可以实现范围查询，但查询的时间复杂度与树的高度有关。</p><p><code>红黑树</code>是一种<code>有序树</code>，高度是O(logN)，其中，N为节点数量。</p><p><code>Btree</code>也是一种<code>有序树</code>，高度是O(log(N/M))，其中，N为节点数量，M为每个树节点包含节点数量。</p><p>对于<code>有序树</code>来说，<code>Btree</code>远高度低于<code>红黑树</code>（取决于M的大小），从而在遍历查询的时候效率更高。</p><p><code>B+tree</code>结构的叶子节点存在顺序指针，也可以加快相邻数据的检索数据。</p><h4 id="数据加载"><a href="#数据加载" class="headerlink" title="数据加载"></a>数据加载</h4><blockquote><p>背景：计算机在加载内存数据时是按照页为单位来加载的，也就是说一次至少加载一个页的数据。</p></blockquote><p>不同的系统页的大小不同，MACOS上是PAGE_SIZE=4096，也就是4K，因此一次内存加载至少加载4K数据。</p><p>为了提高数据库读写性能，必须减少内存的加载次数。</p><blockquote><p><code>Btree</code>和<code>B+tree</code>的区别在于<code>非叶子节点是否存储数据</code>。</p></blockquote><p><strong>使用<code>Btree</code>作为索引</strong>：</p><ul><li>数据会存储在<code>所有节点</code>上</li><li>范围检索会导致范围内的<code>所有节点</code>数据全部加载到内存中</li></ul><p><strong>使用<code>B+tree</code>作为索引</strong>：</p><ul><li>数据仅存储在<code>叶子节点</code>上</li><li>范围检索仅需要把范围内的所有<code>叶子节点</code>数据全部加载到内存中</li></ul><p><img src="/images/mysql_btree_1.png" alt=""></p><p>如上图所示，是一种数据检索内存的加载情况，其中，黄色的数据是需要检索的数据，如果按照<code>Btree</code>结构需要加载3次内存，而按照<code>B+tree</code>结构仅需要加载2次内存。</p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;分析InnoDB为什么使用B+tree作为索引结构。&lt;/p&gt;
     
     </summary>
     
@@ -390,9 +464,9 @@
       <category term="架构" scheme="http://simyy.cn/categories/%E6%9E%B6%E6%9E%84/"/>
     
     
-      <category term="分布式" scheme="http://simyy.cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
-    
       <category term="架构" scheme="http://simyy.cn/tags/%E6%9E%B6%E6%9E%84/"/>
+    
+      <category term="分布式" scheme="http://simyy.cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
     
   </entry>
   
@@ -414,9 +488,9 @@
       <category term="编程语言" scheme="http://simyy.cn/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
     
     
-      <category term="Java" scheme="http://simyy.cn/tags/Java/"/>
-    
       <category term="编程语言" scheme="http://simyy.cn/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
+    
+      <category term="Java" scheme="http://simyy.cn/tags/Java/"/>
     
   </entry>
   
@@ -438,83 +512,11 @@
       <category term="编程语言" scheme="http://simyy.cn/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
     
     
+      <category term="编程语言" scheme="http://simyy.cn/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
+    
       <category term="Java" scheme="http://simyy.cn/tags/Java/"/>
     
       <category term="多线程" scheme="http://simyy.cn/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
-    
-      <category term="编程语言" scheme="http://simyy.cn/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java 异常</title>
-    <link href="http://simyy.cn/2017/04/08/java-exception/"/>
-    <id>http://simyy.cn/2017/04/08/java-exception/</id>
-    <published>2017-04-08T14:30:12.000Z</published>
-    <updated>2019-12-17T02:30:44.002Z</updated>
-    
-    <content type="html"><![CDATA[<p>介绍Java中的异常处理。<br><a id="more"></a></p><h2 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h2><p><code>java</code>中的异常可分为<code>检查的异常</code>和<code>非检查异常</code>。</p><p>在<code>java</code>中，异常的类层次结构如下，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">           Throwable</span><br><span class="line">         /          \</span><br><span class="line">    Error            Exception</span><br><span class="line">    /   \           /         \</span><br><span class="line">VMError AWTError  IOException  RuntimeException</span><br></pre></td></tr></table></figure></p><p>所有异常都是继承自<code>Throwable</code>，分为<code>Error</code>和<code>Exception</code>。</p><p><code>Error</code>一般是<code>JVM</code>问题导致，也就是说在应用程序控制和处理之外产生的，因此此类异常是<code>不可检查的</code>。</p><p><code>Exception</code>是程序自身产生的异常，是可以通过<code>try-catch</code>和<code>throws</code>来控制。</p><p><code>Exception</code>可被划分为非检查的<code>RuntimeException</code>和检查的<code>IOException</code>。</p><h2 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h2><h3 id="捕获异常"><a href="#捕获异常" class="headerlink" title="捕获异常"></a>捕获异常</h3><p>在<code>java</code>中可以用<code>try-catch</code>语句来捕获异常（可捕获检查和非检查异常），<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">try &#123;  </span><br><span class="line">    // 可能会发生异常的程序代码  </span><br><span class="line">&#125; catch (Type1 id1)&#123;  </span><br><span class="line">    // 捕获并处置try抛出的异常类型Type1  </span><br><span class="line">&#125; catch (Type2 id2)&#123;  </span><br><span class="line">    // 捕获并处置try抛出的异常类型Type2  </span><br><span class="line">&#125; finally &#123;</span><br><span class="line">    // 无论是否发生异常需要处理</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p><p>异常是按照<code>catch</code>的顺序依次捕获的，所以需要按照继承关系来决定捕获顺序。</p><blockquote><p><code>finally</code>一般用来关闭一下IO操作，例如文件、网络连接。</p></blockquote><h2 id="抛出异常"><a href="#抛出异常" class="headerlink" title="抛出异常"></a>抛出异常</h2><p>在<code>java</code>中可以使用<code>throws</code>来抛出异常，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public void method() throws Exception1, Exception2, ... &#123;</span><br><span class="line">    // 执行</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p><h2 id="throwable"><a href="#throwable" class="headerlink" title="throwable"></a>throwable</h2><p><code>throwable</code>作为异常处理的基类，常用的功能函数有,<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">getCause(); <span class="comment">// 获取异常原因</span></span><br><span class="line">getMessage(); <span class="comment">// 异常信息</span></span><br><span class="line">printStackTrace(); <span class="comment">// 堆栈跟踪异常信息</span></span><br></pre></td></tr></table></figure></p><blockquote><p>注意：<code>RuntimeException</code>不需要抛出，并不会造成编译错误。</p></blockquote><h2 id="自定义异常"><a href="#自定义异常" class="headerlink" title="自定义异常"></a>自定义异常</h2><p>通过继承<code>Exception</code>以及其子类可以实现自定义异常，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">class MyException extends Exception &#123;</span><br><span class="line">    public MyException() &#123;&#125;</span><br><span class="line">    public MyException(String message) &#123;</span><br><span class="line">        super(message);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p><p>由于继承<code>Exception</code>，则需要接口处理该异常时添加<code>throws</code>指明抛出检查异常，否则无法编译通过。</p><p>如果是继承<code>RuntimeException</code>，则不需要指定<code>throws</code>抛出异常，但是需要注意外层对于该异常的处理方法，这种异常会被隐藏起来。</p><blockquote><p>如何选择异常类型，<code>检查</code> or <code>非检查</code>？</p></blockquote><p>设计异常一般有两种，内部使用和外部使用。</p><p>对于外部使用，也就是提供给调用方来处理的异常，一般是由于服务中依赖某不稳定的服务，提供服务方不能处理该异常，需要调用方自行处理该异常情况。</p><p>对于内部使用，也就是程序内部自定义的异常，一般是由于跳出当前逻辑处理，直接返回，那么，就需要在逻辑的最外层来统一处理该自定义异常。</p><h2 id="性能"><a href="#性能" class="headerlink" title="性能"></a>性能</h2><p>在使用异常来做控制流程处理的时候，一般有两种方式：<code>自定义异常</code>和<code>自定义返回结果</code>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 自定义异常</span><br><span class="line">class BizException extends RuntimeException &#123; ... &#125;</span><br><span class="line"></span><br><span class="line">// 自定义返回结果</span><br><span class="line">class BizResult&lt;T&gt; extends ObjectInfo &#123; ... &#125;</span><br></pre></td></tr></table></figure></p><p>如果使用<code>自定义返回结果</code>，需要在每次调用函数时使用<code>if-else</code>来做判断，这样性能必然是<code>最好的</code>，但是在写业务逻辑的时候就会非常繁琐，每次调用都会添加一次<code>if-else</code>逻辑。</p><p>如果使用<code>自定义异常</code>，需要在调用服务的最外层都添加一个针对<code>自定义异常</code>的异常处理，业务逻辑看起来好一点，但是这样性能就会差一点。</p><blockquote><p>如何提高异常性能？</p></blockquote><p>在参考中的一篇文章中，有提到通过重写<code>fillInStackTrace</code>来提高性能，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public synchronized Throwable fillInStackTrace() &#123;</span><br><span class="line">    if (stackTrace != null ||</span><br><span class="line">        backtrace != null /* Out of protocol state */ ) &#123;</span><br><span class="line">        fillInStackTrace(0);</span><br><span class="line">        stackTrace = UNASSIGNED_STACK;</span><br><span class="line">    &#125;</span><br><span class="line">    return this;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p><p><code>fillInStackTrace</code>函数是一个同步的方法，在多线程的情况下必然会造成性能下降。在测试过程中发现，即使在单线程的情况下，仍然可以提升很大性能。</p><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://niehan.blog.techweb.com.cn/archives/259.html" target="_blank" rel="noopener">http://niehan.blog.techweb.com.cn/archives/259.html</a><br><a href="http://blog.csdn.net/beijiguangyong/article/details/9080727" target="_blank" rel="noopener">http://blog.csdn.net/beijiguangyong/article/details/9080727</a><br><a href="http://www.blogjava.net/stone2083/archive/2010/07/09/325649.html" target="_blank" rel="noopener">http://www.blogjava.net/stone2083/archive/2010/07/09/325649.html</a></p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;介绍Java中的异常处理。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="编程语言" scheme="http://simyy.cn/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
-    
-    
-      <category term="Java" scheme="http://simyy.cn/tags/Java/"/>
-    
-      <category term="编程语言" scheme="http://simyy.cn/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Python 序列</title>
-    <link href="http://simyy.cn/2017/04/08/python-list/"/>
-    <id>http://simyy.cn/2017/04/08/python-list/</id>
-    <published>2017-04-08T09:27:46.000Z</published>
-    <updated>2019-12-17T02:27:40.143Z</updated>
-    
-    <content type="html"><![CDATA[<p>序列<code>list</code>是python中最基本的数据结构，序列都可以进行的操作包括索引，切片，加，乘，检查成员。<br><a id="more"></a><br>列表生成式即List Comprehensions，是Python内置的非常简单却强大的可以用来创建list的生成式。</p><h2 id="一个循环"><a href="#一个循环" class="headerlink" title="一个循环"></a>一个循环</h2><p>在C语言等其他语言中，for循环一般是这样的</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">x = list()</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">10</span>)</span><br><span class="line">    x.append(x)</span><br><span class="line">```　　</span><br><span class="line"></span><br><span class="line">如果python也这么写，那么真该看下python的基础教程了~</span><br><span class="line"></span><br><span class="line">```python</span><br><span class="line">x = [x <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">10</span>)]</span><br></pre></td></tr></table></figure><p>　　<br>在上面的例子中，不仅可以嵌套for，甚至可以嵌套if语句</p><p>再看看，原来是什么样子<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x = [x for x in range(10) if x &gt; 5]</span><br></pre></td></tr></table></figure></p><p>　　</p><h2 id="两个循环呢？"><a href="#两个循环呢？" class="headerlink" title="两个循环呢？"></a>两个循环呢？</h2><p>原来可能是这样的？</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">x = list()</span><br><span class="line">for i in range(10):</span><br><span class="line">    for j in range(10):</span><br><span class="line">    x.append(i + j)</span><br><span class="line">```　　</span><br><span class="line"></span><br><span class="line">现在可以这样了！！！</span><br></pre></td></tr></table></figure><p>x = [x + y for x in range(10) for y in range(10)]<br><code>`</code></p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;序列&lt;code&gt;list&lt;/code&gt;是python中最基本的数据结构，序列都可以进行的操作包括索引，切片，加，乘，检查成员。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="编程语言" scheme="http://simyy.cn/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
-    
-    
-      <category term="Python" scheme="http://simyy.cn/tags/Python/"/>
-    
-      <category term="编程语言" scheme="http://simyy.cn/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java 日志注解</title>
-    <link href="http://simyy.cn/2017/04/08/java-anotion-log/"/>
-    <id>http://simyy.cn/2017/04/08/java-anotion-log/</id>
-    <published>2017-04-08T09:15:38.000Z</published>
-    <updated>2019-12-17T02:30:42.609Z</updated>
-    
-    <content type="html"><![CDATA[<p>介绍如何使用Java注解来添加日志。<br><a id="more"></a></p><h2 id="注解"><a href="#注解" class="headerlink" title="注解"></a>注解</h2><h3 id="元注解"><a href="#元注解" class="headerlink" title="元注解"></a>元注解</h3><p><code>元注解</code>的作用是注解其他注解，</p><ul><li><p><code>@Target</code>用于描述注解范围。</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">CONSTRUCTOR:用于描述构造器</span><br><span class="line">FIELD:用于描述域</span><br><span class="line">LOCAL_VARIABLE:用于描述局部变量</span><br><span class="line">METHOD:用于描述方法</span><br><span class="line">PACKAGE:用于描述包</span><br><span class="line">PARAMETER:用于描述参数</span><br><span class="line">TYPE:用于描述类、接口(包括注解类型) 或enum声明</span><br></pre></td></tr></table></figure></li><li><p><code>@Retention</code>用于描述注解生命周期。</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">SOURCE:在源文件中有效（即源文件保留）</span><br><span class="line">CLASS:在class文件中有效（即class保留）</span><br><span class="line">RUNTIME:在运行时有效（即运行时保留），可以通过反射获取该注解的属性值</span><br></pre></td></tr></table></figure></li><li><p><code>@Documented</code>用于生命构建注解文档。</p></li><li><code>@Inherited</code>用于描述该注解是可被子类继承的。</li></ul><h3 id="注解格式"><a href="#注解格式" class="headerlink" title="注解格式"></a>注解格式</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public @interface 注解名 &#123;定义体&#125;</span><br></pre></td></tr></table></figure><h2 id="日志注解"><a href="#日志注解" class="headerlink" title="日志注解"></a>日志注解</h2><p><code>Log</code>注解定义，参数包含<code>type</code>日志类型、<code>desc</code>日志描述、<code>throwable</code>是否catch异常、<code>withResult</code>是否记录打印结果。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="meta">@Target</span>(&#123; ElementType.METHOD, ElementType.PARAMETER &#125;)</span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> Log &#123;</span><br><span class="line">    <span class="function">String <span class="title">type</span><span class="params">()</span> <span class="keyword">default</span> LogConst.RUN_LOG</span>; </span><br><span class="line">    <span class="function">String <span class="title">desc</span><span class="params">()</span> <span class="keyword">default</span> ""</span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">throwable</span><span class="params">()</span> <span class="keyword">default</span> <span class="keyword">true</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">withResult</span><span class="params">()</span> <span class="keyword">default</span> <span class="keyword">false</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p><blockquote><p>需要注意，注解的默认值必须是常量（不可以设置为枚举）</p></blockquote><p>那么常量如何定义？<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LogConst</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 日志类型</span></span><br><span class="line">    <span class="comment">/* 访问日志 */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">static</span> String ACCESS_LOG = <span class="string">"ACCESS"</span>;</span><br><span class="line">    <span class="comment">/* 事件日志 */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">static</span> String EVENT_LOG = <span class="string">"EVENT"</span>;</span><br><span class="line">    <span class="comment">/* 运行日志 */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">static</span> String RUN_LOG = <span class="string">"RUN"</span>;</span><br><span class="line">    <span class="comment">/* 异常日志 */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">static</span> String EXCP_LOG = <span class="string">"EXCEPTION"</span>;</span><br></pre></td></tr></table></figure></p><p>开启注解和<code>AOP配置</code>，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;context:annotation-config/&gt;</span><br><span class="line">&lt;aop:aspectj-autoproxy proxy-target-class=&quot;true&quot;/&gt;</span><br></pre></td></tr></table></figure></p><blockquote><p>在注解中其实还可以做更多的事？在注解中我们可以增加异常监控，增加事件数量监控等等。</p></blockquote><h2 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h2><p>通过切片来获取当前获取被注释执行的函数情况，这里使用<code>aroundExec</code>来实现。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">@Aspect</span><br><span class="line">@Component</span><br><span class="line">public class LogAop &#123;</span><br><span class="line">@Around(value = &quot;@annotation(com.simyy.web.aop.Log)&quot;)</span><br><span class="line">public Object aroundExec(ProceedingJoinPoint pjp) throws Throwable &#123;</span><br><span class="line">    Method method = ((MethodSignature) pjp.getSignature()).getMethod();</span><br><span class="line">    String logType = method.getAnnotation(Log.class).type();</span><br><span class="line">    boolean throwable = method.getAnnotation(Log.class).throwable();</span><br><span class="line">    boolean withResult = method.getAnnotation(Log.class).withResult();</span><br><span class="line">    // 设置过无允许抛出异常或设置日志类型为异常日志</span><br><span class="line">    if (throwable == false || logType.equals(LogConst.EXCP_LOG)) &#123;</span><br><span class="line">        return withoutExpProcess(pjp, logType , withResult);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        return withExpProcess(pjp, logType , withResult);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p><p>对于异常日志处理方式就是通过增加<code>try-catch</code>来捕获并记录日常情况。<br>其中，<code>getEmptyObjectByClassType</code>是用于在捕获异常后返回空对象或失败对象，<code>getContentByType</code>是用于按固定格式打印日志记录的函数。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">private Object withoutExpProcess(ProceedingJoinPoint pjp, String logType, boolean withResult) throws Throwable &#123;</span><br><span class="line">    Object[] args = pjp.getArgs();</span><br><span class="line">    Method method = ((MethodSignature) pjp.getSignature()).getMethod();</span><br><span class="line">    Class returnType = ((MethodSignature) pjp.getSignature()).getReturnType();</span><br><span class="line"></span><br><span class="line">    Long start = System.currentTimeMillis();</span><br><span class="line"></span><br><span class="line">    Object retVal;</span><br><span class="line">    Exception exp = null;</span><br><span class="line">    try &#123;</span><br><span class="line">        retVal = pjp.proceed();</span><br><span class="line">    &#125; catch (Exception e) &#123;</span><br><span class="line">        retVal = getEmptyObjectByClassType(returnType);</span><br><span class="line">        exp = e;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if (exp == null) &#123;</span><br><span class="line">        // 异常日志类型不需要捕获正常运行记录，因此直接返回</span><br><span class="line">        if (logType.equals(LogConst.EXCP_LOG)) &#123;</span><br><span class="line">            return retVal;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Long useTime = System.currentTimeMillis() - start;</span><br><span class="line">        String afterLog;</span><br><span class="line">        if (withResult == true) &#123;</span><br><span class="line">            afterLog = getContentByType(AFTER_WITH_RESULT, method, args, useTime, retVal);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            afterLog = getContentByType(AFTER, method, args, useTime, retVal);</span><br><span class="line">        &#125;</span><br><span class="line">        LOGGER.info(afterLog);</span><br><span class="line"></span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        String errorLog = getContentByType(ERROR, method, args, null, null);</span><br><span class="line">        LOGGER.error(errorLog, exp);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return retVal;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p><p>相反，对于不需要捕获异常的运行日志，只需要记录访问情况，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">private Object withExpProcess(ProceedingJoinPoint pjp, String logType, boolean withResult) throws Throwable &#123;</span><br><span class="line">    Object[] args = pjp.getArgs();</span><br><span class="line">    Method method = ((MethodSignature) pjp.getSignature()).getMethod();</span><br><span class="line">    Class returnType = ((MethodSignature) pjp.getSignature()).getReturnType();</span><br><span class="line"></span><br><span class="line">    Long start = System.currentTimeMillis();</span><br><span class="line"></span><br><span class="line">    String beforeLog = getContentByType(BEFORE, method, args, null, null);</span><br><span class="line">    LOGGER.info(beforeLog);</span><br><span class="line"></span><br><span class="line">    Object retVal = pjp.proceed();</span><br><span class="line"></span><br><span class="line">    Long useTime = System.currentTimeMillis() - start;</span><br><span class="line">    if (withResult == true) &#123;</span><br><span class="line">        String afterLog = getContentByType(AFTER_WITH_RESULT, method, args, useTime, retVal);</span><br><span class="line">        LOGGER.info(afterLog);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    return retVal;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p><p>用于返回空对象的函数,<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">private Object getEmptyObjectByClassType(Class classType) &#123;</span><br><span class="line">    if (classType.equals(List.class)) &#123;</span><br><span class="line">        return Collections.EMPTY_LIST;</span><br><span class="line">    &#125;</span><br><span class="line">    if (classType.equals(Map.class)) &#123;</span><br><span class="line">        return Collections.EMPTY_MAP;</span><br><span class="line">    &#125;</span><br><span class="line">    if (classType.equals(Set.class)) &#123;</span><br><span class="line">        return Collections.EMPTY_SET;</span><br><span class="line">    &#125;</span><br><span class="line">    if (classType.equals(boolean.class) || classType.equals(Boolean.class)) &#123;</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">    // 对于特殊的执行result对象需要特殊处理</span><br><span class="line">    // do somethind</span><br><span class="line">    return null;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p><p>定义日志打印格式用于<code>getContentByType</code>函数，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">private final String BEFORE_TMPL = &quot;TYPE=[%s] DESC=[%s] METHOD=[%s] PARAMS=[%s]&quot;;</span><br><span class="line">private final String AFTER_TMPL = &quot;TYPE=[%s] DESC=[%s] METHOD=[%s] PARAMS=[%s] TIME=[%d ms]&quot;;</span><br><span class="line">private final String AFTER_TMPL_WITH_RESULT = &quot;TYPE=[%s] DESC=[%s] METHOD=[%s] PARAMS=[%s] TIME=[%d ms] RESULT=[%s]&quot;;</span><br><span class="line">private final String ERROR_TMPL = BEFORE_TMPL;</span><br><span class="line"></span><br><span class="line">// 获取当前类名+函数名称</span><br><span class="line">private String getClassAndMethodName(Method method) &#123;</span><br><span class="line">    String methodName = method.getName();</span><br><span class="line">    String className = method.getDeclaringClass().getSimpleName();</span><br><span class="line">    return className + &quot;.&quot; + methodName;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p><h2 id="More"><a href="#More" class="headerlink" title="More"></a>More</h2><p>日志采用<code>异步</code>打印提高性能；<br>增加异常监控或重要事件处理<code>监控方案</code>；<br>毕竟反射还是带来一定的<code>性能损耗</code>。<br>对于异常error的代码行这样会丢失，那可以通过<code>Throable.getStackTrace()</code>方法获取运行栈进行分析获取需要的错误行和错误原因。</p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;介绍如何使用Java注解来添加日志。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="编程语言" scheme="http://simyy.cn/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
-    
-    
-      <category term="Java" scheme="http://simyy.cn/tags/Java/"/>
-    
-      <category term="编程语言" scheme="http://simyy.cn/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
     
   </entry>
   

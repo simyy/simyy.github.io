@@ -15,7 +15,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://simyy.cn/images/java_lock_1.png">
 <meta property="og:image" content="http://simyy.cn/images/java_lock_3.png">
-<meta property="og:updated_time" content="2019-12-17T02:30:44.472Z">
+<meta property="og:updated_time" content="2020-01-09T06:45:57.042Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java 锁与多线程协作">
 <meta name="twitter:description" content="一般谈到多线程都会谈到锁这个概念，通过限制并发控制来保证操作互斥的要求。">
@@ -109,6 +109,9 @@
 <blockquote>
 <p>推荐看一下这篇文章对锁优化的总结：<a href="https://tech.meituan.com/2018/11/15/java-lock.html" target="_blank" rel="noopener">不可不说的Java“锁”事</a></p>
 </blockquote>
+<h4 id="synchronized-amp-volatile"><a href="#synchronized-amp-volatile" class="headerlink" title="synchronized &amp; volatile"></a>synchronized &amp; volatile</h4><p><strong>可见性&amp;原子性</strong>：<code>volatile</code>仅能保证变量修改的可见性，不能保证原子性；<code>synchronized</code>即可以保证变量的修改可见性，又能保证变量修改的原子性。</p>
+<p><strong>线程阻塞</strong>：<code>volatile</code>不会造成线程阻塞，<code>synchronized</code>会造成线程阻塞。</p>
+<p><strong>用法</strong>：<code>volatile</code>仅能用在变量，<code>synchronized</code>可以使用在变量、方法和类。</p>
 <h4 id="锁的膨胀"><a href="#锁的膨胀" class="headerlink" title="锁的膨胀"></a>锁的膨胀</h4><blockquote>
 <p><code>偏向锁</code>和<code>轻量级锁</code>是乐观锁，基于CAS来实现的，而<code>重量级锁</code>是悲观锁，基于底层的操作系统的<code>Mutex Lock（互斥锁）</code>来实现的。</p>
 </blockquote>

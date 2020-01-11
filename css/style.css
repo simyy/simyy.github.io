@@ -601,7 +601,7 @@ pre .deletion {
   vertical-align: super;
 }
 .entry-content p {
-  margin: 0 0 1em 0;
+  margin: 1em 0 0.5em 0;
 }
 .entry-content img,
 .entry-content video {

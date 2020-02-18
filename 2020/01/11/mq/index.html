@@ -19,7 +19,7 @@
 <meta property="og:image" content="http://simyy.cn/images/mq_3.png">
 <meta property="og:image" content="http://simyy.cn/images/mq_4.png">
 <meta property="og:image" content="http://simyy.cn/images/mq_5.png">
-<meta property="og:updated_time" content="2020-01-11T10:26:42.212Z">
+<meta property="og:updated_time" content="2020-01-13T02:36:41.643Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="消息系统">
 <meta name="twitter:description" content="记录下最近对消息系统的思考和理解。">
@@ -151,6 +151,10 @@
 <p>数据分片（Partition）的备份与物理机不同，采用数据分片（Partition）的备份不需要关心的物理机</p>
 <p><code>Kafka</code>采用了逻辑分区，<code>RocketMQ</code>才用了物理分区。</p>
 <p><img src="/images/mq_5.png" alt=""></p>
+<h5 id="路由"><a href="#路由" class="headerlink" title="路由"></a>路由</h5><p>在集群环境下，<code>路由</code>是用于快速的定位和发现目标消息所在的位置。</p>
+<p>在<code>kafka</code>中，通过选举功能选择一个<code>Broker</code>作为<code>Leader</code>，负责管理整个集群中<code>Topic</code>、<code>Broker</code>和<code>Partition</code></p>
+<p>在<code>RocketMQ</code>中，<code>NameServer</code>是负责管理整个集群<code>Topic</code>及<code>Broker</code>信息。</p>
+<p><code>RocketMQ</code>未使用<code>Zookeeper</code>，所有<code>Broker</code>的注册都是基于<code>NameServer</code>。</p>
 <h4 id="生产者"><a href="#生产者" class="headerlink" title="生产者"></a>生产者</h4><p><code>生产者（Producer）</code>是消息的产生者，需要指定消息对应的<code>主题（Topic）</code>。</p>
 <p><strong>发送方式</strong></p>
 <ul>
@@ -198,6 +202,15 @@
 	
     
 <nav id="article-nav">
+  
+    <a href="/2020/02/17/rpc/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          RPC实现原理
+        
+      </div>
+    </a>
   
   
     <a href="/2020/01/01/2019-look-back/" id="article-nav-older" class="article-nav-link-wrap">

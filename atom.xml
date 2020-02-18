@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://simyy.cn/"/>
-  <updated>2020-01-11T10:26:42.212Z</updated>
+  <updated>2020-02-18T10:06:15.958Z</updated>
   <id>http://simyy.cn/</id>
   
   <author>
@@ -17,13 +17,39 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>RPC实现原理</title>
+    <link href="http://simyy.cn/2020/02/17/rpc/"/>
+    <id>http://simyy.cn/2020/02/17/rpc/</id>
+    <published>2020-02-17T14:13:16.000Z</published>
+    <updated>2020-02-18T10:06:15.958Z</updated>
+    
+    <content type="html"><![CDATA[<p>本文简单记录下RPC框架的原理。</p><a id="more"></a><h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p><code>RPC</code>全称为<code>Remote Procedure Call</code>，译为<code>远程过程调用</code>。</p><p>常见的<code>RPC框架</code>的包括<code>Dubbo</code>、<code>Thrift</code>、<code>Hissan</code>、<code>GRPC</code>等。</p><h4 id="组成"><a href="#组成" class="headerlink" title="组成"></a>组成</h4><p><code>RPC</code>主要是由<code>提供者</code>、<code>消费者</code>和<code>注册中心</code>三部分组成。</p><p><img src="/images/rpc-1.png" alt=""></p><ol><li><p><code>提供者</code>是服务的提供方，需要把自身提供的服务注册到<code>注册中心</code>。</p></li><li><p><code>消费者</code>是服务的消费方，需要从<code>注册中心</code>获取最新的服务提供方的信息。</p></li></ol><p>此外，为了集群消费状态的监控，<code>消费者</code>也需要把自己的地址注册到<code>注册中心</code>。</p><ol start="3"><li><code>注册中心</code>是服务注册和发现的关键，用于保存<code>服务提供者的地址端口</code>以及<code>消费者的地址</code>。</li></ol><h4 id="注册中心"><a href="#注册中心" class="headerlink" title="注册中心"></a>注册中心</h4><p>常用的注册中心有<code>Zookeeper</code>、<code>Etcd</code>、<code>Consul</code>和<code>Euerka</code>。</p><p><code>Zookeeper</code>使用<code>zab</code>一致性协议，属于<code>CP</code>。</p><p><code>Etcd</code>和<code>Consul</code>均使用<code>raft</code>一致性协议，属于<code>CP</code>。</p><p><code>Euerka</code>属于<code>AP</code>，主要用于服务发现和注册（存在部分延迟影响不大），因此采用最终一致性。</p><blockquote><p><code>注册中心</code>的中心化问题？</p><p>服务的调用和发现都是依赖<code>注册中心</code>，其高可用尤为重要。</p><p><code>CAP</code>理论是由<code>一致性(C)</code>、<code>可用性(A)</code>、<code>分区备份(P)</code>组成。</p><ul><li><code>可用性(A)</code>：服务是否一直可用，集群环境下选主的方式（多分区）。</li><li><code>一致性(C)</code>：集群环境下的一致性算法包括<code>paxos</code>/<code>zab</code>/<code>raft</code>。</li><li><code>分区备份(P)</code>：数据多分备份。</li></ul></blockquote><h4 id="注册"><a href="#注册" class="headerlink" title="注册"></a>注册</h4><p><code>注册</code>可以分为两种：<code>节点注册</code>和<code>服务注册</code>，</p><ol><li><p><code>节点注册</code>：提供者、消费者，其中，提供者一般需要提供<code>IP</code>和<code>PORT</code>，而消费者仅提供<code>IP</code>；</p></li><li><p><code>服务注册</code>：提供者，仅需要提供当前节点所能提供的rpc服务。</p></li></ol><blockquote><p>注册存在<code>失败</code>的情况，因此需要设置合理的<code>失败重试机制</code>。</p></blockquote><p>注册的具体方式如图所示，</p><p><img src="/images/rpc-2.png" alt=""></p><p><code>/frpc</code>是<code>rpc</code>服务注册的独立命名空间。</p><blockquote><p><code>临时节点</code>的生命周期与注册节点相同，可以用于实现实时监控。</p></blockquote><p><code>非地址节点</code>都属于<code>持久节点</code>，<code>地址节点</code>属于<code>临时节点</code>。</p><p><code>服务隔离</code>是通过<code>/frpc/groupx</code>来实现的，通过把服务注册到不同的节点上来实现服务的隔离。</p><h4 id="发现"><a href="#发现" class="headerlink" title="发现"></a>发现</h4><p><code>发现</code>仅作为<code>消费者</code>的依赖服务获取方式。</p><p><code>发现</code>是通过<code>监控器Watcher</code>的方式来实现服务节点状态的实时更新。</p><h4 id="调用"><a href="#调用" class="headerlink" title="调用"></a>调用</h4><p><code>RPC</code>框架一般采用<code>直连调用</code>的方式来建立消费者和提供者之间的通信。</p><p><code>直连调用</code>的性能最佳，任何代理都会存在性能的损耗。</p><blockquote><p><code>服务网格</code>利用<code>proxy</code>来实现网格之间的调用，为了降低客户端的复杂度，牺牲了网络性能。</p></blockquote><p><code>通信方式</code>包括<code>TCP</code>、<code>UDP</code>、<code>HTTP</code>和<code>HTTP2</code>，常用的是<code>TCP</code>和<code>HTTP2</code>。</p><p><code>TCP</code>是传输层协议，存在粘包问题，需要自定义数据包格式。</p><p><img src="/images/rpc-3.png" alt=""></p><ul><li><code>Magic Number</code>：用于识别数据包的起始位置；</li><li><code>Serialize Type</code>：标识数据的序列化方式；</li><li><code>Packet Type</code>：标识数据包的结构类型；</li><li><code>Data Length</code>：标识数据的大小，用来读取完整的数据包；</li><li><code>Data Bytes</code>：具体数据。</li></ul><p><code>HTTP2</code>是应用层协议，用于取代<code>HTTP</code>，是<code>GRPC</code>中的通信方式。</p><h4 id="路由"><a href="#路由" class="headerlink" title="路由"></a>路由</h4><p><code>路由</code>是指同一服务下不同节点的选择策略，常见的选择策略包括<code>轮询</code>、<code>性能</code>、<code>负载</code>、<code>优先级</code>。</p><p><code>路由</code>一般分为两种：<code>基于客户端的路由</code>与<code>基于代理的路由</code>。</p><p><code>基于客户端的路由</code>是通过消费者自身的客户端来实现节点的选择策略，对消费者自身存在一定的性能消耗。</p><p><code>基于代理的路由</code>是通过部署再消费者环境下的独立存在，不会与消费者产生资源竞争，但存在一层网络性能损耗。</p><p>此外，<code>路由标签</code>可以用于服务的隔离。</p><h4 id="监控"><a href="#监控" class="headerlink" title="监控"></a>监控</h4><p><code>监控的目标</code>可分为两种：</p><ul><li><code>实体</code>：生产者、消费者、服务状态；</li><li><code>性能</code>：接口耗时、接口QPS。</li></ul><p><code>实体数据</code>可以从<code>注册中心</code>直接拉取，不需要提供者和消费者参与。</p><p><code>性能数据的上报</code>采用异步上报的方式，从而避免对服务性能的影响。</p><h4 id="管理"><a href="#管理" class="headerlink" title="管理"></a>管理</h4><p><code>管理</code>可以分为<code>服务管理</code>和<code>节点管理</code>。</p><p><code>服务管理</code>是指服务的<code>生效</code>和<code>失效</code>。</p><p><code>节点管理</code>是指节点的<code>上线</code>、<code>下线</code>和<code>路由权重</code>。</p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本文简单记录下RPC框架的原理。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="架构" scheme="http://simyy.cn/categories/%E6%9E%B6%E6%9E%84/"/>
+    
+    
+      <category term="微服务" scheme="http://simyy.cn/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
+    
+      <category term="架构" scheme="http://simyy.cn/tags/%E6%9E%B6%E6%9E%84/"/>
+    
+      <category term="RPC" scheme="http://simyy.cn/tags/RPC/"/>
+    
+  </entry>
+  
+  <entry>
     <title>消息系统</title>
     <link href="http://simyy.cn/2020/01/11/mq/"/>
     <id>http://simyy.cn/2020/01/11/mq/</id>
     <published>2020-01-11T08:37:10.000Z</published>
-    <updated>2020-01-11T10:26:42.212Z</updated>
+    <updated>2020-01-13T02:36:41.643Z</updated>
     
-    <content type="html"><![CDATA[<p>记录下最近对消息系统的思考和理解。<br><a id="more"></a><br><img src="/images/mq_6.png" alt=""></p><h3 id="目的"><a href="#目的" class="headerlink" title="目的"></a>目的</h3><p><code>消息系统</code>存在的目的在于：<code>解耦</code>、<code>异步</code>、<code>消峰</code>。</p><p><strong>解耦</strong></p><ul><li><code>依赖关系</code>：组件之间从强依赖变为弱依赖，事件触发通过消息异步同步到依赖组件。</li><li><code>时效</code>：消息系统是一种暂存数据的异步系统，触发的时效是无法保证的。</li></ul><p><strong>异步</strong> </p><ul><li><code>单工</code>：对于生产者和消费者来说，消息系统只是一种单工代理，生产者和消费者无法之间通信。</li><li><code>回调</code>: 异步意味着调用结果无法实时返回，调用结果需要通过配置回调来返回。</li></ul><p><strong>消峰：</strong> </p><ul><li><code>队列</code>：队列的实质是无序变有序、多路变单路，从而降低依赖方的请求压力。</li><li><code>结果</code>：消峰只是一种手段，数据还是需要返回给请求方，可以通过回调或消息的方式返回。</li></ul><h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>消息系统可分为<code>代理（Broker）</code>、<code>生产者（Producer）</code>、<code>消费者（Consumer）</code>。</p><p><img src="/images/mq_1.png" alt=""></p><h4 id="消息"><a href="#消息" class="headerlink" title="消息"></a>消息</h4><p><code>消息</code>是数据的载体，用于<code>生产者（Producer）</code>和<code>消费者（Consumer）</code>沟通的媒介。</p><p><strong>数据隔离</strong></p><ul><li><code>主题（Topic）</code>：用于区分不同业务类型的消息，隔离的是不同的业务事件。</li><li><code>分组（Group）</code>：用于区分同一主题下的不同业务方，隔离的是同一主题的不同订阅方。</li></ul><p><img src="/images/mq_2.png" alt=""></p><h4 id="代理"><a href="#代理" class="headerlink" title="代理"></a>代理</h4><p><code>代理（Broker）</code>是用于连接<code>生产者（Producer）</code>和<code>消费者（Consumer）</code>的关键模块。</p><h5 id="隔离方式"><a href="#隔离方式" class="headerlink" title="隔离方式"></a>隔离方式</h5><p><code>代理（Broker）</code>的数据隔离可以分为<code>物理隔离</code>和<code>逻辑隔离</code>，</p><ul><li><code>物理隔离</code>：订阅系统数量和数据备份数量相同，订阅数据之间隔离，缺点明显，浪费存储空间。</li><li><code>逻辑隔离</code>：数据仅有一份，不同系统通过<code>偏移量（Offset）</code>来记录消费进度。</li></ul><blockquote><p><code>逻辑隔离</code>的优点在于数据仅此一份，不同业务系统消费同一份数据，也不会出现数据不一致的情况。</p></blockquote><h5 id="分组管理"><a href="#分组管理" class="headerlink" title="分组管理"></a>分组管理</h5><p><code>分组管理</code>指的是同一<code>Topic</code>下同一<code>Group</code>下不同消费者的管理。</p><p>每一个<code>Topic</code>都会存在多个消费队列，每个消费队列仅能对应一个消费者。</p><blockquote><p>为了维护队列消费进度的Ofsset，不允许并发修改Offset的情况，需要保证<code>队列 : 消费者 = 1 : 1</code></p></blockquote><ul><li><code>代理维护</code>：代理来管理消息队列的分配。</li><li><code>消费者维护</code>：消费者通过选举选择Leader节点用来管理消息队列的分配。</li></ul><p><img src="/images/mq_3.png" alt=""></p><h5 id="存储"><a href="#存储" class="headerlink" title="存储"></a>存储</h5><p>存储方式可以采用传统的<code>BTree索引存储</code>和<code>文件存储</code>两种方式。</p><ul><li><code>BTree存储</code>的查询效率高，但写入效率低。</li><li><code>文件存储</code>的查询效率低，但写入效率高。</li></ul><p>考虑到消息的顺序读写，Kafka采用文件存储存储方式，追加写入日志。</p><blockquote><p><code>Kafka</code>的存储采用了<code>分区(partition)</code>、<code>分段(LogSegment)</code>和<code>稀疏索引</code>来实现高性能。</p></blockquote><p><img src="/images/mq_4.png" alt=""></p><h5 id="分区"><a href="#分区" class="headerlink" title="分区"></a>分区</h5><p><code>数据分区</code>是指数据分布在不同物理机上，可以分为两种方式：<code>逻辑分区</code>、<code>物理分区</code>。</p><ul><li><code>物理分区</code>：数据备份的单位是物理机，物理机备份方式采用主从备份。</li><li><code>逻辑分区</code>：数据备份的单位是数据分片（Partition），分片是按照一主多从的方式来备份。</li></ul><p>数据分片（Partition）的备份与物理机不同，采用数据分片（Partition）的备份不需要关心的物理机</p><p><code>Kafka</code>采用了逻辑分区，<code>RocketMQ</code>才用了物理分区。</p><p><img src="/images/mq_5.png" alt=""></p><h4 id="生产者"><a href="#生产者" class="headerlink" title="生产者"></a>生产者</h4><p><code>生产者（Producer）</code>是消息的产生者，需要指定消息对应的<code>主题（Topic）</code>。</p><p><strong>发送方式</strong></p><ul><li><code>同步发送</code>：同步调用代理端，生产者可以感知消息发送的成功与否，确保此次消息的发送。</li><li><code>异步发送</code>：异步调用代理端，生产者无法感知消息发送的成功与否，在发送失败时仅能通过固定次数的重试。</li><li><code>批量发送</code>：也是一种<code>异步发送</code>，但是通过积累更多的消息一次性发送到代理端，主要用于大量消息的场景。</li></ul><p><strong>事务消息</strong></p><p><code>事务消息</code>是用来解决分布式事务的一种方式，它仅保证了消息的消费，如果出现消费失败是无法回滚，只能通过<code>人工介入</code>处理。</p><p>为了实现<code>事务消息</code>，生产者必须保证消息发送到代理端，那么只能选择<code>同步方式</code>来实现。</p><h4 id="消费者"><a href="#消费者" class="headerlink" title="消费者"></a>消费者</h4><p><code>消费者（Consumer）</code>是消息的订阅方，需要指定消息对应的<code>主题（Topic）</code>和消费者的<code>分组（Group）</code>。</p><p><strong>消费方式</strong></p><ul><li><code>被动Push</code>：代理端主动推送消息，消费者只需要被动等待，代理端集中管理消息的分发。</li><li><p><code>主动Pull</code>：消费者主动拉取最新的消息，基于轮询的方式。</p><p><code>主动Pull</code>是消息系统常见的消费方式，主动拉取消息减少了代理端的复杂度。</p></li></ul><blockquote><p><code>主动Pull</code>的优点在于把数据分发的压力转移到消费者。</p></blockquote><p><strong>消费进度</strong></p><p>上面提到，<code>消费进度</code>是通过<code>Offset</code>来维护的，<code>Offset</code>的上报决定了消息的消费情况。</p><p><code>实时上报</code>：消费者处理完消息后立刻上报最新的<code>Offset</code>情况。</p><p><code>周期上报</code>：消费者处理完消息后会把消费情况写入缓存，消费者会定期上报最新的<code>Offset</code>情况。</p><p><code>实时上报</code>是同步方式，而<code>周期上报</code>是异步方式。</p><p>同步方式意味着阻塞，吞吐量不如异步方式。</p><p><strong>事务支持</strong></p><p>为了保证消息的成功消费，事务消息需要采用<code>实时上报</code>的方式。</p><p>异步意味着不能实时上报，如果上报失败是无法感知的。</p><p><strong>顺序消费</strong> </p><p>前面提到一个主题可能包括多个消费队列，多个消费队列之间是无法保证消费顺序的。</p><p>为了实现顺序消费，需要业务方按照一定规则把一类消息存储在同一个队列中，从而保证消息被同一个消费者消费。</p><p>但是，如果发生消费者组重新分配的情况会导致顺序消费失效。</p><p><strong>重复消费</strong></p><p>造成<code>重复消费</code>的两种情况：</p><ul><li>异常宕机导致<code>Offset</code>未上报</li><li>消费者线程执行超时无反馈</li></ul><p>上面两种情况均是由于<code>Offset</code>没有及时上报，这是无法避免的，所以需要消费者做好<code>幂等</code>处理。</p>]]></content>
+    <content type="html"><![CDATA[<p>记录下最近对消息系统的思考和理解。<br><a id="more"></a><br><img src="/images/mq_6.png" alt=""></p><h3 id="目的"><a href="#目的" class="headerlink" title="目的"></a>目的</h3><p><code>消息系统</code>存在的目的在于：<code>解耦</code>、<code>异步</code>、<code>消峰</code>。</p><p><strong>解耦</strong></p><ul><li><code>依赖关系</code>：组件之间从强依赖变为弱依赖，事件触发通过消息异步同步到依赖组件。</li><li><code>时效</code>：消息系统是一种暂存数据的异步系统，触发的时效是无法保证的。</li></ul><p><strong>异步</strong> </p><ul><li><code>单工</code>：对于生产者和消费者来说，消息系统只是一种单工代理，生产者和消费者无法之间通信。</li><li><code>回调</code>: 异步意味着调用结果无法实时返回，调用结果需要通过配置回调来返回。</li></ul><p><strong>消峰：</strong> </p><ul><li><code>队列</code>：队列的实质是无序变有序、多路变单路，从而降低依赖方的请求压力。</li><li><code>结果</code>：消峰只是一种手段，数据还是需要返回给请求方，可以通过回调或消息的方式返回。</li></ul><h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>消息系统可分为<code>代理（Broker）</code>、<code>生产者（Producer）</code>、<code>消费者（Consumer）</code>。</p><p><img src="/images/mq_1.png" alt=""></p><h4 id="消息"><a href="#消息" class="headerlink" title="消息"></a>消息</h4><p><code>消息</code>是数据的载体，用于<code>生产者（Producer）</code>和<code>消费者（Consumer）</code>沟通的媒介。</p><p><strong>数据隔离</strong></p><ul><li><code>主题（Topic）</code>：用于区分不同业务类型的消息，隔离的是不同的业务事件。</li><li><code>分组（Group）</code>：用于区分同一主题下的不同业务方，隔离的是同一主题的不同订阅方。</li></ul><p><img src="/images/mq_2.png" alt=""></p><h4 id="代理"><a href="#代理" class="headerlink" title="代理"></a>代理</h4><p><code>代理（Broker）</code>是用于连接<code>生产者（Producer）</code>和<code>消费者（Consumer）</code>的关键模块。</p><h5 id="隔离方式"><a href="#隔离方式" class="headerlink" title="隔离方式"></a>隔离方式</h5><p><code>代理（Broker）</code>的数据隔离可以分为<code>物理隔离</code>和<code>逻辑隔离</code>，</p><ul><li><code>物理隔离</code>：订阅系统数量和数据备份数量相同，订阅数据之间隔离，缺点明显，浪费存储空间。</li><li><code>逻辑隔离</code>：数据仅有一份，不同系统通过<code>偏移量（Offset）</code>来记录消费进度。</li></ul><blockquote><p><code>逻辑隔离</code>的优点在于数据仅此一份，不同业务系统消费同一份数据，也不会出现数据不一致的情况。</p></blockquote><h5 id="分组管理"><a href="#分组管理" class="headerlink" title="分组管理"></a>分组管理</h5><p><code>分组管理</code>指的是同一<code>Topic</code>下同一<code>Group</code>下不同消费者的管理。</p><p>每一个<code>Topic</code>都会存在多个消费队列，每个消费队列仅能对应一个消费者。</p><blockquote><p>为了维护队列消费进度的Ofsset，不允许并发修改Offset的情况，需要保证<code>队列 : 消费者 = 1 : 1</code></p></blockquote><ul><li><code>代理维护</code>：代理来管理消息队列的分配。</li><li><code>消费者维护</code>：消费者通过选举选择Leader节点用来管理消息队列的分配。</li></ul><p><img src="/images/mq_3.png" alt=""></p><h5 id="存储"><a href="#存储" class="headerlink" title="存储"></a>存储</h5><p>存储方式可以采用传统的<code>BTree索引存储</code>和<code>文件存储</code>两种方式。</p><ul><li><code>BTree存储</code>的查询效率高，但写入效率低。</li><li><code>文件存储</code>的查询效率低，但写入效率高。</li></ul><p>考虑到消息的顺序读写，Kafka采用文件存储存储方式，追加写入日志。</p><blockquote><p><code>Kafka</code>的存储采用了<code>分区(partition)</code>、<code>分段(LogSegment)</code>和<code>稀疏索引</code>来实现高性能。</p></blockquote><p><img src="/images/mq_4.png" alt=""></p><h5 id="分区"><a href="#分区" class="headerlink" title="分区"></a>分区</h5><p><code>数据分区</code>是指数据分布在不同物理机上，可以分为两种方式：<code>逻辑分区</code>、<code>物理分区</code>。</p><ul><li><code>物理分区</code>：数据备份的单位是物理机，物理机备份方式采用主从备份。</li><li><code>逻辑分区</code>：数据备份的单位是数据分片（Partition），分片是按照一主多从的方式来备份。</li></ul><p>数据分片（Partition）的备份与物理机不同，采用数据分片（Partition）的备份不需要关心的物理机</p><p><code>Kafka</code>采用了逻辑分区，<code>RocketMQ</code>才用了物理分区。</p><p><img src="/images/mq_5.png" alt=""></p><h5 id="路由"><a href="#路由" class="headerlink" title="路由"></a>路由</h5><p>在集群环境下，<code>路由</code>是用于快速的定位和发现目标消息所在的位置。</p><p>在<code>kafka</code>中，通过选举功能选择一个<code>Broker</code>作为<code>Leader</code>，负责管理整个集群中<code>Topic</code>、<code>Broker</code>和<code>Partition</code></p><p>在<code>RocketMQ</code>中，<code>NameServer</code>是负责管理整个集群<code>Topic</code>及<code>Broker</code>信息。</p><p><code>RocketMQ</code>未使用<code>Zookeeper</code>，所有<code>Broker</code>的注册都是基于<code>NameServer</code>。</p><h4 id="生产者"><a href="#生产者" class="headerlink" title="生产者"></a>生产者</h4><p><code>生产者（Producer）</code>是消息的产生者，需要指定消息对应的<code>主题（Topic）</code>。</p><p><strong>发送方式</strong></p><ul><li><code>同步发送</code>：同步调用代理端，生产者可以感知消息发送的成功与否，确保此次消息的发送。</li><li><code>异步发送</code>：异步调用代理端，生产者无法感知消息发送的成功与否，在发送失败时仅能通过固定次数的重试。</li><li><code>批量发送</code>：也是一种<code>异步发送</code>，但是通过积累更多的消息一次性发送到代理端，主要用于大量消息的场景。</li></ul><p><strong>事务消息</strong></p><p><code>事务消息</code>是用来解决分布式事务的一种方式，它仅保证了消息的消费，如果出现消费失败是无法回滚，只能通过<code>人工介入</code>处理。</p><p>为了实现<code>事务消息</code>，生产者必须保证消息发送到代理端，那么只能选择<code>同步方式</code>来实现。</p><h4 id="消费者"><a href="#消费者" class="headerlink" title="消费者"></a>消费者</h4><p><code>消费者（Consumer）</code>是消息的订阅方，需要指定消息对应的<code>主题（Topic）</code>和消费者的<code>分组（Group）</code>。</p><p><strong>消费方式</strong></p><ul><li><code>被动Push</code>：代理端主动推送消息，消费者只需要被动等待，代理端集中管理消息的分发。</li><li><p><code>主动Pull</code>：消费者主动拉取最新的消息，基于轮询的方式。</p><p><code>主动Pull</code>是消息系统常见的消费方式，主动拉取消息减少了代理端的复杂度。</p></li></ul><blockquote><p><code>主动Pull</code>的优点在于把数据分发的压力转移到消费者。</p></blockquote><p><strong>消费进度</strong></p><p>上面提到，<code>消费进度</code>是通过<code>Offset</code>来维护的，<code>Offset</code>的上报决定了消息的消费情况。</p><p><code>实时上报</code>：消费者处理完消息后立刻上报最新的<code>Offset</code>情况。</p><p><code>周期上报</code>：消费者处理完消息后会把消费情况写入缓存，消费者会定期上报最新的<code>Offset</code>情况。</p><p><code>实时上报</code>是同步方式，而<code>周期上报</code>是异步方式。</p><p>同步方式意味着阻塞，吞吐量不如异步方式。</p><p><strong>事务支持</strong></p><p>为了保证消息的成功消费，事务消息需要采用<code>实时上报</code>的方式。</p><p>异步意味着不能实时上报，如果上报失败是无法感知的。</p><p><strong>顺序消费</strong> </p><p>前面提到一个主题可能包括多个消费队列，多个消费队列之间是无法保证消费顺序的。</p><p>为了实现顺序消费，需要业务方按照一定规则把一类消息存储在同一个队列中，从而保证消息被同一个消费者消费。</p><p>但是，如果发生消费者组重新分配的情况会导致顺序消费失效。</p><p><strong>重复消费</strong></p><p>造成<code>重复消费</code>的两种情况：</p><ul><li>异常宕机导致<code>Offset</code>未上报</li><li>消费者线程执行超时无反馈</li></ul><p>上面两种情况均是由于<code>Offset</code>没有及时上报，这是无法避免的，所以需要消费者做好<code>幂等</code>处理。</p>]]></content>
     
     <summary type="html">
     
@@ -314,9 +340,9 @@
       <category term="架构" scheme="http://simyy.cn/categories/%E6%9E%B6%E6%9E%84/"/>
     
     
-      <category term="架构" scheme="http://simyy.cn/tags/%E6%9E%B6%E6%9E%84/"/>
-    
       <category term="微服务" scheme="http://simyy.cn/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
+    
+      <category term="架构" scheme="http://simyy.cn/tags/%E6%9E%B6%E6%9E%84/"/>
     
   </entry>
   
@@ -388,9 +414,9 @@
       <category term="架构" scheme="http://simyy.cn/categories/%E6%9E%B6%E6%9E%84/"/>
     
     
-      <category term="架构" scheme="http://simyy.cn/tags/%E6%9E%B6%E6%9E%84/"/>
-    
       <category term="微服务" scheme="http://simyy.cn/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
+    
+      <category term="架构" scheme="http://simyy.cn/tags/%E6%9E%B6%E6%9E%84/"/>
     
   </entry>
   
@@ -436,9 +462,9 @@
       <category term="计算机原理" scheme="http://simyy.cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86/"/>
     
     
-      <category term="计算机原理" scheme="http://simyy.cn/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86/"/>
-    
       <category term="区块链" scheme="http://simyy.cn/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/"/>
+    
+      <category term="计算机原理" scheme="http://simyy.cn/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86/"/>
     
   </entry>
   
@@ -491,30 +517,6 @@
       <category term="数据库" scheme="http://simyy.cn/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
     
       <category term="中间件" scheme="http://simyy.cn/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>分布式事务</title>
-    <link href="http://simyy.cn/2017/05/20/distributed-transaction/"/>
-    <id>http://simyy.cn/2017/05/20/distributed-transaction/</id>
-    <published>2017-05-20T09:40:21.000Z</published>
-    <updated>2019-12-17T02:24:48.248Z</updated>
-    
-    <content type="html"><![CDATA[<p>简单总结下分布式事务相关二段式、三段式提交以及Paxos算法。<br><a id="more"></a></p><h2 id="分布式系统的一致性"><a href="#分布式系统的一致性" class="headerlink" title="分布式系统的一致性"></a>分布式系统的一致性</h2><p>在分布式领域中，任何一个分布式系统都无法同时满足<code>一致性</code>、<code>可用性</code>和<code>容错性</code>（也就是CAP理论）。</p><p>一般来说系统权衡的结果是达到系统的<code>最终一致</code>，而非强一致性。</p><blockquote><p>分布式系统中数据不一致的问题？</p></blockquote><p>为了提高系统的整体性能，往往采用多机进行分布式部署，为了达到数据的同步必然存在着<code>数据复制</code>。但是数据复制在不同的数据节点之间由于网络等异常原因很容易造成数据不一致的情况。</p><h3 id="一致性模型"><a href="#一致性模型" class="headerlink" title="一致性模型"></a>一致性模型</h3><p>一致性模型可以分为三种：</p><ul><li><code>强一致性</code>：当更新操作完成后，任何后续操作访问的结果都是最新更新的值；</li><li><code>弱一致性</code>：当更新操作完成后，系统不保证后续操作访问的结构都一致，但会尽可能保证在某个时间点可以让数据达到一致；</li><li><code>最终一致性</code>：可以保证最终数据会达到一致。</li></ul><h2 id="二段式提交"><a href="#二段式提交" class="headerlink" title="二段式提交"></a>二段式提交</h2><p>二段式提交协议主要保证分布式事务的<code>原子性</code>（保证所有节点的操作一致），为了达到操作的一致引入了一个协调者来掌管所有节点。</p><p>二段式提交可以分为两个阶段：<code>准备阶段</code>和<code>提交阶段</code>。</p><p><code>准备阶段</code>：是一个投票的过程，步骤如下，</p><ul><li>协调者向所有节点询问是否提交操作，等带所有参与节点响应；</li><li>参与者执行询问发起为止的所有事务操作（已经执行了事务），并把是否执行信息写入日志；</li><li>各个参与者向协调者回复询问结果（如果执行成功返回同意，否则返回终止）。</li></ul><p><code>提交阶段</code>：是一个确认的过程，步骤如下，</p><ul><li>协调者接收到参与者的询问结果，如果包含终止结果，则需要对所有参与者发送回滚操作，否则向所有参与者发送提交命令；</li><li>参与者接受者接收到完成操作，释放整个事务期间占用的资源；</li><li>协调者接受到所有参与者完成操作，完成事务。</li></ul><blockquote><p>缺点？</p></blockquote><ul><li><code>同步阻塞</code>：所有参与者都是事务阻塞型的，当参与者占用公共资源时，其他节点在访问该公共资源的时候不得不阻塞等待。</li><li><code>单点故障</code>：协调者管理所有参与节点，如果协调者异常，参与者都会一直阻塞下去。</li><li><code>数据不一致</code>：对于提交阶段，如果协调者和参与者出现网络问题，参与者无法正常完成事务。</li></ul><h2 id="三段式提交"><a href="#三段式提交" class="headerlink" title="三段式提交"></a>三段式提交</h2><p><code>三段式提交</code>是二段式提交的改进版，主要不同在于：</p><ul><li>引入超时机制（协调者和参与者）</li><li>增加了一个询问阶段（但不会执行）</li></ul><p>三个阶段：</p><ul><li><code>can commit</code>：协调者询问参与者是否可以执行事务(投票)</li><li><code>pre commit</code>：执行事务，并返回执行结果</li><li><code>do commit</code>：提交事务，完成</li></ul><p>为了避免阻塞，在提交阶段，如果协调者没有接收到参与者的回应，会执行<code>终止事务</code>，另外，如果参与者一直没有接收到协调者的操作命令，那么就会直接提交事务，但是这并不会避免<code>数据不一致</code>的问题。</p><h2 id="Paxos算法"><a href="#Paxos算法" class="headerlink" title="Paxos算法"></a>Paxos算法</h2><p><a href="http://www.csdn.net/article/2014-01-20/2818197-distributed-system/2" target="_blank" rel="noopener">http://www.csdn.net/article/2014-01-20/2818197-distributed-system/2</a></p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;简单总结下分布式事务相关二段式、三段式提交以及Paxos算法。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="架构" scheme="http://simyy.cn/categories/%E6%9E%B6%E6%9E%84/"/>
-    
-    
-      <category term="架构" scheme="http://simyy.cn/tags/%E6%9E%B6%E6%9E%84/"/>
-    
-      <category term="分布式" scheme="http://simyy.cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
     
   </entry>
   

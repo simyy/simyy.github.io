@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>RPC实现原理 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="本文简单记录下RPC框架的原理。">
+<meta name="keywords" content="微服务,架构,RPC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RPC实现原理">
+<meta property="og:url" content="http://simyy.cn/2020/02/17/rpc/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="本文简单记录下RPC框架的原理。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://simyy.cn/images/rpc-1.png">
+<meta property="og:image" content="http://simyy.cn/images/rpc-2.png">
+<meta property="og:image" content="http://simyy.cn/images/rpc-3.png">
+<meta property="og:updated_time" content="2020-02-18T10:06:15.958Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RPC实现原理">
+<meta name="twitter:description" content="本文简单记录下RPC框架的原理。">
+<meta name="twitter:image" content="http://simyy.cn/images/rpc-1.png">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">主页</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      
+
+
+<article id="post-rpc" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2020/02/17/rpc/" class="article-date">
+  <time datetime="2020-02-17T14:13:16.000Z" itemprop="datePublished">2020-02-17</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RPC/">RPC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/微服务/">微服务</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/架构/">架构</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      RPC实现原理
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>本文简单记录下RPC框架的原理。</p>
+<a id="more"></a>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p><code>RPC</code>全称为<code>Remote Procedure Call</code>，译为<code>远程过程调用</code>。</p>
+<p>常见的<code>RPC框架</code>的包括<code>Dubbo</code>、<code>Thrift</code>、<code>Hissan</code>、<code>GRPC</code>等。</p>
+<h4 id="组成"><a href="#组成" class="headerlink" title="组成"></a>组成</h4><p><code>RPC</code>主要是由<code>提供者</code>、<code>消费者</code>和<code>注册中心</code>三部分组成。</p>
+<p><img src="/images/rpc-1.png" alt=""></p>
+<ol>
+<li><p><code>提供者</code>是服务的提供方，需要把自身提供的服务注册到<code>注册中心</code>。</p>
+</li>
+<li><p><code>消费者</code>是服务的消费方，需要从<code>注册中心</code>获取最新的服务提供方的信息。</p>
+</li>
+</ol>
+<p>此外，为了集群消费状态的监控，<code>消费者</code>也需要把自己的地址注册到<code>注册中心</code>。</p>
+<ol start="3">
+<li><code>注册中心</code>是服务注册和发现的关键，用于保存<code>服务提供者的地址端口</code>以及<code>消费者的地址</code>。</li>
+</ol>
+<h4 id="注册中心"><a href="#注册中心" class="headerlink" title="注册中心"></a>注册中心</h4><p>常用的注册中心有<code>Zookeeper</code>、<code>Etcd</code>、<code>Consul</code>和<code>Euerka</code>。</p>
+<p><code>Zookeeper</code>使用<code>zab</code>一致性协议，属于<code>CP</code>。</p>
+<p><code>Etcd</code>和<code>Consul</code>均使用<code>raft</code>一致性协议，属于<code>CP</code>。</p>
+<p><code>Euerka</code>属于<code>AP</code>，主要用于服务发现和注册（存在部分延迟影响不大），因此采用最终一致性。</p>
+<blockquote>
+<p><code>注册中心</code>的中心化问题？</p>
+<p>服务的调用和发现都是依赖<code>注册中心</code>，其高可用尤为重要。</p>
+<p><code>CAP</code>理论是由<code>一致性(C)</code>、<code>可用性(A)</code>、<code>分区备份(P)</code>组成。</p>
+<ul>
+<li><code>可用性(A)</code>：服务是否一直可用，集群环境下选主的方式（多分区）。</li>
+<li><code>一致性(C)</code>：集群环境下的一致性算法包括<code>paxos</code>/<code>zab</code>/<code>raft</code>。</li>
+<li><code>分区备份(P)</code>：数据多分备份。</li>
+</ul>
+</blockquote>
+<h4 id="注册"><a href="#注册" class="headerlink" title="注册"></a>注册</h4><p><code>注册</code>可以分为两种：<code>节点注册</code>和<code>服务注册</code>，</p>
+<ol>
+<li><p><code>节点注册</code>：提供者、消费者，其中，提供者一般需要提供<code>IP</code>和<code>PORT</code>，而消费者仅提供<code>IP</code>；</p>
+</li>
+<li><p><code>服务注册</code>：提供者，仅需要提供当前节点所能提供的rpc服务。</p>
+</li>
+</ol>
+<blockquote>
+<p>注册存在<code>失败</code>的情况，因此需要设置合理的<code>失败重试机制</code>。</p>
+</blockquote>
+<p>注册的具体方式如图所示，</p>
+<p><img src="/images/rpc-2.png" alt=""></p>
+<p><code>/frpc</code>是<code>rpc</code>服务注册的独立命名空间。</p>
+<blockquote>
+<p><code>临时节点</code>的生命周期与注册节点相同，可以用于实现实时监控。</p>
+</blockquote>
+<p><code>非地址节点</code>都属于<code>持久节点</code>，<code>地址节点</code>属于<code>临时节点</code>。</p>
+<p><code>服务隔离</code>是通过<code>/frpc/groupx</code>来实现的，通过把服务注册到不同的节点上来实现服务的隔离。</p>
+<h4 id="发现"><a href="#发现" class="headerlink" title="发现"></a>发现</h4><p><code>发现</code>仅作为<code>消费者</code>的依赖服务获取方式。</p>
+<p><code>发现</code>是通过<code>监控器Watcher</code>的方式来实现服务节点状态的实时更新。</p>
+<h4 id="调用"><a href="#调用" class="headerlink" title="调用"></a>调用</h4><p><code>RPC</code>框架一般采用<code>直连调用</code>的方式来建立消费者和提供者之间的通信。</p>
+<p><code>直连调用</code>的性能最佳，任何代理都会存在性能的损耗。</p>
+<blockquote>
+<p><code>服务网格</code>利用<code>proxy</code>来实现网格之间的调用，为了降低客户端的复杂度，牺牲了网络性能。</p>
+</blockquote>
+<p><code>通信方式</code>包括<code>TCP</code>、<code>UDP</code>、<code>HTTP</code>和<code>HTTP2</code>，常用的是<code>TCP</code>和<code>HTTP2</code>。</p>
+<p><code>TCP</code>是传输层协议，存在粘包问题，需要自定义数据包格式。</p>
+<p><img src="/images/rpc-3.png" alt=""></p>
+<ul>
+<li><code>Magic Number</code>：用于识别数据包的起始位置；</li>
+<li><code>Serialize Type</code>：标识数据的序列化方式；</li>
+<li><code>Packet Type</code>：标识数据包的结构类型；</li>
+<li><code>Data Length</code>：标识数据的大小，用来读取完整的数据包；</li>
+<li><code>Data Bytes</code>：具体数据。</li>
+</ul>
+<p><code>HTTP2</code>是应用层协议，用于取代<code>HTTP</code>，是<code>GRPC</code>中的通信方式。</p>
+<h4 id="路由"><a href="#路由" class="headerlink" title="路由"></a>路由</h4><p><code>路由</code>是指同一服务下不同节点的选择策略，常见的选择策略包括<code>轮询</code>、<code>性能</code>、<code>负载</code>、<code>优先级</code>。</p>
+<p><code>路由</code>一般分为两种：<code>基于客户端的路由</code>与<code>基于代理的路由</code>。</p>
+<p><code>基于客户端的路由</code>是通过消费者自身的客户端来实现节点的选择策略，对消费者自身存在一定的性能消耗。</p>
+<p><code>基于代理的路由</code>是通过部署再消费者环境下的独立存在，不会与消费者产生资源竞争，但存在一层网络性能损耗。</p>
+<p>此外，<code>路由标签</code>可以用于服务的隔离。</p>
+<h4 id="监控"><a href="#监控" class="headerlink" title="监控"></a>监控</h4><p><code>监控的目标</code>可分为两种：</p>
+<ul>
+<li><code>实体</code>：生产者、消费者、服务状态；</li>
+<li><code>性能</code>：接口耗时、接口QPS。</li>
+</ul>
+<p><code>实体数据</code>可以从<code>注册中心</code>直接拉取，不需要提供者和消费者参与。</p>
+<p><code>性能数据的上报</code>采用异步上报的方式，从而避免对服务性能的影响。</p>
+<h4 id="管理"><a href="#管理" class="headerlink" title="管理"></a>管理</h4><p><code>管理</code>可以分为<code>服务管理</code>和<code>节点管理</code>。</p>
+<p><code>服务管理</code>是指服务的<code>生效</code>和<code>失效</code>。</p>
+<p><code>节点管理</code>是指节点的<code>上线</code>、<code>下线</code>和<code>路由权重</code>。</p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/01/11/mq/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          消息系统
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2020 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

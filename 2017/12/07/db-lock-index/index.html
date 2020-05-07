@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="simyy">
 <meta property="og:description" content="本文记录下对事务隔离的理解。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-17T02:24:47.146Z">
+<meta property="og:updated_time" content="2020-04-26T02:52:40.423Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL 事务和索引">
 <meta name="twitter:description" content="本文记录下对事务隔离的理解。">
@@ -27,6 +27,7 @@
   <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
   
 </head></html>
+<script src="/js/hexo_resize_image.js"></script>
 <body>
   <div id="container">
     <div class="mobile-nav-panel">
@@ -38,7 +39,7 @@
 	</h1>
 	<nav class="nav">
 		<ul>
-			<li><a href="/">主页</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a href="/">主页</a></li><li><a href="/2014/07/07/book-list">书单</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
 			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
 			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
 		</ul>
@@ -113,9 +114,10 @@
 <p><code>InnoDB</code>中行锁的算法包括：</p>
 <ul>
 <li><code>record lock</code>：当个行记录上的锁；</li>
-<li><code>gap lock</code>：间隙锁，锁定一个范围（<code>不包括记录本身</code>），为了避免幻读现象（保证同一事物两次读取内容系那个痛）；</li>
-<li><code>next-key lock</code>：锁定一个范围，并且<code>锁定记录本身</code>，解决幻读问题。</li>
+<li><code>gap lock</code>：间隙锁，锁定一个范围（<code>不包括记录本身</code>），为了避免幻读现象（保证同一事物两次读取内容相同）；</li>
+<li><code>next-key lock</code>：行锁和间隙锁的组合，锁定一个范围，并且<code>锁定记录本身</code>，解决幻读问题。</li>
 </ul>
+<p><strong>特殊情况</strong>：唯一索引上不采用Next-Key Lock，而是降级为行级锁, 只锁一行。</p>
 <blockquote>
 <p>间隙锁的区间是右闭区间，例如[1, 5)。</p>
 </blockquote>

@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://simyy.cn/"/>
-  <updated>2020-05-07T15:36:40.699Z</updated>
+  <updated>2020-05-08T14:35:19.416Z</updated>
   <id>http://simyy.cn/</id>
   
   <author>
@@ -15,6 +15,32 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>再谈事务与分布式事务</title>
+    <link href="http://simyy.cn/2020/05/08/distributed-transaction-sequel/"/>
+    <id>http://simyy.cn/2020/05/08/distributed-transaction-sequel/</id>
+    <published>2020-05-08T14:25:00.000Z</published>
+    <updated>2020-05-08T14:35:19.416Z</updated>
+    
+    <content type="html"><![CDATA[<p>时隔两年，再从新学习一下分布式事务。</p><a id="more"></a><h4 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h4><p><strong>什么是事务?</strong></p><p>事务是<code>恢复和并发控制</code>的基本单位。</p><p><strong>事务的ACID特性</strong></p><ul><li><code>Atomic（原子性）</code>：事务内操作要么全成功要么全失败；</li><li><code>Consistent（一致性）</code>：事务完成后所有数据的状态都是一致的（均同时发生变更）；</li><li><code>Isolation（隔离性）</code>：事务之间互不影响；</li><li><code>Duration（持久性）</code>：事务的修改被持久化保存。</li></ul><p><strong>事务的隔离级别</strong></p><ul><li><code>脏读</code>：读取到未提交的数据。</li><li><code>不可重复度</code>：数据的修改。</li><li><code>幻读</code>：数据的增加。</li></ul><p>数据库事务的<code>隔离级别</code>分为4种，由低到高分别为</p><ul><li><code>Read uncommitted（读未提交）</code>，存在问题：<code>脏读、不可重复读、幻读</code>；</li><li><code>Read committed（读已提交）</code> ，存在问题：<code>不可重复读、幻读</code>；</li><li><code>Repeatable read（可重复读）</code>，存在问题：<code>幻读</code>；</li><li><code>Serializable（序列化）</code></li></ul><p><strong>事务的分类</strong></p><p>事务按照<code>一致性的强弱</code>可以划分为：<code>传统事务</code>和<code>柔性事务</code>，</p><p><code>柔性事务</code>允许系统存在中间状态，这个中间状态又不会影响系统整体可用性。</p><p><code>柔性事务</code>的实现方式包括：<code>记录日志+补偿</code>、<code>消息（多次重试，需要幂等处理）</code>、<code>CAS（乐观锁）不断重试</code>。</p><h4 id="分布式事务"><a href="#分布式事务" class="headerlink" title="分布式事务"></a>分布式事务</h4><p><code>分布式事务</code>是指事务的参与者位于分布式系统的不同节点。</p><p>分布式事务主要的关注点在于<code>一致性（分布式系统中不同节点的状态同步）</code>。</p><p><code>原子性</code>、<code>隔离性</code>、<code>持久性</code>是由分布式系统中不同的事务参与节点来保证。</p><p><strong><em>实现方式有</em></strong>：</p><ul><li><code>2PC（两阶段提交）</code></li><li><code>3PC（三阶段提交）</code></li><li><code>TCC（Try Confirm Cancel、补偿事务）</code></li><li><code>本地消息表（BASE）</code></li><li><code>事务消息（BASE）</code>。</li></ul><h5 id="XA"><a href="#XA" class="headerlink" title="XA"></a>XA</h5><p><code>XA</code>是由X/Open组织提出的<code>分布式事务规范</code>，是实现<code>2PC</code>与<code>3PC</code>的基础。</p><p><strong><em>组成</em></strong>：</p><ul><li><code>事务管理器（TM）</code>：分布式事务的协调者，负责各个资源管理器的本地事务的提交与回滚；</li><li><code>资源管理器（RM）</code>：分布式事务的参与者，管理参与者本地事务资源。</li></ul><h5 id="2PC"><a href="#2PC" class="headerlink" title="2PC"></a>2PC</h5><p><code>2PC（两阶段提交）</code>是通过<code>事务执行</code>与<code>事务提交</code>两个阶段来实现分布式事务。</p><p><code>2PC</code>中必然存在一个<code>协调者</code>，用于协调分布式系统中<code>事务的发起</code>与<code>事务提交/回滚</code>。</p><p><img src="/images/distributed_transaction_sequel_1.png" alt="2PC"></p><p><strong><em>步骤如下：</em></strong></p><ul><li><strong>阶段1（PreCommit）</strong>：<code>参与者</code>执行事务操作，并返回执行结果到<code>协调者</code>；</li><li><strong>阶段2（doCommit ）</strong>：<code>协调者</code>等待事务执行结果，如果结果均成功则<code>提交事务</code>，否则<code>回滚事务</code>（存在失败结果）。</li></ul><h6 id="存在的问题"><a href="#存在的问题" class="headerlink" title="存在的问题"></a>存在的问题</h6><p><strong>同步阻塞 &amp; 单点问题*</strong></p><p><code>在进入阶段2前协调者发生异常</code>，没有其他节点可以代替协调者的工作，从而造成协调者的<code>单点问题</code>，</p><p>与此同时，事务参与者由于没有协调者的下一步通知，将会一直阻塞直到协调者的恢复，从而形成<code>同步阻塞问题</code>。</p><p><strong>数据不一致</strong></p><p><code>阶段2中存在部分分布式节点执行失败</code>的情况，将会导致不同事务参与者数据不一致的情况。</p><h5 id="3PC"><a href="#3PC" class="headerlink" title="3PC"></a>3PC</h5><p><code>3PC（三阶段提交）</code>是通过<code>事务请求</code>、<code>事务执行</code>与<code>事务提交</code>三个阶段来实现分布式事务。</p><p><img src="/images/distributed_transaction_sequel_2.png" alt="3PC"></p><p><strong><em>步骤如下：</em></strong></p><ul><li><strong>阶段1（CanCommit）</strong>：<code>询问参与者</code>是否可以事务执行，主要用于检查参与者是否异常（宕机、通信异常）；</li><li><strong>阶段2（PreCommit）</strong>：同<code>2PC</code>，但<code>协调者</code>增加<code>等待超时机制</code>，如果存在超时的参与者则<code>默认参与者执行失败</code>（触发回滚）；</li><li><strong>阶段3（doCommit ）</strong>：同<code>2PC</code>，但<code>参与者</code>增加<code>等待超时机制</code>，如果存在超时的协调者则<code>默认协调者发出提交事务</code>。</li></ul><p><strong>与<code>2PC</code>不同之处</strong></p><ul><li><code>PreCommit</code>拆分为<code>CanCommit</code>和<code>PreCommit</code>，增加一步可达性判断；</li><li><code>协调者</code>与<code>参与者</code>均增加<code>等待超时机制</code>，实现事务的回滚和自动提交，解决了<code>同步阻塞</code>与<code>单点问题</code>。</li></ul><h6 id="存在的问题-1"><a href="#存在的问题-1" class="headerlink" title="存在的问题"></a>存在的问题</h6><p><strong>数据不一致</strong></p><p>在<code>阶段3</code>中，协调者在下发<code>回滚命令</code>的过程中出现异常，部分<code>参与者发生等待超时</code>，参与者会自动提交（与协调者命令不同）。</p><h5 id="BASE"><a href="#BASE" class="headerlink" title="BASE"></a>BASE</h5><blockquote><p><code>BASE</code>允许系统出现短暂性不可用或不一致的状态，只要能够在一定时间范围内最终达到可用或者一致状态即可。</p></blockquote><p><code>BASE</code>是由<code>基本可用（Base Availability）</code>、<code>软状态（Soft-state）</code>和<code>最终一致性（Eventual Consistency</code>。</p><h5 id="TCC"><a href="#TCC" class="headerlink" title="TCC"></a>TCC</h5><p><code>TCC（Try Confirm Cancel）</code>又称<code>补偿事务</code>，是<code>2PC</code>的一种实现，</p><p>其核心思想是：<code>针对每个操作都要注册一个与其对应的确认和补偿操作</code>。</p><p><img src="/images/distributed_transaction_sequel_3.png" alt="TCC"></p><p><strong><em>步骤如下：</em></strong></p><ul><li><strong>Try</strong>： 业务检查（保证事务的一致性）、资源预留（保证事务的隔离性）；</li><li><strong>Confirm</strong>： 执行操作，执行真正的业务逻辑；</li><li><strong>Cancel</strong>： 预留资源取消。</li></ul><p><strong>TCC与XA的不同之处</strong></p><ul><li><code>锁粒度不同</code>：资源锁定具体由业务决定；</li><li><code>最终一致性</code>：通过<code>Confirm</code>与<code>Cancel</code>实现最终的一致性；</li><li><code>业务耦合严重</code>：<code>Confirm</code>、<code>Cancel</code>操作与具体业务强关联；</li></ul><p>由于<code>Confirm</code>操作属于事务提交，因此，<code>TCC</code>中一般<code>不提供回滚操作</code>。</p><p><code>Cancel</code>属于锁定资源的释放，例如，订单预占库存的释放。</p><h5 id="本地消息表"><a href="#本地消息表" class="headerlink" title="本地消息表"></a>本地消息表</h5><p><code>本地消息表</code>是属于<code>BASE</code>理论的一种分布式事务的实现。</p><p><code>本地消息表</code>的主要思想是将<code>分布式事务拆分成本地事务</code>进行处理，分布式之间的通过本地的<code>事务消息表</code>来异步通信来实现。</p><p><strong>特点</strong></p><ul><li><code>最终一致性</code>：通过保证<code>事务消息的写入</code>与<code>事务消息的投递消费</code>来实现；</li><li><code>业务幂等</code>：由于存在异常重试机制来保证事务的一致性，因此业务必须保证幂等；</li><li><code>异步回滚</code>：业务需要支持类似<code>TCC的Cancel</code>操作，用于处理接收到的事务回滚消息；</li><li><code>业务耦合严重</code>：与TCC相同的业务耦合情况。</li></ul><h5 id="事务消息"><a href="#事务消息" class="headerlink" title="事务消息"></a>事务消息</h5><p><code>事务消息</code>是<code>本地消息表</code>的一种实现，解决了业务耦合严重的问题。</p><p><code>事务消息</code>是对本地消息表的封装，构建一套完整的事务消息中间件，保证<code>消息的写入与消费</code>来实现分布式事务。</p><p><img src="/images/distributed_transaction_sequel_4.png" alt="事务消息"></p><p>例如，<code>RocketMQ</code>实现了事务消息，可用于分布式事务。</p><p><strong>特点</strong></p><ul><li><code>最终一致性</code>：同<code>本地消息表</code>；</li><li><code>业务耦合小</code>：事务消息数据独立存储于中间件中；</li></ul><h4 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h4><p>首先，分布式事务产生的原因在于<code>应用拆分（微服务）</code>。</p><p>原本本地资源管理器就可以实现的事务，被拆分到多个应用，此时为了保证位于多个应用的事务操作就会想到使用分布式事务。</p><blockquote><p>但是，真的需要分布式事务么？</p></blockquote><p>分布式事务不仅会造成资源锁定，事务操作链路长，排查问题复杂。</p><p>应用的拆分往往都是基于业务（领域）边界的拆分，服务之间的状态也没必要真的实现强一致性。</p><p><code>最终一致性</code>往往是业务架构设计中需要考虑的，因此，业务中常用的分布式事务是类似于<code>RocketMQ</code>这种中间件来实现。</p><p>按照领域拆分不同的领域事件消息，通过可靠的消息写入与消费来实现业务的最终一致性。</p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;时隔两年，再从新学习一下分布式事务。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="架构" scheme="http://simyy.cn/categories/%E6%9E%B6%E6%9E%84/"/>
+    
+    
+      <category term="分布式" scheme="http://simyy.cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    
+      <category term="架构" scheme="http://simyy.cn/tags/%E6%9E%B6%E6%9E%84/"/>
+    
+      <category term="事务" scheme="http://simyy.cn/tags/%E4%BA%8B%E5%8A%A1/"/>
+    
+  </entry>
   
   <entry>
     <title>NoSQL分类</title>
@@ -499,32 +525,6 @@
       <category term="架构" scheme="http://simyy.cn/tags/%E6%9E%B6%E6%9E%84/"/>
     
       <category term="微服务" scheme="http://simyy.cn/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java 锁与多线程协作</title>
-    <link href="http://simyy.cn/2019/05/14/java-lock/"/>
-    <id>http://simyy.cn/2019/05/14/java-lock/</id>
-    <published>2019-05-14T11:14:15.000Z</published>
-    <updated>2020-01-09T06:45:57.042Z</updated>
-    
-    <content type="html"><![CDATA[<p>一般谈到多线程都会谈到<code>锁</code>这个概念，通过限制并发控制来保证操作互斥的要求。</p><a id="more"></a><p><strong>锁</strong>：在执行多线程时用于强行限制资源访问的同步机制，即用于在并发控制中保证对互斥要求的满足（wikipedia）。</p><p><img src="/images/java_lock_1.png" alt=""></p><h3 id="Synchronized"><a href="#Synchronized" class="headerlink" title="Synchronized"></a>Synchronized</h3><p><code>Synchronized</code>是Java中提供的最基础的悲观锁。</p><blockquote><p><strong>悲观锁</strong>：它可以阻止一个事务以影响其他用户的方式来修改数据（wikipedia）。</p></blockquote><p><code>Synchronized</code>是通过<code>Monitor</code>来实现的，通过<code>javap</code>命令生成的字节码大体结构如下，</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">method ...</span><br><span class="line">    ...</span><br><span class="line">    monitorenter // 加锁</span><br><span class="line">    ...</span><br><span class="line">    aload 0</span><br><span class="line">    moniterexit // 解锁</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure><p>注意上面的<code>monitorenter</code>和<code>monitorexit</code>对应着加锁和解锁的操作。</p><blockquote><p><strong>Monitor</strong>：一种线程同步机制，每个Java对象都持有一个Monitor锁(再下面会仔细介绍)。<br><code>Key Point 1</code>: 每个线程都有一个<code>Monitor Record 列表</code>；<br><code>Key Point 2</code>: 每个被锁住的对象都会与当前线程的<code>Monitor Record 列表</code>关联;<br><code>Key Point 3</code>: <code>Monitor的Owner字段</code>存放持有锁的线程的唯一标识;</p></blockquote><blockquote><p><strong>对象头</strong>：每一个对象都包含了一个<code>Mark Word</code>字段，默认存储<code>对象的HashCode</code>，<code>分代年龄</code>和<code>锁标志位</code>信息。</p></blockquote><p>每当一个线程执行到<code>Synchronized</code>包裹的代码块时，都会先查询当前线程是否已经持有或可以持有当前对象的Monitor锁。</p><blockquote><p><strong>问题</strong>：线程切换耗时可能比用户代码执行的之间还要长，从而频繁线程切换会浪费大量的时间。</p></blockquote><p>在JDK 1.6开始，<code>HotSpot虚拟机</code>开发团队开始对Java中的锁进行优化，加入了<code>适应性自旋</code>、<code>锁消除</code>、<code>锁粗化</code>、<code>轻量级锁</code>和<code>偏向锁</code>等针对<code>Synchronized</code>的优化。</p><blockquote><p>推荐看一下这篇文章对锁优化的总结：<a href="https://tech.meituan.com/2018/11/15/java-lock.html" target="_blank" rel="noopener">不可不说的Java“锁”事</a></p></blockquote><h4 id="synchronized-amp-volatile"><a href="#synchronized-amp-volatile" class="headerlink" title="synchronized &amp; volatile"></a>synchronized &amp; volatile</h4><p><strong>可见性&amp;原子性</strong>：<code>volatile</code>仅能保证变量修改的可见性，不能保证原子性；<code>synchronized</code>即可以保证变量的修改可见性，又能保证变量修改的原子性。</p><p><strong>线程阻塞</strong>：<code>volatile</code>不会造成线程阻塞，<code>synchronized</code>会造成线程阻塞。</p><p><strong>用法</strong>：<code>volatile</code>仅能用在变量，<code>synchronized</code>可以使用在变量、方法和类。</p><h4 id="锁的膨胀"><a href="#锁的膨胀" class="headerlink" title="锁的膨胀"></a>锁的膨胀</h4><blockquote><p><code>偏向锁</code>和<code>轻量级锁</code>是乐观锁，基于CAS来实现的，而<code>重量级锁</code>是悲观锁，基于底层的操作系统的<code>Mutex Lock（互斥锁）</code>来实现的。</p></blockquote><p><code>偏向锁</code>：仅一个线程进入临界区，当前对象会持有<code>偏向锁</code>。</p><p><code>轻量级锁</code>：当两个线程交替进入临界区，会发生锁的升级，更新到<code>轻量级锁</code>。</p><p><code>重量级锁</code>：当多个线程同时进入临界区或者线程自旋的次数太大的时候，会发生锁的升级，更新到<code>重量级锁</code>。</p><h3 id="Object-wait-notify"><a href="#Object-wait-notify" class="headerlink" title="Object wait/notify"></a>Object wait/notify</h3><p>Object提供了<code>wait</code>和<code>notify</code>来实现多线程协作，而其底层实现也是基于<code>Monitor</code>来实现的。</p><p>对于每一个对象都存在一个<code>ObjectMonitor结构</code>,</p><blockquote><p><strong>Owner</strong>：当前持有锁的线程ID；<br><strong>WaitSet</strong>：存放处于wait状态的线程队列；<br><strong>EntryList</strong>：存放处于等待锁block状态的线程队列。</p></blockquote><p><strong>步骤：</strong></p><ol><li>当多个线程同时访问一段同步代码时，会进入<code>EntryList</code>队列中尝试获取锁。</li><li>当一个线程获取到锁的时候会更新对象的<code>Owner</code>字段中的线程ID为当前线程ID。</li><li>当线程调用<code>wait</code>方法时，释放当前对象的Monitor，<code>Owner</code>字段恢复为null，当前线程加入到<code>WaitSet</code>中等待被其他线程唤醒。</li><li>当线程调用<code>notify</code>方法时，释放当前对象得Monitor，<code>Owner</code>字段恢复为null，并唤醒处于<code>WaitSet</code>中的线程。</li></ol><h3 id="AQS"><a href="#AQS" class="headerlink" title="AQS"></a>AQS</h3><p><code>AQS</code>是一个用来构建锁和同步器的框架，例如<code>ReentrantLock</code>、<code>ReentrantReadWriteLock</code>等皆是基于AQS来实现的。</p><blockquote><p><strong>核心思想</strong>：</p><ol><li>如果被请求的共享资源空闲，则将当前请求资源的线程设置为有效的工作线程，并且将共享资源设置为锁定状态。</li><li>如果被请求的共享资源被占用，那么就需要一套<code>线程阻塞等待</code>以及<code>被唤醒时锁分配</code>的机制(CLH队列锁)。</li></ol></blockquote><p><img src="/images/java_lock_3.png" alt=""></p><p><code>CLH(Craig,Landin,and Hagersten)队列</code>是一个虚拟的双向队列（虚拟的双向队列即不存在队列实例，仅存在结点之间的关联关系）。</p><p><code>AQS</code>是将每条请求共享资源的线程封装成一个<code>CLH锁队列的一个结点（Node）</code>来实现锁的分配。</p><p><code>AQS</code>定义两种资源共享方式：<code>独占</code>和<code>共享</code>。</p><p><code>独占</code>是只有一个线程能执行（如如ReentrantLock等），而<code>共享</code>是允许多个线程同时执行（如Semaphore等）。</p><blockquote><p><code>独占</code>模式下又可分为<code>公平锁</code>和<code>非公平锁</code>。</p><p><code>公平锁</code>：按照线程在队列中的排队顺序，先到者先拿到锁；<br><code>非公平锁</code>：当线程要获取锁时，无视队列顺序直接去抢锁，谁抢到就是谁的。</p></blockquote><h3 id="重入"><a href="#重入" class="headerlink" title="重入"></a>重入</h3><p><code>Synchronized</code>与<code>JUC lock</code>都是<code>可重入</code>的。</p><p><code>可重入</code>是同一线程可以重复获得当前锁，也是为了<code>避免死锁问题</code>。</p><h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><p><a href="https://www.jianshu.com/p/f4454164c017" target="_blank" rel="noopener">https://www.jianshu.com/p/f4454164c017</a><br><a href="https://blog.csdn.net/kobejayandy/article/details/39975339" target="_blank" rel="noopener">https://blog.csdn.net/kobejayandy/article/details/39975339</a><br><a href="https://tech.meituan.com/2018/11/15/java-lock.html" target="_blank" rel="noopener">https://tech.meituan.com/2018/11/15/java-lock.html</a><br><a href="https://www.hollischuang.com/archives/2030" target="_blank" rel="noopener">https://www.hollischuang.com/archives/2030</a></p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;一般谈到多线程都会谈到&lt;code&gt;锁&lt;/code&gt;这个概念，通过限制并发控制来保证操作互斥的要求。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="编程语言" scheme="http://simyy.cn/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
-    
-    
-      <category term="编程语言" scheme="http://simyy.cn/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
-    
-      <category term="Java" scheme="http://simyy.cn/tags/Java/"/>
-    
-      <category term="锁" scheme="http://simyy.cn/tags/%E9%94%81/"/>
     
   </entry>
   

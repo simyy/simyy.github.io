@@ -60,9 +60,9 @@
       <category term="架构" scheme="http://simyy.cn/categories/%E6%9E%B6%E6%9E%84/"/>
     
     
-      <category term="架构" scheme="http://simyy.cn/tags/%E6%9E%B6%E6%9E%84/"/>
-    
       <category term="分布式" scheme="http://simyy.cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    
+      <category term="架构" scheme="http://simyy.cn/tags/%E6%9E%B6%E6%9E%84/"/>
     
       <category term="事务" scheme="http://simyy.cn/tags/%E4%BA%8B%E5%8A%A1/"/>
     
@@ -396,9 +396,9 @@
     
       <category term="中间件" scheme="http://simyy.cn/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
     
-      <category term="架构" scheme="http://simyy.cn/tags/%E6%9E%B6%E6%9E%84/"/>
-    
       <category term="分布式" scheme="http://simyy.cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    
+      <category term="架构" scheme="http://simyy.cn/tags/%E6%9E%B6%E6%9E%84/"/>
     
       <category term="任务调度" scheme="http://simyy.cn/tags/%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6/"/>
     

@@ -5,22 +5,22 @@
   
   <title>再谈事务与分布式事务 | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="时隔两年，再从新学习一下分布式事务。">
-<meta name="keywords" content="分布式,架构,事务">
+  <meta name="description" content="时隔两年，再从新学习一下事务以及分布式事务。">
+<meta name="keywords" content="架构,分布式,事务">
 <meta property="og:type" content="article">
 <meta property="og:title" content="再谈事务与分布式事务">
 <meta property="og:url" content="http://simyy.cn/2020/05/08/distributed-transaction-sequel/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="时隔两年，再从新学习一下分布式事务。">
+<meta property="og:description" content="时隔两年，再从新学习一下事务以及分布式事务。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://simyy.cn/images/distributed_transaction_sequel_1.png">
 <meta property="og:image" content="http://simyy.cn/images/distributed_transaction_sequel_2.png">
 <meta property="og:image" content="http://simyy.cn/images/distributed_transaction_sequel_3.png">
 <meta property="og:image" content="http://simyy.cn/images/distributed_transaction_sequel_4.png">
-<meta property="og:updated_time" content="2020-05-08T14:35:19.416Z">
+<meta property="og:updated_time" content="2020-05-12T07:25:20.303Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="再谈事务与分布式事务">
-<meta name="twitter:description" content="时隔两年，再从新学习一下分布式事务。">
+<meta name="twitter:description" content="时隔两年，再从新学习一下事务以及分布式事务。">
 <meta name="twitter:image" content="http://simyy.cn/images/distributed_transaction_sequel_1.png">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
@@ -87,19 +87,55 @@
 	</header>
 	<div class="entry-content">
 		
-    	<p>时隔两年，再从新学习一下分布式事务。</p>
+    	<p>时隔两年，再从新学习一下事务以及分布式事务。</p>
 <a id="more"></a>
 <h4 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h4><p><strong>什么是事务?</strong></p>
 <p>事务是<code>恢复和并发控制</code>的基本单位。</p>
-<p><strong>事务的ACID特性</strong></p>
-<ul>
+<h5 id="事务的ACID特性"><a href="#事务的ACID特性" class="headerlink" title="事务的ACID特性"></a>事务的ACID特性</h5><ul>
 <li><code>Atomic（原子性）</code>：事务内操作要么全成功要么全失败；</li>
-<li><code>Consistent（一致性）</code>：事务完成后所有数据的状态都是一致的（均同时发生变更）；</li>
+<li><code>Consistent（一致性）</code>：事务完成后所有数据的状态都是一致的（均发生变更）；</li>
 <li><code>Isolation（隔离性）</code>：事务之间互不影响；</li>
 <li><code>Duration（持久性）</code>：事务的修改被持久化保存。</li>
 </ul>
-<p><strong>事务的隔离级别</strong></p>
+<p><strong>原子性</strong></p>
+<blockquote>
+<p>原子是化学中不可再分的最小单位。</p>
+</blockquote>
+<p>事务中的原子性可以理解为事务操作的不可拆分，</p>
+<p>也就是说，同一个事务内部的所有操作不可拆分，要么全部执行成功，要么全部执行失败。</p>
+<p>原子性的另外一层含义是<code>事务内的操作可回滚</code>，也就是存在部分执行失败的情况下恢复数据。</p>
+<p><strong>隔离性</strong></p>
+<p>隔离是用于解决事务并发的资源竞争问题。</p>
+<p><code>锁</code>是用来解决隔离的唯一手段，可分为<code>悲观锁</code>和<code>乐观锁</code>。</p>
 <ul>
+<li>悲观锁：对事务对象加锁，实现顺序执行（Serializable隔离级别属于这种情况）；</li>
+<li>乐观锁：基于多版本冲突检测，实现并发执行；</li>
+</ul>
+<p>多版本数据隔离的实现又可划分：<code>基于物理存储的实现</code>与<code>基于内存存储的实现</code>，</p>
+<ul>
+<li>基于物理存储：多版本数据更新写入磁盘（持久化），支持异常恢复；</li>
+<li>基于内存存储：多版本数据更新仅存储在内存，性能好，异常无法恢复。</li>
+</ul>
+<blockquote>
+<p><code>Undo Log</code>是MySQL事务隔离性的关键。</p>
+</blockquote>
+<p><strong>持久化</strong></p>
+<p>持久化是数据一致性的最终保证。</p>
+<p>数据库的持久化存在两层含义：<code>数据落盘</code>与<code>数据备份</code>。</p>
+<ul>
+<li>数据落盘：事务变更写入磁盘存储；</li>
+<li>数据备份：事务变更不仅进入本地磁盘存储，同时同步到数据库的副本；</li>
+</ul>
+<p>数据落盘一般会包含两个阶段：<code>写入缓存</code>与<code>写入磁盘</code>，</p>
+<blockquote>
+<p>缓存的使用可以带来性能的提高，但也会带来数据丢失的风险。</p>
+</blockquote>
+<p><strong>一致性</strong></p>
+<p>没有解决事务操作的原子性，就无法实现事务数据变更的一致性；</p>
+<p>没有解决事务并发执行的问题，就无法实现事务操作的隔离，也无法实现事务数据变更的一致性；</p>
+<p>没有合理的持久化策略，即使保证了原子性，但没有写入磁盘或无法从异常中恢复，也无法实现事务数据变更的一致性；</p>
+<p>因此，<code>原子性</code>、<code>隔离性</code>与<code>持久化</code>是实现一致性的基础。</p>
+<h5 id="事务的隔离级别"><a href="#事务的隔离级别" class="headerlink" title="事务的隔离级别"></a>事务的隔离级别</h5><ul>
 <li><code>脏读</code>：读取到未提交的数据。</li>
 <li><code>不可重复度</code>：数据的修改。</li>
 <li><code>幻读</code>：数据的增加。</li>
@@ -111,8 +147,10 @@
 <li><code>Repeatable read（可重复读）</code>，存在问题：<code>幻读</code>；</li>
 <li><code>Serializable（序列化）</code></li>
 </ul>
-<p><strong>事务的分类</strong></p>
-<p>事务按照<code>一致性的强弱</code>可以划分为：<code>传统事务</code>和<code>柔性事务</code>，</p>
+<blockquote>
+<p>在<code>Read committed</code>与<code>Repeatable read</code>隔离级别下，MySQL的InnoDB使用MVCC来解决<code>不可重复读</code>、<code>幻读</code>的问题。</p>
+</blockquote>
+<h5 id="事务的分类"><a href="#事务的分类" class="headerlink" title="事务的分类"></a>事务的分类</h5><p>事务按照<code>一致性的强弱</code>可以划分为：<code>传统事务</code>和<code>柔性事务</code>，</p>
 <p><code>柔性事务</code>允许系统存在中间状态，这个中间状态又不会影响系统整体可用性。</p>
 <p><code>柔性事务</code>的实现方式包括：<code>记录日志+补偿</code>、<code>消息（多次重试，需要幂等处理）</code>、<code>CAS（乐观锁）不断重试</code>。</p>
 <h4 id="分布式事务"><a href="#分布式事务" class="headerlink" title="分布式事务"></a>分布式事务</h4><p><code>分布式事务</code>是指事务的参与者位于分布式系统的不同节点。</p>
@@ -208,12 +246,22 @@
 <p>应用的拆分往往都是基于业务（领域）边界的拆分，服务之间的状态也没必要真的实现强一致性。</p>
 <p><code>最终一致性</code>往往是业务架构设计中需要考虑的，因此，业务中常用的分布式事务是类似于<code>RocketMQ</code>这种中间件来实现。</p>
 <p>按照领域拆分不同的领域事件消息，通过可靠的消息写入与消费来实现业务的最终一致性。</p>
+<h4 id="扩展阅读"><a href="#扩展阅读" class="headerlink" title="扩展阅读"></a>扩展阅读</h4><p><a href="https://www.zhihu.com/question/3027272" target="_blank" rel="noopener">数据库事务原子性、一致性是怎样实现的？</a>8</p>
 
     
 	</div>
 	
     
 <nav id="article-nav">
+  
+    <a href="/2020/05/14/java-64bit-jvm-compressed-pointer/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          JVM在64位系统上的指针压缩
+        
+      </div>
+    </a>
   
   
     <a href="/2020/05/07/nosql-classify/" id="article-nav-older" class="article-nav-link-wrap">

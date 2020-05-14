@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>JVM在64位系统上的指针压缩 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="记录下JVM在64位系统上的指针压缩。">
+<meta name="keywords" content="编程语言,Java,JVM">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JVM在64位系统上的指针压缩">
+<meta property="og:url" content="http://simyy.cn/2020/05/14/java-64bit-jvm-compressed-pointer/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="记录下JVM在64位系统上的指针压缩。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-05-14T00:20:10.172Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JVM在64位系统上的指针压缩">
+<meta name="twitter:description" content="记录下JVM在64位系统上的指针压缩。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<script src="/js/hexo_resize_image.js"></script>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">主页</a></li><li><a href="/2014/07/07/book-list">书单</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      
+
+
+<article id="post-java-64bit-jvm-compressed-pointer" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2020/05/14/java-64bit-jvm-compressed-pointer/" class="article-date">
+  <time datetime="2020-05-14T00:19:23.000Z" itemprop="datePublished">2020-05-14</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JVM/">JVM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/编程语言/">编程语言</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      JVM在64位系统上的指针压缩
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>记录下JVM在64位系统上的指针压缩。</p>
+<a id="more"></a>
+<p><code>寻址能力不同</code>是32位与64位操作系统的不同之处。</p>
+<p><code>32位</code>操作系统最大支持<code>4G内存（2^32）</code>，而<code>64位</code>操作系理论上最大支持<code>16384PB（2^64）</code>。</p>
+<p><strong>指针占用字节的不同：</strong></p>
+<ul>
+<li>64位JVM占用8个字节</li>
+<li>32位JVM占用4个字节</li>
+</ul>
+<p>同样的指针加载，64位JVM会占用更多的内存，也就是所谓的<code>&quot;64位JVM是32位JVM内存消耗的1.5位&quot;</code>。</p>
+<p><strong>CompressedOops与UseCompressedClassPointers</strong></p>
+<p><code>CompressedOops与UseCompressedClassPointers</code>是用来压缩空间的，用于解决JVM在32位与64位操作系统上内存占用问题。</p>
+<p><code>CompressedOops</code>是指开启普通对象指针的压缩（Ordinary Object Pointer），用于提高堆的使用效率。</p>
+<p><code>UseCompressedClassPointers</code>是指开启类指针压缩。</p>
+<p><code>堆内存在&quot;4G~32G&quot;</code>的范围内，可使用指针压缩技术来提高堆内存的使用效率。</p>
+<hr>
+<p><strong>举例</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123; <span class="keyword">int</span> a; &#125;</span><br><span class="line"></span><br><span class="line">`A a = <span class="keyword">new</span> A()`,</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>HotSpot的对齐方式为<code>8字节对齐</code>:</p>
+<p>对象内存 = 对象头 + 实例数据 + padding，</p>
+<p>其中 0 &lt;= padding &lt; 8。</p>
+</blockquote>
+<p>64位系统的JVM默认（未开启指针压缩）情况下，<code>指针a（引用）</code>占用8个字节，<code>对应的对象</code>占用24个字节：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">24(对象内存, 8字节对齐) = 16（对象头） + 4（int a）+ 4 (padding 补位对齐)</span><br></pre></td></tr></table></figure>
+<p>64位系统的JVM默认（开启指针压缩）情况下，<code>指针a（引用）</code>占用4个字节，<code>对应的对象</code>占用16个字节：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">16(对象内存, 8字节对齐) = 12（对象头） + 4（int a）+ 0 (padding 补位对齐)</span><br></pre></td></tr></table></figure>
+<hr>
+<p><code>CompressedOops</code>与<code>UseCompressedClassPointers</code>必须同时使用（默认开启），否则无法生效。</p>
+<p>Java8默认开启了这个配置，在没有配置<code>MetaspaceSize</code>的情况下，会自动申请<code>1G</code>大小的<code>CompressedClassSpaceSize</code>。</p>
+<blockquote>
+<p><code>MetaSpace</code>用来存储<code>klass（JVM中class的运行时数据结构）</code>的。</p>
+</blockquote>
+<p>无论如何配置，<code>CompressedClassSpaceSize</code>总是小于<code>MetaspaceSize（默认为宿主机的最大内存）</code>。</p>
+<p>也就是说<code>CompressedClassSpaceSize</code>属于<code>MetaspaceSize</code>的一部分。</p>
+<p>开启命令如下，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-XX:+UseCompressedClassPointers</span><br><span class="line">-XX:+UseCompressedOops</span><br><span class="line">-XX:CompressedClassSpaceSize=128m</span><br></pre></td></tr></table></figure>
+<p>但一般我们只需要设置好MetaSpace，如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-XX:MetaspaceSize=128m</span><br><span class="line">-XX:MaxMetaspaceSize=128m</span><br></pre></td></tr></table></figure>
+<p>JVM会默认开启指针压缩，并且自动配置<code>CompressedClassSpaceSize</code>的大小。</p>
+<p><strong>非堆内存划分</strong></p>
+<p><code>CodeCache</code>：用于存储经过<code>JIT编译优化后的代码</code>。</p>
+<p><code>JIT编译器（即时编译器）</code>生成<code>Hot Spot Code（热点代码）</code>，从而提高执行效率。</p>
+<p><code>MetaSpace</code>：用于存储<code>Class在JVM中的数据结构klass</code>，包含类的所有元数据数据（方法、字节码、常量池等）。</p>
+<p><code>CompressedClassSpace</code>：是分配在<code>MetaSpace</code>中，用于指令压缩，只包含类的部分元数据（InstansKlass/ArrayKlass等）。</p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/05/08/distributed-transaction-sequel/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          再谈事务与分布式事务
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2020 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

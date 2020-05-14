@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="simyy">
 <meta property="og:description" content="记录下JVM在64位系统上的指针压缩。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-05-14T00:20:10.172Z">
+<meta property="og:updated_time" content="2020-05-14T02:30:25.516Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JVM在64位系统上的指针压缩">
 <meta name="twitter:description" content="记录下JVM在64位系统上的指针压缩。">
@@ -116,7 +116,6 @@
 <p><code>MetaSpace</code>用来存储<code>klass（JVM中class的运行时数据结构）</code>的。</p>
 </blockquote>
 <p>无论如何配置，<code>CompressedClassSpaceSize</code>总是小于<code>MetaspaceSize（默认为宿主机的最大内存）</code>。</p>
-<p>也就是说<code>CompressedClassSpaceSize</code>属于<code>MetaspaceSize</code>的一部分。</p>
 <p>开启命令如下，</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-XX:+UseCompressedClassPointers</span><br><span class="line">-XX:+UseCompressedOops</span><br><span class="line">-XX:CompressedClassSpaceSize=128m</span><br></pre></td></tr></table></figure>
 <p>但一般我们只需要设置好MetaSpace，如下</p>

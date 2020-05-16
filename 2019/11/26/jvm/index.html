@@ -17,7 +17,7 @@
 <meta property="og:image" content="http://simyy.cn/images/JVM_2.jpg">
 <meta property="og:image" content="http://simyy.cn/images/JVM_3.jpg">
 <meta property="og:image" content="http://simyy.cn/images/JVM_4.png">
-<meta property="og:updated_time" content="2020-05-16T01:33:54.281Z">
+<meta property="og:updated_time" content="2020-05-16T01:36:54.940Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java 虚拟机">
 <meta name="twitter:description" content="Java虚拟机（Java Virtual Machine）是一种能够运行Java字节码的虚拟机。">
@@ -148,6 +148,7 @@
 <p>由于<code>JDK1.8</code>默认开启了<code>-XX:+UseCompressedClassPointers</code>，<code>CompressedClassSpace</code>默认值为<code>1G</code>，因此会发现JVM进程占用的内存会多出来1G。</p>
 <p><code>元空间(Metaspace)</code>默认最大为宿主机内存，存储<code>klass（JVM中class的数据结构）</code>。</p>
 <p>当开启了指令压缩（仅64位JVM）的情况下，<code>CompressedClassSpace</code>会自动申请不大于<code>Metaspace</code>中的空间大小。</p>
+<p><code>CodeCache</code>是用来存储JIT编译生成的<code>热点代码（HotSpotCode）</code>，用于加速运行。</p>
 <hr>
 <p><strong>堆</strong>：<code>线程共享</code>，用于存储对象，是<code>GC</code>的主要区域。</p>
 <p>与<code>C/C++</code>不同之处就在于此，<code>Java虚拟机</code>为开发者省去了内存管理的麻烦，也降低了软件开发和维护的难度。</p>

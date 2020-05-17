@@ -21,7 +21,7 @@
 <meta property="og:image" content="http://simyy.cn/images/gc-6.png">
 <meta property="og:image" content="http://simyy.cn/images/gc-7.png">
 <meta property="og:image" content="http://simyy.cn/images/gc-8.png">
-<meta property="og:updated_time" content="2019-12-17T02:33:18.210Z">
+<meta property="og:updated_time" content="2020-05-17T03:35:35.210Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="垃圾回收GC">
 <meta name="twitter:description" content="现代语言中，大多数都实现了垃圾回收功能，不再需要开发者自己来释放无用的内存资源，大大提高了开发效率。">
@@ -169,11 +169,16 @@
 <h3 id="Concurrent-Mark-Sweep"><a href="#Concurrent-Mark-Sweep" class="headerlink" title="Concurrent Mark Sweep"></a>Concurrent Mark Sweep</h3><p><code>CMS</code>在进行垃圾收集时，应用程序是可以并行运行的，因此，它减少了垃圾收集时暂停应用程序的时间。<br>垃圾回收的四个阶段如下，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">1. Initial Mark阶段</span><br><span class="line">程序暂停运行`Stop-The-Word`，标记到根对象的第一层孩子节点即停止 ，然后程序恢复运行。由于只标记一层节点，所以暂停时间很短。</span><br><span class="line"></span><br><span class="line">2. Concurrent Mark阶段</span><br><span class="line">以Initial Mark阶段标记的节点为根对象，重新开始标记Tenured区域中的可达对象（不需要暂停应用程序，因此称为&quot;Concurrent Mark&quot;）。</span><br><span class="line">由于CMS垃圾回收器和应用程序同时运行，Concurrent Mark阶段它并不保证在Tenured区域的可达对象都被标记了（分配新对象）。</span><br><span class="line"></span><br><span class="line">3. Remark阶段</span><br><span class="line">暂停应用程序，确保所有的可达对象都被标记（Concurrent Mark阶段未标记的，`可多线程标记`）。</span><br><span class="line"></span><br><span class="line">4. Concurrent Sweep阶段</span><br><span class="line">恢复应用程序的执行，执行sweep来清除所有非可达对象所占用的内存空间。</span><br></pre></td></tr></table></figure></p>
 <p>与<code>PS</code>相比，<code>CS</code>垃圾回收算法可以减少程序暂停的时间。</p>
 <p><img src="/images/gc-7.png" alt=""></p>
-<h3 id="Garbage-First"><a href="#Garbage-First" class="headerlink" title="Garbage First"></a>Garbage First</h3><p>CMS垃圾收集器虽然减少了暂停应用程序的运行时间，但是由于它没有Compact阶段，它还是存在着内存碎片问题。于是，为了去除内存碎片问题，同时又保留CMS垃圾收集器低暂停时间的优点，JAVA7发布了一个新的垃圾收集器 - G1垃圾收集器。</p>
+<h3 id="Garbage-First"><a href="#Garbage-First" class="headerlink" title="Garbage First"></a>Garbage First</h3><p>CMS垃圾收集器虽然减少了暂停应用程序的运行时间，但是由于它没有Compact阶段，它还是存在着内存碎片问题。</p>
+<p>于是，为了去除内存碎片问题，同时又保留CMS垃圾收集器低暂停时间的优点，JAVA7发布了一个新的垃圾收集器 - G1垃圾收集器。</p>
 <p><img src="/images/gc-8.png" alt=""></p>
-<p>G1垃圾收集器和CMS垃圾收集器有几点不同，最大的不同是内存的组织方式变了。Eden，Survivor和Tenured等内存区域不再是连续的了，而是变成了一个个大小一样的region - 每个region从1M到32M不等。</p>
+<p>G1垃圾收集器和CMS垃圾收集器有几点不同，最大的不同是内存的组织方式变了。</p>
+<p>Eden，Survivor和Tenured等内存区域不再是连续的了，而是变成了一个个大小一样的region - 每个region从1M到32M不等。</p>
 <p><code>G1</code>垃圾回收的四个阶段如下，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">1. Initial Mark阶段</span><br><span class="line">同CMS垃圾收集器的Initial Mark阶段一样，程序暂停运行`Stop-The-Word`，标记到根对象的第一层孩子节点即停止 ，然后程序恢复运行。</span><br><span class="line">由于只标记一层节点。但它不会单独暂停应用程序的执行，而是在G1触发minor gc是发生。</span><br><span class="line"></span><br><span class="line">2. Concurrent Mark阶段</span><br><span class="line">同CMS垃圾收集器的Concurrent Mark阶段一样，重新开始标记Tenured区域中的可达对象（不需要暂停应用程序）。</span><br><span class="line">但G1还会回收掉Tenured region中对象的存活率很小或者基本没有对象存活的内存区域（不需要等待clean up阶段，因此成为Garbage First），并计算每个 region的对象存活率以供clean up阶段使用 。</span><br><span class="line"></span><br><span class="line">3. Remark阶段 </span><br><span class="line">同CMS垃圾收集器的Remark阶段一样, 但G1采用一种叫做SATB(snapshot-at-the-begining)的算法能够在Remark阶段更快的标记可达对象。</span><br><span class="line"></span><br><span class="line">4. Clean up/Copy阶段</span><br><span class="line">与CMS中不同，它有一个Clean up/Copy阶段，在minor gc发生的同时G1会挑选出那些对象存活率低的region进行回收。</span><br></pre></td></tr></table></figure></p>
 <p>由于Initial Mark阶段和Clean up/Copy阶段都是跟minor gc同时发生的，相比于CMS，G1暂停应用程序的时间更少，从而提高了垃圾回收的效率。</p>
+<p>G1提供两种GC模式：<code>Young GC</code>与<code>Mixed GC</code>。</p>
+<p><code>Young GC</code>属于G1的新生代回收算法，仅会扫描新生代中的Region进行回收。</p>
+<p><code>Mixed GC</code>属于G1的老年代回收算法，不仅仅会扫描新生代中的Region进行回收，而且会统计出老年代中高收益Region进行回收，因此，<code>Mixed GC</code>并不属于<code>Full GC</code>。</p>
 
     
 	</div>

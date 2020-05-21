@@ -3,20 +3,20 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>Python 序列 | simyy</title>
+  <title>Python列表 | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="序列list是python中最基本的数据结构，序列都可以进行的操作包括索引，切片，加，乘，检查成员。">
+  <meta name="description" content="记录Python列表的一些优雅的写法。">
 <meta name="keywords" content="编程语言,Python">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Python 序列">
+<meta property="og:title" content="Python列表">
 <meta property="og:url" content="http://simyy.cn/2017/04/08/python-list/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="序列list是python中最基本的数据结构，序列都可以进行的操作包括索引，切片，加，乘，检查成员。">
+<meta property="og:description" content="记录Python列表的一些优雅的写法。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-17T02:27:40.143Z">
+<meta property="og:updated_time" content="2020-05-19T11:55:34.032Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Python 序列">
-<meta name="twitter:description" content="序列list是python中最基本的数据结构，序列都可以进行的操作包括索引，切片，加，乘，检查成员。">
+<meta name="twitter:title" content="Python列表">
+<meta name="twitter:description" content="记录Python列表的一些优雅的写法。">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -75,22 +75,17 @@
 		
   
     <h1 class="article-title entry-title" itemprop="name">
-      Python 序列
+      Python列表
     </h1>
   
 
 	</header>
 	<div class="entry-content">
 		
-    	<p>序列<code>list</code>是python中最基本的数据结构，序列都可以进行的操作包括索引，切片，加，乘，检查成员。<br><a id="more"></a><br>列表生成式即List Comprehensions，是Python内置的非常简单却强大的可以用来创建list的生成式。</p>
-<h2 id="一个循环"><a href="#一个循环" class="headerlink" title="一个循环"></a>一个循环</h2><p>在C语言等其他语言中，for循环一般是这样的</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">x = list()</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">10</span>)</span><br><span class="line">    x.append(x)</span><br><span class="line">```　　</span><br><span class="line"></span><br><span class="line">如果python也这么写，那么真该看下python的基础教程了~</span><br><span class="line"></span><br><span class="line">```python</span><br><span class="line">x = [x <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">10</span>)]</span><br></pre></td></tr></table></figure>
-<p>　　<br>在上面的例子中，不仅可以嵌套for，甚至可以嵌套if语句</p>
-<p>再看看，原来是什么样子<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x = [x for x in range(10) if x &gt; 5]</span><br></pre></td></tr></table></figure></p>
-<p>　　</p>
-<h2 id="两个循环呢？"><a href="#两个循环呢？" class="headerlink" title="两个循环呢？"></a>两个循环呢？</h2><p>原来可能是这样的？</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">x = list()</span><br><span class="line">for i in range(10):</span><br><span class="line">    for j in range(10):</span><br><span class="line">    	x.append(i + j)</span><br><span class="line">```　　</span><br><span class="line"></span><br><span class="line">现在可以这样了！！！</span><br></pre></td></tr></table></figure>
-<p>x = [x + y for x in range(10) for y in range(10)]<br><code>`</code></p>
+    	<p>记录Python列表的一些优雅的写法。</p>
+<a id="more"></a>
+<h4 id="单循环"><a href="#单循环" class="headerlink" title="单循环"></a>单循环</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 普通写法</span></span><br><span class="line">x = list()</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">10</span>)</span><br><span class="line">    x.append(x)</span><br><span class="line">```　　</span><br><span class="line"></span><br><span class="line"><span class="comment"># 优雅写法</span></span><br><span class="line">x = [x <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">10</span>)]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 增加if判断</span></span><br><span class="line">x = [x <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">10</span>) <span class="keyword">if</span> x &gt; <span class="number">5</span>]</span><br></pre></td></tr></table></figure>
+<h4 id="多层循环"><a href="#多层循环" class="headerlink" title="多层循环"></a>多层循环</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 普通写法</span></span><br><span class="line">x = list()</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">10</span>):</span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> range(<span class="number">10</span>):</span><br><span class="line">    	x.append(i + j)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 优雅写法</span></span><br><span class="line">x = [x + y <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">10</span>) <span class="keyword">for</span> y <span class="keyword">in</span> range(<span class="number">10</span>)]</span><br></pre></td></tr></table></figure>
 
     
 	</div>

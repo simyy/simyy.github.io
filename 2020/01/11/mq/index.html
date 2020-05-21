@@ -19,7 +19,7 @@
 <meta property="og:image" content="http://simyy.cn/images/mq_3.png">
 <meta property="og:image" content="http://simyy.cn/images/mq_4.png">
 <meta property="og:image" content="http://simyy.cn/images/mq_5.png">
-<meta property="og:updated_time" content="2020-01-13T02:36:41.643Z">
+<meta property="og:updated_time" content="2020-05-19T06:53:49.415Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="消息系统">
 <meta name="twitter:description" content="记录下最近对消息系统的思考和理解。">
@@ -186,6 +186,9 @@
 <p><strong>事务支持</strong></p>
 <p>为了保证消息的成功消费，事务消息需要采用<code>实时上报</code>的方式。</p>
 <p>异步意味着不能实时上报，如果上报失败是无法感知的。</p>
+<blockquote>
+<p>为了支持事务回滚，需要支持<code>临时消息</code>的隔离，在生产者事务提交后才转换为<code>正式消息</code>。</p>
+</blockquote>
 <p><strong>顺序消费</strong> </p>
 <p>前面提到一个主题可能包括多个消费队列，多个消费队列之间是无法保证消费顺序的。</p>
 <p>为了实现顺序消费，需要业务方按照一定规则把一类消息存储在同一个队列中，从而保证消息被同一个消费者消费。</p>

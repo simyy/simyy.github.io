@@ -13,14 +13,14 @@
 <meta property="og:site_name" content="simyy">
 <meta property="og:description" content="类加载器（ClassLoader）是通过一个类的全限定名来获取定义此类的二进制字节流。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://simyy.cn/images/java_classloader_1.png">
+<meta property="og:image" content="http://simyy.cn/images/java_classloader_1.png?50">
 <meta property="og:image" content="http://simyy.cn/images/java_classloader_2.png">
 <meta property="og:image" content="http://simyy.cn/images/java_classloader_3_osgi.png">
-<meta property="og:updated_time" content="2019-12-17T02:30:43.078Z">
+<meta property="og:updated_time" content="2020-05-19T08:15:32.766Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java 类的加载和多版本控制">
 <meta name="twitter:description" content="类加载器（ClassLoader）是通过一个类的全限定名来获取定义此类的二进制字节流。">
-<meta name="twitter:image" content="http://simyy.cn/images/java_classloader_1.png">
+<meta name="twitter:image" content="http://simyy.cn/images/java_classloader_1.png?50">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -103,8 +103,8 @@
 <li><strong>标准扩展（Extension）类加载器</strong>：是由Sun的ExtClassLoader（sun.misc.Launcher$ExtClassLoader）实现的。它负责将Java_Home/lib/ext或者由系统变量java.ext.dir指定位置中的类库加载到内存中。开发者可以直接使用标准扩展类加载器。</li>
 <li><strong>应用程序（Application）类加载器</strong>：是由Sun的AppClassLoader（sun.misc.Launcher$AppClassLoader）实现的。它负责将系统类路径（CLASSPATH）中指定的类库加载到内存中。开发者可以直接使用系统类加载器。由于这个类加载器是ClassLoader中的getSystemClassLoader()方法的返回值，因此一般称为<code>系统（System）加载器</code>。</li>
 </ul>
-<p><img src="/images/java_classloader_1.png" alt=""></p>
-<h3 id="破坏双亲委派模型"><a href="#破坏双亲委派模型" class="headerlink" title="破坏双亲委派模型"></a>破坏双亲委派模型</h3><p><code>Tomcat</code>、<code>JDBC</code>、<code>JNDI</code>、<code>Thread.currentThread().setContextClassLoader()</code>等都违反了双亲委托。</p>
+<p><img src="/images/java_classloader_1.png?50" alt=""></p>
+<h3 id="破坏双亲委派模型"><a href="#破坏双亲委派模型" class="headerlink" title="破坏双亲委派模型"></a>破坏双亲委派模型</h3><p><code>Tomcat</code>、<code>SPI</code>、<code>JNDI</code>等都违反了双亲委托。</p>
 <h4 id="Tomcat类加载"><a href="#Tomcat类加载" class="headerlink" title="Tomcat类加载"></a>Tomcat类加载</h4><p><code>Tomcat</code>作为一个web容器，需要保证web容器之间的互不影响。</p>
 <blockquote>
 <p><code>容器之间隔离性：</code></p>

@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="simyy">
 <meta property="og:description" content="RabbitMQ使用AMQP通信协议（AMQP是一个提供统一消息服务的应用层标准协议，基于此协议的客户端与消息中间件可传递消息，并不受客户端/中间件不同产品，不同开发语言等条件的限制。）。安装">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-17T02:24:54.950Z">
+<meta property="og:updated_time" content="2020-05-20T11:49:38.017Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="RabbitMQ Hello world">
 <meta name="twitter:description" content="RabbitMQ使用AMQP通信协议（AMQP是一个提供统一消息服务的应用层标准协议，基于此协议的客户端与消息中间件可传递消息，并不受客户端/中间件不同产品，不同开发语言等条件的限制。）。安装">
@@ -96,30 +96,16 @@
 <li>发送消息basic_publish</li>
 <li>关闭链接close</li>
 </ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># coding=utf-8</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> pika</span><br><span class="line"></span><br><span class="line">connection = pika.BlockingConnection(pika.ConnectionParameters(<span class="string">'localhost'</span>))</span><br><span class="line">channel = connection.channel()</span><br><span class="line"></span><br><span class="line">channel.queue_declare(queue=<span class="string">'hello'</span>)</span><br><span class="line"></span><br><span class="line">channel.basic_publish(exchange=<span class="string">''</span>, routing_key=<span class="string">'hello'</span>, body=<span class="string">'hello world!'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">'Sent "hello world"'</span></span><br><span class="line"></span><br><span class="line">connection.close()</span><br></pre></td></tr></table></figure>
+<p>具体如下，</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pika</span><br><span class="line"></span><br><span class="line">connection = pika.BlockingConnection(pika.ConnectionParameters(<span class="string">'localhost'</span>))</span><br><span class="line">channel = connection.channel()</span><br><span class="line">channel.queue_declare(queue=<span class="string">'hello'</span>)</span><br><span class="line">channel.basic_publish(exchange=<span class="string">''</span>, routing_key=<span class="string">'hello'</span>, body=<span class="string">'hello world!'</span>)</span><br><span class="line">connection.close()</span><br></pre></td></tr></table></figure>
 <h2 id="接收"><a href="#接收" class="headerlink" title="接收"></a>接收</h2><ul>
 <li>通过使用pika第三方库来连接，本例中为localhost本地连接。</li>
 <li>通过queue_declare来创建一个消息队列（推荐，由于接收之前消息队列有可能并没有创建过）</li>
 <li>指定消息队列和回调函数basic_consume</li>
 <li>开始接受消息start_consuming</li>
 </ul>
-<pre><code class="python"><span class="comment">#!/usr/bin/env python</span>
-<span class="comment"># coding=utf-8</span>
-
-<span class="keyword">import</span> pika
-
-<span class="function"><span class="keyword">def</span> <span class="title">callback</span><span class="params">(ch, method, properties, body)</span>:</span>
-<span class="keyword">print</span> <span class="string">'receive %r'</span>%body
-
-connection = pika.BlockingConnection(pika.ConnectionParameters(<span class="string">'localhost'</span>))
-channel = connection.channel()
-
-channel.queue_declare(queue=<span class="string">'hello'</span>)
-
-channel.basic_consume(callback, queue=<span class="string">'hello'</span>, no_ack=<span class="keyword">True</span>)
-
-channel.start_consuming()
-</code></pre>
+<p>具体如下，</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pika</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">callback</span><span class="params">(ch, method, properties, body)</span>:</span></span><br><span class="line">    connection = pika.BlockingConnection(pika.ConnectionParameters(<span class="string">'localhost'</span>))</span><br><span class="line">    channel = connection.channel()</span><br><span class="line">    channel.queue_declare(queue=<span class="string">'hello'</span>)</span><br><span class="line">    channel.basic_consume(callback, queue=<span class="string">'hello'</span>, no_ack=<span class="keyword">True</span>)</span><br><span class="line">    channel.start_consuming()</span><br></pre></td></tr></table></figure>
 
     
 	</div>

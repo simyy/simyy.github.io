@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="simyy">
 <meta property="og:description" content="堆外内存是相对于堆内内存的一个概念。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-17T02:30:43.536Z">
+<meta property="og:updated_time" content="2020-05-19T06:25:06.369Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java 堆外内存">
 <meta name="twitter:description" content="堆外内存是相对于堆内内存的一个概念。">
@@ -94,6 +94,10 @@
 <li><code>提高垃圾回收速度</code>：垃圾回收不会处理堆外内存；</li>
 <li><code>加快了复制的速度</code>，与直接内存的复制相比，堆内数据同样需要复制到直接内存（堆外内存 -&gt; 堆外内存）。</li>
 </ul>
+<blockquote>
+<p><code>堆内内存</code>由JVM管理，属于<code>用户态</code>，<code>堆外内存</code>由系统管理，属于<code>内核态</code>。</p>
+<p>JVM的数据写入操作首先会把数据写入到<code>堆内内存</code>，然后再复制到<code>对外内存</code>。<br>如果直接把数据写入对外内存的话，就避免了<code>用户态到内核台的复制</code>。</p>
+</blockquote>
 <p><strong>缺点</strong></p>
 <ul>
 <li><code>堆外内存难以控制</code>：由于堆外内存不受虚拟机控制，内存的管理是开发者决定的，如果出现内存泄露不好排查；</li>

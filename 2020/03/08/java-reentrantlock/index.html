@@ -14,7 +14,7 @@
 <meta property="og:description" content="从源码层面分析ReentrantLock原理和实现。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://simyy.cn/images/java-reentrantlock-1.png">
-<meta property="og:updated_time" content="2020-03-08T11:09:02.343Z">
+<meta property="og:updated_time" content="2020-05-19T07:13:21.831Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ReentrantLock原理分析">
 <meta name="twitter:description" content="从源码层面分析ReentrantLock原理和实现。">
@@ -143,6 +143,8 @@
 <li>如果<code>重入次数为0</code>则代表锁可以释放，可以<code>唤醒CLH等待队列中阻塞的线程</code>。</li>
 </ul>
 </blockquote>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>无论是公平锁和非公平锁，CLH等待队列都是存在的。</p>
+<p><code>公平</code>是利用<code>队列的先进先出</code>来实现，而<code>非公平</code>是在加入队列之前尝试获取锁。</p>
 
     
 	</div>

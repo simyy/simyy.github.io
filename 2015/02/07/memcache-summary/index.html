@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="simyy">
 <meta property="og:description" content="Memcached是一种支持分布式的缓存系统，基于网络连接方式完成服务，是一个独立于应用的程序或守护进程。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-17T02:24:51.745Z">
+<meta property="og:updated_time" content="2020-05-20T11:59:56.298Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Memcached">
 <meta name="twitter:description" content="Memcached是一种支持分布式的缓存系统，基于网络连接方式完成服务，是一个独立于应用的程序或守护进程。">
@@ -84,29 +84,27 @@
 		
     	<p><code>Memcached</code>是一种支持分布式的缓存系统，基于网络连接方式完成服务，是一个独立于应用的程序或守护进程。</p>
 <a id="more"></a>
-<h2 id="本地缓存"><a href="#本地缓存" class="headerlink" title="本地缓存"></a>本地缓存</h2><p><code>Memcached</code>是<code>分布式的内存对象缓存系统</code>。</p>
+<h2 id="分布式缓存"><a href="#分布式缓存" class="headerlink" title="分布式缓存"></a>分布式缓存</h2><p><code>Memcached</code>是<code>分布式的内存对象缓存系统</code>。</p>
 <blockquote>
 <p>如果只是本地级缓存，使用memcached是非常不划算的!</p>
-<p>`Memcached本地读写速度要比直接PHP内存数组慢几十倍，而APC、共享内存方式都和直接数组差不多。如果只是本地级缓存，使用memcached是非常不划算的。</p>
 </blockquote>
-<p>对于不需要“分布”的、不需要共享的、只有一台服务器的应用，<code>Memcached</code>不会带来任何好处，相反还会拖慢系统效率，因为网络连接同样需要资源(即使是UNIX本地连接也一样)。</p>
-<h2 id="并发连接"><a href="#并发连接" class="headerlink" title="并发连接"></a>并发连接</h2><p><code>Memcached</code>使用<code>libevent库</code>实现网络连接服务，理论上可以处理无限多的连接。</p>
+<p>Memcached作为分布式缓存，解决了分布式环境下资源共享的问题，但也同时引入了网络开销。</p>
+<p>本地的内存读取与网络开销来比，性能会相差几个数量级。</p>
+<h2 id="并发连接"><a href="#并发连接" class="headerlink" title="并发连接"></a>并发连接</h2><p>Memcached使用<code>libevent</code>实现网络连接服务，理论上可以处理无限多的连接。</p>
 <blockquote>
-<p>一般是通道复用的。</p>
+<p>libevent采用多路复用通信方式。</p>
 </blockquote>
-<p>它和Apache不同，它更多的时候是面向稳定的持续连接的，所以它实际的并发能力是有限制的。在保守情况下memcached的最大同时连接数为200，这和Linux线程能力有关系，这个数值是可以调整的。关于libevent可以参考相关文档。</p>
-<h2 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h2><p><code>Memcached</code>内存使用方式也和APC不同。</p>
-<p><code>APC</code>是基于共享内存和MMAP的，<code>Memcachd</code>有自己的内存分配算法和管理方式，它和共享内存没有关系，也没有共享内存的限制。</p>
-<p>通常情况下，每个·Memcached·进程可以管理2GB的内存空间，如果需要更多的空间，可以增加进程数。</p>
-<h2 id="降低数据库压力"><a href="#降低数据库压力" class="headerlink" title="降低数据库压力"></a>降低数据库压力</h2><p><code>Memcached</code>在很多时候都是作为数据库前端cache使用的。</p>
-<p><code>Memcached</code>比数据库少了很多<code>SQL解析</code>、<code>磁盘操作</code>等开销，由于它是基于内存来管理数据的，所以它可以提供比直接读取数据库更好的性能。</p>
+<p>Memcached支持并发长连接，主要取决于libevent的性能（与宿主机的硬件情况有关）。</p>
+<h2 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h2><p>Memcachd拥有自即的<code>内存分配与管理</code>，解决了内存申请、释放等一系列问题。</p>
+<p>通常情况下，每个Memcached进程可以<code>管理2GB的内存空间</code>，如果需要更多的空间，可以增加进程数。</p>
+<h2 id="降低数据库压力"><a href="#降低数据库压力" class="headerlink" title="降低数据库压力"></a>降低数据库压力</h2><p>Memcached可作为<code>业务缓存</code>，避免大量请求进入数据库，但<code>不支持持久化</code>。</p>
+<blockquote>
+<p>内存中存储的数据是根据哈希来实现存储的，那么这样查找数据的销量就会远远高于数据库。</p>
+</blockquote>
 <h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><ul>
 <li>分布式特性可用于提供共享资源；</li>
 <li>内存缓存降低数据库的请求压力</li>
 </ul>
-<blockquote>
-<p>内存中存储的数据是根据哈希来实现存储的，那么这样查找数据的销量就会远远高于数据库。</p>
-</blockquote>
 
     
 	</div>

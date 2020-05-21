@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="simyy">
 <meta property="og:description" content="锁是并发控制主要的技术手段。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-17T02:24:46.578Z">
+<meta property="og:updated_time" content="2020-05-20T07:29:57.552Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="锁与MySQL中的锁">
 <meta name="twitter:description" content="锁是并发控制主要的技术手段。">
@@ -82,31 +82,62 @@
 	</header>
 	<div class="entry-content">
 		
-    	<p>锁是并发控制主要的技术手段。<br><a id="more"></a></p>
-<h2 id="悲观锁"><a href="#悲观锁" class="headerlink" title="悲观锁"></a>悲观锁</h2><p>Pessimistic Concurrency Control</p>
-<p>悲观锁是假设数据冲突的可能性很大，每次更新数据都会锁定数据，直到更新操作完成。</p>
-<p>在对数据进行更新之前，需要对数据添加排他锁，如果成功，执行更新操作，否则，抛出异常提示执行失败，表明该数据正在被修改。更新成功后，释放排他锁，该数据可用于其他更新操作。</p>
-<h2 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a>乐观锁</h2><p>Optimistic Concurrency Control</p>
-<p>乐观锁是假设数据一般不会造成冲突，只有在数据进行提交更新的时候，才会对数据的冲突与否进行验证，如果冲突返回错误信息，待用户进一步处理。</p>
+    	<p>锁是并发控制主要的技术手段。</p>
+<a id="more"></a>
+<h2 id="悲观锁"><a href="#悲观锁" class="headerlink" title="悲观锁"></a>悲观锁</h2><p><code>悲观锁</code>是建立在避免大量冲突更新的前提下使用的，无论怎样的更新操作都必须顺序执行。</p>
+<p>为了解决大量的冲突更新，需要对数据添加<code>排他锁</code>。</p>
+<blockquote>
+<p><code>排他锁</code>指的是仅拥有锁的情况下才可以更新，排除以外的更新操作。</p>
+</blockquote>
+<p>如果成功，执行更新操作，否则，抛出异常提示执行失败，表明该数据正在被修改。</p>
+<p>更新成功后，释放排他锁，该数据可用于其他更新操作。</p>
+<h2 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a>乐观锁</h2><p><code>乐观锁</code>是建立在支持并发冲突更新的前提下使用的，仅在数据提交时来验证冲土与否。</p>
+<p>为了解决并发的冲突更新，需要对数据添加<code>版本标识</code>。</p>
+<blockquote>
+<p><code>版本标识</code>是利用数据的多版本化来实现数据的冲突检测，冲突的提交依赖版本的高低。</p>
+</blockquote>
 <p>为数据增加一个新的属性版本标识，每当读取数据时，都会把数据的版本信息同时读取出来，每当需要更新数据时，都会数据对应的版本信息与上一次读取的版本信息做对比，只有版本信息相同（数据未被更改）时，才予以更新，否则认为数据已过期。</p>
-<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><p>由于乐观锁的版本对比特性，每次更新都需要进行版本检查，造成了开销，所以它更适合多读得场景，也就是冲突较少的情况（避免过多的版本对比的开销）；反之，写操作较多，冲突较多的场景，更适合使用悲观锁，这样不需要重复的对比开销。</p>
-<p>memcached使用CAS（compare and set）乐观锁来解决冲突问题。</p>
-<p>redis使用乐观锁来实现事务操作（redis中的事务是把事务中的操作加入到一个执行队列中，直到exec命令开始执行）。</p>
-<p>传统关系型数据库中的行锁、表锁都属于悲观锁。</p>
-<h2 id="locking-in-MySQL"><a href="#locking-in-MySQL" class="headerlink" title="locking in MySQL"></a>locking in MySQL</h2><p>mysql中常见的锁：行锁、表锁、页锁。</p>
-<h3 id="行锁"><a href="#行锁" class="headerlink" title="行锁"></a>行锁</h3><p>row-level locking </p>
-<p>行级锁是mysql中锁的力度最小的一种，只会当前操作的行进行加锁，但它开销大，加锁慢。</p>
-<p>Innodb支持行级锁，但它的实现是通过对索引加锁来实现的，因此只有通过索引来检索数据才会触发行级锁。</p>
-<p>由于innodb中的行级锁是逐步获取的，那么有可能造成死锁。</p>
-<h3 id="表锁"><a href="#表锁" class="headerlink" title="表锁"></a>表锁</h3><p>table-level locking</p>
-<p>表级锁是对当前操作的整个数据表加锁，它的实现就比较简单，开销小。</p>
-<p>它包括：排他锁和共享锁。</p>
-<p>InnoDB和MyISAM都支持表级锁。</p>
-<h3 id="页级锁"><a href="#页级锁" class="headerlink" title="页级锁"></a>页级锁</h3><p>page-level locking</p>
-<p>页级锁是介于行锁和表锁粒度之间的一种锁，BDB支持，但可能造成死锁。</p>
-<h2 id="共享锁、排他锁、意向锁"><a href="#共享锁、排他锁、意向锁" class="headerlink" title="共享锁、排他锁、意向锁"></a>共享锁、排他锁、意向锁</h2><p>共享锁属于行锁，又称为读锁，允许其他用户读取数据，但任何事务都不可以更改数据。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from student lock in share mode;</span><br></pre></td></tr></table></figure></p>
-<p>排他锁属于行锁，又称为写锁，不允许其他用户的操作（包括写和读）。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from student for update;</span><br></pre></td></tr></table></figure></p>
-<p>意向锁属于表锁，在InooDB中会自动加意向锁。<br>意向锁分为两种，意向共享锁和意向排他锁。<br>执行insert/update/delete语句时，InnoDB会自动给数据添加意向排他锁，而执行select语句不会加锁。</p>
+<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><p><strong>多读的场景</strong></p>
+<p>多读的场景下，必然带有更少的冲突以及大量的并发读。</p>
+<p>为了实现大量的并发读写，基于<code>多版本的乐观锁</code>的实现更适合。</p>
+<p><strong>多写场景</strong></p>
+<p>多写的场景下，数据均需要写入操作，此时可能需要考虑锁的粒度。</p>
+<p>如果仅对单一数据进行大量的冲突写入，使用多版本化的乐观锁更加适合。</p>
+<p>如果对不同数据的大量写入，使用悲观锁更加合适，避免了大量无效版本对比的开销。</p>
+<p><strong>实际的场景</strong></p>
+<p><code>Memcached</code>使用<code>CAS</code>来解决冲突问题。</p>
+<p><code>Redis</code>通过<code>Watch</code>的<code>CAS</code>来实现事务冲突的回滚。</p>
+<p>传统关系型数据库中的<code>行锁</code>、<code>表锁</code>都属于悲观锁。</p>
+<p>Mysql中的<code>MVCC</code>属于乐观锁。</p>
+<h2 id="locking-in-MySQL"><a href="#locking-in-MySQL" class="headerlink" title="locking in MySQL"></a>locking in MySQL</h2><p>MySQL中常见的锁：<code>行锁</code>、<code>表锁</code>。</p>
+<h3 id="行锁"><a href="#行锁" class="headerlink" title="行锁"></a>行锁</h3><p><code>行级锁</code>是MySQL中锁的力度最小的一种，只会当前操作的行进行加锁，但它开销大，加锁慢。</p>
+<blockquote>
+<p>行锁锁的是<code>聚簇索引</code>。</p>
+</blockquote>
+<p><code>Innodb</code>支持行级锁，通过对索引加锁来实现的。</p>
+<h3 id="表锁"><a href="#表锁" class="headerlink" title="表锁"></a>表锁</h3><p><code>表级锁</code>是对当前操作的整个数据表加锁，它的实现就比较简单，开销小，但对整体性能价差，锁住期间无法对外提供其他服务。</p>
+<p><code>InnoDB</code>和<code>MyISAM</code>都支持表级锁，具体可分为<code>排他锁</code>和<code>共享锁</code>。</p>
+<h2 id="共享锁、排他锁、意向锁"><a href="#共享锁、排他锁、意向锁" class="headerlink" title="共享锁、排他锁、意向锁"></a>共享锁、排他锁、意向锁</h2><p><code>共享锁</code>属于<code>行锁</code>，又称为<code>读锁</code>，允许其他用户读取数据，但任何事务都不可以更改数据。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from student lock in share mode;</span><br></pre></td></tr></table></figure>
+<p><code>排他锁</code>属于<code>行锁</code>，又称为<code>写锁</code>，不允许其他用户的操作（包括写和读）。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from student for update;</span><br></pre></td></tr></table></figure>
+<p><code>意向锁</code>属于<code>表锁</code>，在InooDB中会自动加意向锁。</p>
+<p>意向锁分为两种，<code>意向共享锁</code>和<code>意向排他锁</code>。</p>
+<p>执行<code>insert/update/delete</code>语句时，InnoDB会自动给数据添加<code>意向排他锁</code>，而执行select语句不会加锁。</p>
+<hr>
+<blockquote>
+<p>意向锁存在的意义？</p>
+</blockquote>
+<p>意向锁属于<code>表锁</code>，是在添加<code>行锁</code>前添加的。</p>
+<p><strong>为什么是行锁前添加？</strong></p>
+<p>由于意向锁是为了解<code>决行锁与表锁的冲突</code>。</p>
+<p>假设一种没有意向锁情况：</p>
+<ul>
+<li>A添加了一个行锁；</li>
+<li>B添加了一个表锁，由于A的行锁的存在，B只能通过遍历所有行锁来判断是否可以加表锁。</li>
+</ul>
+<p>问题出现在第二部中的<code>遍历行锁</code>。</p>
+<p>因此，InooDB提供给了<code>意向锁</code>来标示<code>当前表存在行锁</code>，以此来避免表锁的冲突。</p>
 
     
 	</div>

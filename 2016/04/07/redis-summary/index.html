@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="simyy">
 <meta property="og:description" content="简单记录下Redis使用总结。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-17T02:21:55.937Z">
+<meta property="og:updated_time" content="2020-05-20T11:18:46.615Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis使用方法及使用场景">
 <meta name="twitter:description" content="简单记录下Redis使用总结。">
@@ -96,7 +96,7 @@
 </ul>
 </blockquote>
 <ul>
-<li><code>Redis</code>事单线程，Memcached是多线程的；</li>
+<li><code>Redis</code>是单线程的，Memcached是多线程的；</li>
 </ul>
 <blockquote>
 <p>由于网络开销往往远大于内存命令执行的开销，所以实际使用中<code>Redis</code>性能并没有差太多。</p>
@@ -106,7 +106,8 @@
 <li><code>Memcached</code>使用<code>CAS</code>避免资源竞争修改，<code>Redis</code>提供了<code>事务功能</code>；</li>
 </ul>
 <blockquote>
-<p>CAS是通过为每一个CackeKey设置一个隐藏的Token作为版本号，每次set操作都会检查并更新Token；<br>Redis的事务仅能保证命令的顺序执行，执行过程中发生异常无法回滚。</p>
+<p>CAS是通过为每一个CackeKey设置一个隐藏的Token作为版本号，每次set操作都会检查并更新Token；</p>
+<p>Redis的事务仅能保证命令的顺序执行，执行过程中发生异常无法回滚。</p>
 </blockquote>
 <h2 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h2><h3 id="String"><a href="#String" class="headerlink" title="String"></a>String</h3><p><code>string</code>是key/value的存储结构（同memcached一样），支持的命令：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">get/set/del</span><br><span class="line">incr/incrby</span><br><span class="line">decr/descby</span><br><span class="line">append/strlen</span><br><span class="line">getrange/setrange</span><br></pre></td></tr></table></figure>
@@ -187,8 +188,9 @@
 </ul>
 <p>使用方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; MULTI</span><br><span class="line">&gt; ...</span><br><span class="line">&gt; EXEC</span><br></pre></td></tr></table></figure></p>
 <h2 id="其他应用"><a href="#其他应用" class="headerlink" title="其他应用"></a>其他应用</h2><ul>
-<li>实时统计，而全量操作数据记录到log日志，利用Hadoop进行更全面的离线分析</li>
-<li>web缓存，减轻数据库压力</li>
+<li>缓存</li>
+<li>Redis实时统计</li>
+<li>Redis实现发号器</li>
 </ul>
 
     

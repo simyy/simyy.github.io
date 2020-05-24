@@ -15,7 +15,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://simyy.cn/images/mysql-replication-rw-router-1.png">
 <meta property="og:image" content="http://simyy.cn/images/mysql-replication-rw-router-2.png">
-<meta property="og:updated_time" content="2020-05-24T01:53:27.366Z">
+<meta property="og:updated_time" content="2020-05-24T02:31:16.651Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL 读写分离">
 <meta name="twitter:description" content="记录下读写分离的使用方式与常见问题。">
@@ -136,7 +136,7 @@
 <p><strong>半同步模式（semi-sync）</strong></p>
 <p><code>半同步模式</code>是通过<code>强制写入relay log</code>来保证<code>至少有一台从库完成了数据同步</code>。</p>
 <blockquote>
-<p>仅保证写入<code>relay log</code>，无法保证吸入数据，因此，半同步模式不能彻底解决问题。</p>
+<p>仅保证写入<code>relay log</code>的延迟，无法保证写入数据的延迟，因此，半同步模式不能彻底解决问题。</p>
 </blockquote>
 <p>对于一主一从的读写分离的情况下，此方法可以使同步延迟的问题忽略不记。</p>
 <p>但在一主多从的读写分离的情况下，此方法就不一定会生效了，可能存在某个从库没有即使同步数据。</p>

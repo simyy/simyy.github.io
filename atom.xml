@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://simyy.cn/"/>
-  <updated>2020-05-21T12:23:19.423Z</updated>
+  <updated>2020-05-24T01:53:27.366Z</updated>
   <id>http://simyy.cn/</id>
   
   <author>
@@ -15,6 +15,34 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>MySQL 读写分离</title>
+    <link href="http://simyy.cn/2020/05/24/mysql-replication-rw-router/"/>
+    <id>http://simyy.cn/2020/05/24/mysql-replication-rw-router/</id>
+    <published>2020-05-24T01:46:39.000Z</published>
+    <updated>2020-05-24T01:53:27.366Z</updated>
+    
+    <content type="html"><![CDATA[<p>记录下读写分离的使用方式与常见问题。</p><a id="more"></a><h5 id="读写分离"><a href="#读写分离" class="headerlink" title="读写分离"></a>读写分离</h5><p><code>读写分离</code>是通过<code>分离数据库的读写操作</code>，通过横向扩展的能力来<code>提高读性能</code>。</p><p>如图所示，<code>Master</code>称为主库，仅处理数据库的<code>写操作</code>；<code>Slaver</code>称为从库，仅处理数据库的<code>读操作</code>。</p><p>读写分离的实现可划分为两类：<code>基于客户端实现</code>与<code>基于中间件实现</code>。</p><blockquote><p>与分库分表的实现思路相似。</p></blockquote><p><img src="/images/mysql-replication-rw-router-1.png" alt=""></p><p>两种实现的原理都在于<code>请求的动态路由</code>，根据<code>请求的分类&quot;读、写或事务&quot;</code>来动态的路由到指定的数据库实例。</p><p><strong>基于客户端实现</strong></p><p><code>基于客户端实现</code>是通过嵌入业务层来实现请求路由的功能，</p><p>优点是<code>性能好</code>，</p><p>缺点是<code>升级困难</code>、<code>问题排查难</code>、<code>客户端复杂</code>。</p><blockquote><p>由于路由功能完全内嵌在业务应用，日志也会分散在不同的业务应用，因此，问题的上报与排查都需要业务方深入合作。</p></blockquote><p><strong>基于中间件实现</strong></p><p><code>基于中间件实现</code>是通过<code>中间件拦截请求转发（动态路由）</code>到指定的数据库实例，</p><p>与基于客户端实现相反，</p><p>优点是<code>升级方便</code>、<code>问题排查容易</code>、<code>客户端无感知</code>，</p><p>缺点是<code>性能损耗大</code>、<code>业务方可能存在读异常</code>、<code>引入新的单点问题</code>。</p><blockquote><p>路由功能的实现与业务应用无关，中间件可以做到无感知的升级，而且由于路由日志集中在中间件，排查问题更加容易。</p></blockquote><h4 id="MySQL主从同步"><a href="#MySQL主从同步" class="headerlink" title="MySQL主从同步"></a>MySQL主从同步</h4><p><code>MySQL主从同步</code>是利用<code>同步binlog日志同步以及操作重放实现</code>的数据同步。</p><p><img src="/images/mysql-replication-rw-router-2.png" alt=""></p><blockquote><p><code>binlog</code>：MySQL数据库的二进制日志，用于记录用户对数据库<code>变更操作的SQL语句</code>。</p></blockquote><p><strong>步骤</strong>：</p><p>① 当Slaver连接到Master时，Master会为Slaver开启<code>binlog dump线程</code>；</p><blockquote><p><code>binlog dump线程</code>用于读取binlog信息同步到<code>Slaver</code>。</p></blockquote><p>② Slaver会创建<code>I/O 线程</code>以及来处理<code>binlog dump线程</code>的数据，写入<code>relay log</code>；</p><blockquote><p><code>relay log</code>是为了避免同步数据过程中的异常，导致数据的丢失，在<code>半同步复制</code>中有介绍。</p></blockquote><p>③ Slaver还会创建<code>SQL 线程</code>用来解析<code>relay log</code>重放操作写入数据，完成数据同步。</p><blockquote><p>同步过程中，<code>SQL解析执行一定是单线程的</code>，否则，会造成执行顺序错乱影响数据一致性。</p></blockquote><hr><p>主从同步是通过异步线程同步数据，属于<code>最终一致性</code>的实现方案，因此，必然<code>存在主从不一致的</code>问题。</p><p><strong>异步模式</strong></p><p><code>异步模式</code>是最基础的同步方式，必然存在延迟。</p><p>为了解决<code>异步模式</code>的延时问题，MySQL提出了下面几种方法来解决这个问题。</p><p><strong>半同步模式（semi-sync）</strong></p><p><code>半同步模式</code>是通过<code>强制写入relay log</code>来保证<code>至少有一台从库完成了数据同步</code>。</p><blockquote><p>仅保证写入<code>relay log</code>，无法保证吸入数据，因此，半同步模式不能彻底解决问题。</p></blockquote><p>对于一主一从的读写分离的情况下，此方法可以使同步延迟的问题忽略不记。</p><p>但在一主多从的读写分离的情况下，此方法就不一定会生效了，可能存在某个从库没有即使同步数据。</p><p><strong>全同步模式</strong></p><p><code>全同步模式</code>是在半同步的基础之上保证全部从库同步数据。</p><blockquote><p>这里的保证是relay log的写入还是数据的写入？</p><p>仍然是relay log（I/O线程与SQL线程不应该再次通信），只要日志flush到磁盘就不会出现数据丢失的情况。</p></blockquote><p><strong>并行模式</strong></p><p><code>并行模式</code>是通过增加<code>SQL线程</code>来实现并行读取<code>relay log</code>实现<code>库级别的并行</code>。</p><h4 id="主从延迟解决方案"><a href="#主从延迟解决方案" class="headerlink" title="主从延迟解决方案"></a>主从延迟解决方案</h4><p><strong>背景</strong></p><p>并发写入数据可能造成主从延迟增大。</p><p><strong>解决</strong></p><p>① 增加<code>数据缓存</code>，更新数据的同时写入缓存（读全部从缓存取数据）。</p><p>② 开启<code>半同步、同步复制</code>，降低时延问题，但会影响写入性能。</p><p>③ 强制<code>路由到主库</code>。</p><p>④ 优化业务逻辑，对于异步操作通过使用<code>延迟队列</code>、<code>重试</code>的机制来解决延迟问题。</p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;记录下读写分离的使用方式与常见问题。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="中间件" scheme="http://simyy.cn/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
+    
+    
+      <category term="MySQL" scheme="http://simyy.cn/tags/MySQL/"/>
+    
+      <category term="数据库" scheme="http://simyy.cn/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    
+      <category term="中间件" scheme="http://simyy.cn/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
+    
+      <category term="读写分离" scheme="http://simyy.cn/tags/%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB/"/>
+    
+  </entry>
   
   <entry>
     <title>Java GC 调优</title>
@@ -90,9 +118,9 @@
       <category term="架构" scheme="http://simyy.cn/categories/%E6%9E%B6%E6%9E%84/"/>
     
     
-      <category term="架构" scheme="http://simyy.cn/tags/%E6%9E%B6%E6%9E%84/"/>
-    
       <category term="分布式" scheme="http://simyy.cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    
+      <category term="架构" scheme="http://simyy.cn/tags/%E6%9E%B6%E6%9E%84/"/>
     
       <category term="事务" scheme="http://simyy.cn/tags/%E4%BA%8B%E5%8A%A1/"/>
     
@@ -426,9 +454,9 @@
     
       <category term="中间件" scheme="http://simyy.cn/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
     
-      <category term="架构" scheme="http://simyy.cn/tags/%E6%9E%B6%E6%9E%84/"/>
-    
       <category term="分布式" scheme="http://simyy.cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    
+      <category term="架构" scheme="http://simyy.cn/tags/%E6%9E%B6%E6%9E%84/"/>
     
       <category term="任务调度" scheme="http://simyy.cn/tags/%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6/"/>
     
@@ -505,32 +533,6 @@
       <category term="编程语言" scheme="http://simyy.cn/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
     
       <category term="Java" scheme="http://simyy.cn/tags/Java/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>计算机内存架构 &amp; JMM</title>
-    <link href="http://simyy.cn/2019/09/02/memory-and-jmm/"/>
-    <id>http://simyy.cn/2019/09/02/memory-and-jmm/</id>
-    <published>2019-09-02T14:26:24.000Z</published>
-    <updated>2019-12-23T06:07:36.432Z</updated>
-    
-    <content type="html"><![CDATA[<p>总结下计算机内存架构的基本原理以及JMM的不同之处。</p><a id="more"></a><h4 id="内存架构"><a href="#内存架构" class="headerlink" title="内存架构"></a>内存架构</h4><p><img src="/images/memory_and_jmm_1.jpg" alt="内存架构"></p><p>现代内存架构如上图所示。</p><blockquote><p><code>高速缓存</code>存在的意义？</p><p>计算机的<code>存储设备</code>与<code>处理器</code>的运算速度之间有着几个数量级的差距。</p></blockquote><p>由于处理器和内存之间的性能差距，当代所有计算机系统都加入了一层<code>高速缓存</code>来间接缓冲数据（可以理解为业务中使用的本地缓存、分布式缓存等）。</p><p><strong>访问速度比较</strong>：<code>寄存器</code> &gt; <code>高速缓存</code> &gt; <code>主内存</code>，有些计算机架构中存在多级缓存（例如，Linux多级缓存）。</p><h5 id="多级缓存"><a href="#多级缓存" class="headerlink" title="多级缓存"></a>多级缓存</h5><p>计算机提供了多级缓存来提高系统的读写效率。</p><p><img src="/images/memory_and_jmm_0.png" alt="多级缓存"></p><hr><p><strong>Core 内部：</strong></p><blockquote><p>CPU内部意味着L0、L1、L2都属于CPU的一部分，因此每一个CPU都拥有独占的LO、L1、L2。</p></blockquote><ul><li>L0：寄存器</li><li>L1：L1高速缓存（SRAM），划分为一级数据缓存（L1 D-Cache）和一级指令缓存（L1 I-Cache）</li><li>L2：L2高速缓存（SRAM）</li></ul><hr><p><strong>Core 共享：</strong></p><ul><li>L3：L3高速缓存（SRAM），会造成伪共享（False Sharing）</li><li>L4：主内存（DRAM）</li><li>L5：本地二级存储（本地磁盘）</li><li>L6：远程二级存储（分布式文件系统）</li></ul><hr><p><img src="/images/memory_and_jmm_0_1.png" alt="多级缓存"></p><p>从图中可以看到，每个处理器都有自己的高速缓存，而它们又共享同一主内存。</p><p>当多个处理器的运算任务都涉及同一块主内存区域时，将可能导致各自的缓存数据不一致。</p><h5 id="缓存一致性"><a href="#缓存一致性" class="headerlink" title="缓存一致性"></a>缓存一致性</h5><p><code>高速缓存</code>类似一种代理模式，在CPU和主内存质之间构建一条高速公路，但也会造成缓存一致性问题。</p><blockquote><p>当多个处理器同时共享同一块主内存时，将可能导致高速缓存的<code>一致性问题</code>。</p></blockquote><p>为了解决这个问题，提出了<code>缓存一致性协议</code>，常见的协议包括MSI、MESI等。</p><blockquote><p>缓存一致性的大体思想：当CPU写数据时，如果发现操作的变量是共享变量，即在其他CPU中也存在该变量的副本，会发出信号通知其他CPU将该变量的缓存行置为无效状态，因此当其他CPU需要读取这个变量时，发现自己缓存中缓存该变量的缓存行是无效的，那么它就会从内存重新读取。</p></blockquote><h6 id="伪共享"><a href="#伪共享" class="headerlink" title="伪共享"></a>伪共享</h6><p>CPU缓存系统是按<code>缓存行(Cache Line)</code>为单位存储的。</p><blockquote><p>缓存行(Cache Line)：CPU缓存的最小单位，大小一般为64bytes。</p></blockquote><p>CPU加载主内存到缓存是按照缓存行来加载的，也就是说，一个缓存行可以存储多个变量。</p><p>在多线程情况下，如果需要修改共享在同一个缓存行的变量，也会造成共享缓存行中其他变量的缓存失效，从而影响彼此的性能，这就是<code>伪共享（False Sharing）</code>。</p><blockquote><p><strong>解决方法：</strong>利用单个数据填充一个缓存行，空间换时间的方式，避免多个变量共享同一个缓存行。</p></blockquote><p>Java8中新增了一个注解<a href="mailto:`@sun.misc.Contended" target="_blank" rel="noopener">`@sun.misc.Contended</a>`用于解决伪共享的问题。</p><blockquote><p><a href="mailto:`@sun.misc.Contended" target="_blank" rel="noopener">`@sun.misc.Contended</a>`：通过在对象或字段前后追加padding，使数据长度达到128bytes（2被缓存行的大小），从而避免相邻扇区预取导致的伪共享冲突。</p></blockquote><p>具体参考：<a href="https://www.jianshu.com/p/c3c108c3dcfd" target="_blank" rel="noopener">Java8使用@sun.misc.Contended避免伪共享</a></p><h5 id="指令重排"><a href="#指令重排" class="headerlink" title="指令重排"></a>指令重排</h5><p>即使存在高速缓存也不能把CPU的性能充分利用，因此提出了<code>指令重排</code>。</p><blockquote><p><code>指令重排</code>：处理器会对输入的代码进行乱序优化，在保证结果不变的情况下，优化指令排序，从而实现CPU的充分利用。</p></blockquote><h4 id="JMM"><a href="#JMM" class="headerlink" title="JMM"></a>JMM</h4><p><code>JMM</code>的全程是<code>Java内存模型(Java Memory Model)</code>。</p><p><img src="/images/memory_and_jmm_2.jpg" alt="映射关系"></p><p><code>JMM</code>与硬件内存架构是不同的，区别在于：<strong>硬件内存架构未区分线程栈和堆</strong>。</p><p><code>JMM</code>中<code>工作内存（Working Memory）</code>是一个抽象概念，涵盖了CPU寄存器、高速缓存等。</p><p><img src="/images/memory_and_jmm_3.jpg" alt="Java内存模型"></p><h5 id="可见性"><a href="#可见性" class="headerlink" title="可见性"></a>可见性</h5><blockquote><p><code>可见性</code>：基于工作内存，在多线程的情况下，任意线程修改了共享变量的值，其他线程能够同步感知到变量的变化。</p></blockquote><p>Java提供了<code>volatile</code>来解决内存可见性问题。</p><p>当操作发生在<code>volatile</code>变量时，有如下规则：</p><ul><li><strong>写</strong>：<code>JMM</code>会把该线程对应的工作内存中的共享变量值刷新到主内存;</li><li><strong>读</strong>：<code>JMM</code>会把该线程对应的工作内存置为无效并从主内存中读取共享变量。</li></ul><blockquote><p>读写<code>volatile</code>变量会导致变量从主内存读写，这远比从CPU缓存读写更加耗时。</p></blockquote><h5 id="内存屏障"><a href="#内存屏障" class="headerlink" title="内存屏障"></a>内存屏障</h5><blockquote><p><code>内存屏障</code>：不仅可以保证屏障前后的指令顺序，也可以保证内存数据的可见性。</p></blockquote><p>为了保证内存可见性，Java编译器在生成指令序列的适当位置会插入<code>内存屏障指令</code>来禁止特定类型的处理器重排序。</p><p><code>volatile</code>也提供了禁止指令重排序的功能。</p><h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><p><a href="https://zhuanlan.zhihu.com/p/29881777" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/29881777</a><br><a href="https://blog.csdn.net/muxiqingyang/article/details/6615199" target="_blank" rel="noopener">https://blog.csdn.net/muxiqingyang/article/details/6615199</a><br><a href="https://www.yuque.com/crow/xriqpk/hm5s0s?language=en-us" target="_blank" rel="noopener">https://www.yuque.com/crow/xriqpk/hm5s0s?language=en-us</a></p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;总结下计算机内存架构的基本原理以及JMM的不同之处。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="计算机原理" scheme="http://simyy.cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86/"/>
-    
-    
-      <category term="计算机原理" scheme="http://simyy.cn/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86/"/>
-    
-      <category term="Java" scheme="http://simyy.cn/tags/Java/"/>
-    
-      <category term="Linux" scheme="http://simyy.cn/tags/Linux/"/>
     
   </entry>
   

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>架构设计与演进 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="架构设计与演进的思考。">
+<meta name="keywords" content="架构,领域建模">
+<meta property="og:type" content="article">
+<meta property="og:title" content="架构设计与演进">
+<meta property="og:url" content="http://simyy.cn/2020/05/27/architecture-evolution/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="架构设计与演进的思考。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-05-27T06:41:29.492Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="架构设计与演进">
+<meta name="twitter:description" content="架构设计与演进的思考。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<script src="/js/hexo_resize_image.js"></script>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">主页</a></li><li><a href="/2014/07/07/book-list">书单</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <div id="main">
+      
+
+
+<article id="post-architecture-evolution" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2020/05/27/architecture-evolution/" class="article-date">
+  <time datetime="2020-05-27T11:37:57.000Z" itemprop="datePublished">2020-05-27</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/架构/">架构</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/领域建模/">领域建模</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      架构设计与演进
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>架构设计与演进的思考。</p>
+<a id="more"></a>
+<h6 id="架构到底是什么"><a href="#架构到底是什么" class="headerlink" title="架构到底是什么"></a>架构到底是什么</h6><p>架构也被称为<code>软件架构</code>，是<code>软件结构的抽象描述</code>。</p>
+<p>架构是由<code>架构元素</code>与<code>元素之间的关系</code>组成，<code>元素的划分、选型、交互</code>是架构的关键。</p>
+<blockquote>
+<p>架构元素：组件/服务的划分与技术选型。<br>元素之间的关系：组件/服务之间的关联关系与交互方式。</p>
+</blockquote>
+<h6 id="架构的目标"><a href="#架构的目标" class="headerlink" title="架构的目标"></a>架构的目标</h6><p>架构的目标是<code>解决利益相关者的关注点</code>（<a href="https://www.infoq.cn/article/every-architect-should-study-conway-law" target="_blank" rel="noopener">参考</a>）。</p>
+<blockquote>
+<p><code>利益相关者</code>是与当前架构有之间或间接关系的人，也就是当前架构的目标用户，例如，业务方、产品、开发、测试等等。<br><code>关注点</code>是<code>利益相关者</code>对于当前软件的认知及痛点。</p>
+</blockquote>
+<p>解决不仅仅是解决当前的问题，还要有<code>前瞻性（对未来业务变化的考量</code>）。</p>
+<p>这也就是保证架构的可迭代、可演进。</p>
+<blockquote>
+<p><code>架构是有生命的</code>。</p>
+</blockquote>
+<p>好的架构生命周期很长，支持业务的快速迭代，不断演进、进化，</p>
+<p>相反，不好的架构没办法支持业务的迭代，不得不得对架构进行重构、重写。</p>
+<h6 id="架构的基础"><a href="#架构的基础" class="headerlink" title="架构的基础"></a>架构的基础</h6><p><strong>领域建模</strong></p>
+<blockquote>
+<p><code>好的架构离不开好的领域建模</code>。</p>
+</blockquote>
+<p><code>领域建模</code>是架构设计的基础，它确保了架构设计的边界。</p>
+<p>通过领域建模将领域知识转化为软件架构，这里离不开<code>领域专家</code>的配合。</p>
+<blockquote>
+<p>架构不是凭空想象的，是基于<code>对领域知识（领域专家提供）建模</code>的基础之上来设计的。</p>
+</blockquote>
+<p>对于大部分人来说，当提及领域建模时往往觉得时高大上、遥不可及的事情，事实并非如此。</p>
+<p>领域建模是业务高度抽象的产物，范围可大可小，但需要建模者充分理解并调研领域知识。</p>
+<blockquote>
+<p>对领域知识理解不足，造成的建模不准确？</p>
+<p>不要怕，最好的建模通过演进实现的，试错修正、试错优化。</p>
+</blockquote>
+<p><strong>真正的需求</strong></p>
+<p>架构设计的目标是<code>通过构建合理的元素关系来满足用户的需求</code>。</p>
+<p>由于视角的不同，利益相关者的关注点可能各不相同。</p>
+<p>那么，好的架构一定是基于以下两点：</p>
+<p>① 发现所有直接或间接的利益相关者；<br>② 沟通与理解利益相关者的关注点。</p>
+<p><code>尽可能收集利益相关者的关注点</code>作为架构设计的基础。</p>
+<p><code>如何把关注点转换为领域知识</code>是架构设计的必经之路。</p>
+<p><strong>最小化利益冲突</strong></p>
+<p>在沟通过程中，利益关注者之间往往会出现利益冲突的情况。</p>
+<p>如何最小化或避免利益冲突也属于架构设计的一部分。</p>
+<p>好的架构是<code>基于充分的调研与思考，保持利益相关者之间的利益平衡</code>。</p>
+<blockquote>
+<p><code>大中台小前台</code>的架构设计上是存在<code>业务方与技术方的利益冲突</code>。</p>
+<p>前台业务方考虑的是<code>快速迭代试错</code>，而中台技术方考虑的是<code>平台的稳定性与通用性</code>。</p>
+</blockquote>
+<h6 id="合理架构与过渡设计"><a href="#合理架构与过渡设计" class="headerlink" title="合理架构与过渡设计"></a>合理架构与过渡设计</h6><p>什么是<code>合理架构</code>？</p>
+<p>① 满足<code>大多数利益相关者的关注点</code>（功能点）；</p>
+<blockquote>
+<p>大多数意味着存在取舍，<code>合理的取舍</code>也是架构设计的一部分。</p>
+</blockquote>
+<p>② <code>最少的开发成本、最快的上线速度</code>，满足业务方快速迭代试错；</p>
+<blockquote>
+<p>快与质量差没有任何关系，<code>不要以快为不合格的架构设计而找理由</code>。</p>
+</blockquote>
+<p>③ 可<code>持续演进</code>的架构，需要经得起业务的不断演进。</p>
+<p><code>刚好够用且可持续优化</code>即为合理，一切不以现状为基础的设计均属于<code>过渡设计</code>。</p>
+<blockquote>
+<p>开发人员，往往会把追求极致挂在嘴边，但是，<code>追求极致</code>实际上也是一种过渡设计。<br>追求极致必然会增加功能的复杂度，无论是人力成本还是时间成本都是无法容忍的。</p>
+</blockquote>
+<p>架构设计需要<code>从公司当前的业务、人员、成本等多方面考虑</code>，避免吹毛求疵、过渡设计。</p>
+<blockquote>
+<p><code>&quot;技术债&quot;</code>这个词很流行，但不是所有的技术债都是无法避免的。</p>
+<p>架构的演进伴随着技术债的填补，也伴随着新的技术债的产生，但要<code>时刻警惕非必要技术债的产生</code>。</p>
+</blockquote>
+<h6 id="理想架构与架构演进"><a href="#理想架构与架构演进" class="headerlink" title="理想架构与架构演进"></a>理想架构与架构演进</h6><blockquote>
+<p><code>没有理想的架构，只有最合适的架构</code>。</p>
+</blockquote>
+<p>无论哪个公司都会经历<code>从简到繁的架构演变</code>的过程。</p>
+<p><code>架构的演进</code>是建立在合理架构的基础之上。</p>
+<blockquote>
+<p><a href="/2019/12/21/solid-priciple/">SOLID设计原则</a>主要用于解决如何构建可持续性的软件架构。</p>
+</blockquote>
+<p>架构的演进不仅包含<code>业务逻辑上的演进</code>，也包括<code>领域模型的演进</code>。</p>
+<p><code>业务逻辑上的演进</code>是指随着需求的不断迭代对原有业务逻辑的影响。</p>
+<p><code>领域模型的演进</code>是指随着需求的不断迭代对原有领域模型有了更加清晰的定义，它是构建<code>可持续演进架构</code>的基础。</p>
+<p>架构设计的关键问题是<code>划清边界</code>，而架构演进的关键问题是<code>领域模型的不断演进</code>。</p>
+<p><strong>领域演进</strong></p>
+<p>随着业务的演进，领域模型会面临拆分的问题，同时也会产生各个细分领域的领域专家。</p>
+<p><code>细分领域的领域专家</code>是细分领域建模的关键，也是细分领域架构设计的关键。</p>
+<p>与此同时，架构也会面临一次拆分，不同的细分领域负责各自的架构设计，架构设计更加聚焦，这也是架构演进的必然结果。</p>
+<h6 id="架构闭环与优化"><a href="#架构闭环与优化" class="headerlink" title="架构闭环与优化"></a>架构闭环与优化</h6><p><code>闭环</code>是指拥有一套完整的反馈机制，<code>架构闭环</code>是指拥有一套完整的系统监控与预警机制。</p>
+<p>架构演进包括两部分：<code>性能演进</code>与<code>逻辑演进</code>。</p>
+<blockquote>
+<p>逻辑演进与性能演进是不和分割的。</p>
+<p>逻辑的演进会推动性能的演进，性能演进是为了保证逻辑的演进。</p>
+</blockquote>
+<p>架构闭环是性能演进的必要条件。</p>
+<p>评估架构性能瓶颈、监测系统运行情况是<code>性能演进</code>的关键。</p>
+<h6 id="架构与组织"><a href="#架构与组织" class="headerlink" title="架构与组织"></a>架构与组织</h6><blockquote>
+<p><code>康伟定律</code>：架构与组织是一一对应的关系。</p>
+</blockquote>
+<p>好的架构是<code>依赖优秀的人来实现的</code>，而优秀的人是<code>依赖好的文化来吸引的</code>。</p>
+<hr>
+<p>公司中总能听到一些提效的要素，例如，工具、技术、流程。</p>
+<blockquote>
+<p>我们要使用最先进的工具；<br>我们要使用最牛逼的技术；<br>我们要推广最高效的流程。</p>
+<p>真的是这样吗？</p>
+</blockquote>
+<hr>
+<p>架构设计时需要考虑架构维护成本，一般需要按照组织来拆解架构（组织 : 架构 = 1 : 1）。</p>
+<p>按组织拆解架构的好处在于<code>架构的高内聚</code>，也就是说<code>以组织为单位划分架构设计与演进的职责</code>。</p>
+<p>组织内部的架构设计更加聚焦，领域知识也更加聚焦，</p>
+<p>从而，领域模型更加清晰，架构设计也会相对轻松（由于目标更聚焦了）。</p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/05/24/mysql-replication-rw-router/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          MySQL 读写分离
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+    </div>
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2020 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

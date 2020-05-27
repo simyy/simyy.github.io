@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="simyy">
 <meta property="og:description" content="记录Java GC调优的相关问题。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-05-21T12:23:19.423Z">
+<meta property="og:updated_time" content="2020-05-26T03:12:13.786Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java GC 调优">
 <meta name="twitter:description" content="记录Java GC调优的相关问题。">
@@ -101,6 +101,7 @@
 <p>① 扫描新生代以及老年代；</p>
 <blockquote>
 <p>由于存在<code>跨代引用</code>，因此需要扫描老年代。</p>
+<p>CMS使用CardTable来记录新老代之间的跨代引用，<br>G1使用RememberSet（占堆的20%）来记录Region之间的跨代引用。</p>
 </blockquote>
 <p>② 复制存活对象到Survivor区，增加对象年龄；</p>
 <blockquote>
@@ -142,6 +143,9 @@
 <h5 id="MixedGC"><a href="#MixedGC" class="headerlink" title="MixedGC"></a>MixedGC</h5><p><code>MixedGC</code>是<code>新生代与老年代的混合GC</code>，它不属于<code>FullGC</code>。</p>
 <p><code>MixedGC</code>是建立在<code>YoungGC</code>的基础之上再<code>回收部分老年代的内存</code>。</p>
 <p><code>G1</code>属于<code>MixedGC</code>。</p>
+<blockquote>
+<p><code>G1</code>通过划分<code>Region</code>来实现增量回收。</p>
+</blockquote>
 <p><strong>触发条件</strong></p>
 <p>当<code>E区</code>无法分配新的对象内存时会触发G1中的<code>YoungGC</code>。</p>
 <p>当<code>使用率大于InitiatingHeapOccupancyPercent</code>会触发<code>MixedGC</code>。</p>

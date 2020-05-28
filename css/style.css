@@ -543,15 +543,15 @@ pre .deletion {
   margin-bottom: 5em;
   position: relative;
 }
-#padding-left: 200px .entry-header {
+.post .entry-header {
   margin-bottom: 1.1em;
 }
-#padding-left: 200px .entry-title {
+.post .entry-title {
   font-weight: bold;
   font-size: 140%;
   margin: 0;
 }
-#padding-left: 200px .article-more-link {
+.post .article-more-link {
   font-size: 80%;
 }
 .article-devider {
@@ -561,42 +561,34 @@ pre .deletion {
   border-top: 5px solid #ddd;
   display: none;
 }
-.entry-meta-header,
-#padding-left: 200px {
+.entry-meta-header {
   position: absolute;
   top: 0.5em;
   left: -200px;
   width: 180px;
   font-size: 85%;
 }
-.entry-meta-header a,
-#padding-left: 200px a {
+.entry-meta-header a {
   color: #4f5759;
 }
-.entry-meta-header a:hover,
-#padding-left: 200px a:hover {
+.entry-meta-header a:hover {
   color: #33a6b8;
 }
-.entry-meta-header .meta-elements,
-#padding-left: 200px .meta-elements {
+.entry-meta-header .meta-elements {
   display: block;
   margin-bottom: 0.5em;
 }
-.entry-meta-header .date,
-#padding-left: 200px .date {
+.entry-meta-header .date {
   font-weight: bold;
   font-size: 120%;
 }
-.entry-meta-header .date a,
-#padding-left: 200px .date a {
+.entry-meta-header .date a {
   color: #222;
 }
-.entry-meta-header .date a:hover,
-#padding-left: 200px .date a:hover {
+.entry-meta-header .date a:hover {
   color: #33a6b8;
 }
-.entry-meta-header .commentscount,
-#padding-left: 200px .commentscount {
+.entry-meta-header .commentscount {
   font-size: 90%;
   margin-top: 1.5em;
 }
@@ -1184,9 +1176,6 @@ hr {
     float: none;
     margin-bottom: 1em;
   }
-}
-.main {
-  padding-left: 50px;
 }
 blockquote {
   position: relative;

@@ -543,13 +543,16 @@ pre .deletion {
   margin-bottom: 5em;
   position: relative;
 }
-.post .entry-header {
-  margin-bottom: 1.5em;
+#padding-left: 200px .entry-header {
+  margin-bottom: 1.1em;
 }
-.post .entry-title {
+#padding-left: 200px .entry-title {
   font-weight: bold;
-  font-size: 220%;
+  font-size: 140%;
   margin: 0;
+}
+#padding-left: 200px .article-more-link {
+  font-size: 80%;
 }
 .article-devider {
   width: 8%;
@@ -558,34 +561,42 @@ pre .deletion {
   border-top: 5px solid #ddd;
   display: none;
 }
-.entry-meta-header {
+.entry-meta-header,
+#padding-left: 200px {
   position: absolute;
   top: 0.5em;
   left: -200px;
   width: 180px;
   font-size: 85%;
 }
-.entry-meta-header a {
+.entry-meta-header a,
+#padding-left: 200px a {
   color: #4f5759;
 }
-.entry-meta-header a:hover {
+.entry-meta-header a:hover,
+#padding-left: 200px a:hover {
   color: #33a6b8;
 }
-.entry-meta-header .meta-elements {
+.entry-meta-header .meta-elements,
+#padding-left: 200px .meta-elements {
   display: block;
   margin-bottom: 0.5em;
 }
-.entry-meta-header .date {
+.entry-meta-header .date,
+#padding-left: 200px .date {
   font-weight: bold;
   font-size: 120%;
 }
-.entry-meta-header .date a {
+.entry-meta-header .date a,
+#padding-left: 200px .date a {
   color: #222;
 }
-.entry-meta-header .date a:hover {
+.entry-meta-header .date a:hover,
+#padding-left: 200px .date a:hover {
   color: #33a6b8;
 }
-.entry-meta-header .commentscount {
+.entry-meta-header .commentscount,
+#padding-left: 200px .commentscount {
   font-size: 90%;
   margin-top: 1.5em;
 }
@@ -931,7 +942,7 @@ hr {
   margin-bottom: 0;
 }
 .archive .entry-content h1 {
-  font-size: 170%;
+  font-size: 110%;
 }
 #page-nav {
   text-align: center;
@@ -1173,6 +1184,9 @@ hr {
     float: none;
     margin-bottom: 1em;
   }
+}
+.main {
+  padding-left: 50px;
 }
 blockquote {
   position: relative;

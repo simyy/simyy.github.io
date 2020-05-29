@@ -46,70 +46,201 @@
 		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
 	</div>
 </header>
-    <div id="main">
-      
-  <div class="archive">
-    
-      <article class="post post">
-        <footer class="entry-meta-header">
-          <span class="meta-elements date">
-            <time datetime="2018-10-30T12:50:14.000Z"><a href="/2018/10/30/go-concurrent/">2018-10-30</a></time>
-          </span>
-        </footer>
-        <div class="entry-content">
-          <header>
-            
-              
-                <h1><a href="/2018/10/30/go-concurrent/">go语言的并发</a></h1>
-              
-            
-          </header>
-        </div>
-      </article>
-      
-    
-      <article class="post post">
-        <footer class="entry-meta-header">
-          <span class="meta-elements date">
-            <time datetime="2015-10-15T03:31:30.000Z"><a href="/2015/10/15/go-reflect/">2015-10-15</a></time>
-          </span>
-        </footer>
-        <div class="entry-content">
-          <header>
-            
-              
-                <h1><a href="/2015/10/15/go-reflect/">Golang 反射</a></h1>
-              
-            
-          </header>
-        </div>
-      </article>
-      
-    
-      <article class="post post">
-        <footer class="entry-meta-header">
-          <span class="meta-elements date">
-            <time datetime="2015-09-17T08:46:17.000Z"><a href="/2015/09/17/golang-project-import/">2015-09-17</a></time>
-          </span>
-        </footer>
-        <div class="entry-content">
-          <header>
-            
-              
-                <h1><a href="/2015/09/17/golang-project-import/">Golang 项目结构和模块导入</a></h1>
-              
-            
-          </header>
-        </div>
-      </article>
-      
-    
+    <!--div id="main"-->
+      <div id="tags-main"> 
   
-  </div>
+    
+
+<article id="post-go-concurrent" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2018/10/30/go-concurrent/" class="article-date">
+  <time datetime="2018-10-30T12:50:14.000Z" itemprop="datePublished">2018-10-30</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Golang/">Golang</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/协程/">协程</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/编程语言/">编程语言</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 itemprop="name" class="entry-title">
+      <a class="article-title" href="/2018/10/30/go-concurrent/">go语言的并发</a>
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>Go语言是原生支持并发的，通过goroutine提供了并发执行接口。</p>
+<h2 id="并行和并发"><a href="#并行和并发" class="headerlink" title="并行和并发"></a>并行和并发</h2><p><img src="/images/go_concurrent_1.jpg" alt=""></p>
+<ul>
+<li>两个队列，一个coffee机器，是并发</li>
+<li>两个队列，两个coffee机器，是并行</li>
+</ul>
+<h2 id="go调度器"><a href="#go调度器" class="headerlink" title="go调度器"></a>go调度器</h2><p>go的调度器包含：</p>
+<ul>
+<li>S：调度器，维护M和G的队列及调度状态信息；</li>
+<li>M：内核级线程，所有的goroutine都在M上运行；</li>
+<li>P：processor处理器，执行goroutine；</li>
+<li>G：一个goroutine协程。</li>
+</ul>
+<p><img src="/images/go_concurrent_2.jpg" alt=""></p>
+<p>板砖图形象地表示了三者的关系，老鼠gopher（M）推着手推车（P），里面装着砖头（G），一个手推车（P）中会有很多砖头。</p>
+<p><img src="/images/go_concurrent_3.jpg" alt=""></p>
+<p>上图中个，存在两个内核级线程M，每一个M都拥有一个处理器P，P管理着多个协程G。其中，蓝色的G为正在运行的goroutine，而灰色的G为处于ready状态等待被执行的goroutine，灰色goroutine组成的队列被称为runqueue，每当启动一个goroutine后，runqueue就会在队列的末尾加入该goroutine。<br>当时，当一个内核线程M被阻塞时，其处理器P如何处理其他G呢？</p>
+<p><img src="/images/go_concurrent_4.jpg" alt=""></p>
+<p>如图所示，左边为初始状态，线程M1上没有任何处理器，线程M0上存在处理器P，其中正在处理G0，并且拥有一个包含多个G的runqueue。当M0被阻塞时，其他所有任务都无法继续执行，那么处理器P会转而在M1上继续运行，这样并不会因为线程M0上的阻塞而影响到其他任务。</p>
+<p>另外一种情况，如果两个线程的的协程数量不同呢？<br>如下图，左边为初始状态，共两个内核线程，但是由于分配不均匀，其中一个线程需要处理的runqueue为空，如果全局runqueue中没有其他goroutine，它就会从其他的处理器上取一些goroutine来执行，着确保了每个内核线程M的充分使用<br>。</p>
+<p><img src="/images/go_concurrent_5.jpg" alt=""></p>
+<h2 id="goroutine"><a href="#goroutine" class="headerlink" title="goroutine"></a>goroutine</h2><p><code>goroutine</code>是从语言层面上支持并发的重要特性，是运行在操作系统中轻量级的coroutine。goroutine很像线程，但它并不是线程，比线程更轻量，仅比分配栈空间多一点点，而且初始栈空间很小。<br>通过在函数或方法前添加关键字<code>go</code>来创建一个并发执行单元，<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">go</span> fuction(x, y, z)</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><code>go</code>关键字是支持匿名函数；</li>
+<li>如果进程在其所有goroutine执行完毕前结束，所有goroutine将会被销毁；</li>
+<li>调用<code>runtime.Goexit()</code>可以结束该goroutine；</li>
+<li>调用<code>runtime.Gosched()</code>可以暂停该goroutine。<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">    <span class="string">"time"</span></span><br><span class="line">)</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">say</span><span class="params">(s <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">5</span>; i++ &#123;</span><br><span class="line">        time.Sleep(<span class="number">100</span> * time.Millisecond)</span><br><span class="line">        fmt.Println(s)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">go</span> say(<span class="string">"world"</span>)</span><br><span class="line">    say(<span class="string">"hello"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p><strong>需要注意</strong><br>默认条件下，<code>go</code>所有的goroutines只能在一个线程里运行，也就是说制实现了并发。<br>为了发挥多核的并行处理，显示地调用<code>runtime.GOMAXPROCS(n)</code>，告诉调度器同时使用多个线程。</p>
+<p>##channel<br><code>channel</code>是可以用来同步并发执行的<code>goroutine</code>。<br><code>channel</code>类似于Unix的管道，通过发送和接收来进行通信。</p>
+<p>基本操作如下，<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 初始化整形、字符串和任意类型的channel</span></span><br><span class="line">ci := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)</span><br><span class="line">cs := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">string</span>)</span><br><span class="line">cf := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">interface</span>&#123;&#125;)</span><br><span class="line"><span class="comment">//发送和接收</span></span><br><span class="line">cf &lt;- v</span><br><span class="line">v := &lt;- cf</span><br></pre></td></tr></table></figure></p>
+<p>channel接收和发送数据都是阻塞的，除非另一端准备好接收或发送。</p>
+<p><strong>带缓存的channel类型</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// value为缓存长度</span></span><br><span class="line"><span class="comment">// value == 0 无缓冲（阻塞）</span></span><br><span class="line"><span class="comment">// value != 0 缓冲（非阻塞，除非缓冲了value个元素）</span></span><br><span class="line">ch := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span> , value)</span><br></pre></td></tr></table></figure>
+<p>##channel的Select操作<br>go语言提供了一个关键字<code>select</code>，可以用来监听channel上的数据。<br><code>select</code>默认是阻塞的，只有监听的channel中有发送或接收进行时才会运行，如果有多个channel同时准备好，则随机选择一个执行。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">fibonacci</span><span class="params">(c, quit <span class="keyword">chan</span> <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    x, y := <span class="number">1</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> &#123;</span><br><span class="line">        <span class="keyword">select</span> &#123;</span><br><span class="line">        <span class="keyword">case</span> c &lt;- x:</span><br><span class="line">            x, y = y, x +y</span><br><span class="line">        <span class="keyword">case</span> &lt;- quit:</span><br><span class="line">            fmt.Println(<span class="string">"quit"</span>)</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    c := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)</span><br><span class="line">    quit := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)</span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">for</span> i :=<span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">            fmt.Println(&lt;-c)</span><br><span class="line">        &#125;</span><br><span class="line">        quit &lt;- <span class="number">0</span></span><br><span class="line">    &#125;()</span><br><span class="line">    fibonacci(c, quit)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>此外，可以通过<code>select</code>来设置超时时间，<br>通过设置 <code>&lt;- time.After(n * time.Second)</code>，会延迟n秒后执行该case下的代码。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">    <span class="string">"time"</span></span><br><span class="line">)</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    c := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)</span><br><span class="line">    q := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)</span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">select</span> &#123;</span><br><span class="line">        <span class="keyword">case</span> v := &lt;- c:</span><br><span class="line">            fmt.Println(v)</span><br><span class="line">        <span class="keyword">case</span> &lt;- time.After(<span class="number">2</span> * time.Second):</span><br><span class="line">            fmt.Println(<span class="string">"timeout"</span>)</span><br><span class="line">            q &lt;- <span class="number">1</span> </span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;()</span><br><span class="line">    &lt;- q  <span class="comment">// q默认为空，阻塞直到q中缓冲数据</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://morsmachine.dk/go-schedulerhttp://eleme.io/blog/2014/goroutine-2/http://skoo.me/go/2013/11/29/golang-schedule/http://xhrwang.me/2014/12/31/golang-fundamentals-10-goroutine-channel.html" target="_blank" rel="noopener">http://morsmachine.dk/go-schedulerhttp://eleme.io/blog/2014/goroutine-2/http://skoo.me/go/2013/11/29/golang-schedule/http://xhrwang.me/2014/12/31/golang-fundamentals-10-goroutine-channel.html</a><br><a href="https://github.com/astaxie/build-web-application-with-golang/blob/master/zh/02.7.md" target="_blank" rel="noopener">https://github.com/astaxie/build-web-application-with-golang/blob/master/zh/02.7.md</a></p>
+
+    
+	</div>
+	
+</article>
+
+
+	<hr class="article-devider">
 
 
 
-    </div>
+
+
+
+  
+    
+
+<article id="post-go-reflect" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2015/10/15/go-reflect/" class="article-date">
+  <time datetime="2015-10-15T03:31:30.000Z" itemprop="datePublished">2015-10-15</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Golang/">Golang</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/编程语言/">编程语言</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 itemprop="name" class="entry-title">
+      <a class="article-title" href="/2015/10/15/go-reflect/">Golang 反射</a>
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+			<p>Golang语言中reflect反射机制。详细原文：<a href="http://blog.golang.org/laws-of-reflection" target="_blank" rel="noopener">地址</a><br>
+			
+				</p><p class="article-more-link">
+					<a href="/2015/10/15/go-reflect/#more">Read More</a>
+				</p>
+      
+    
+	</div>
+	
+</article>
+
+
+	<hr class="article-devider">
+
+
+
+
+
+
+  
+    
+
+<article id="post-golang-project-import" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2015/09/17/golang-project-import/" class="article-date">
+  <time datetime="2015-09-17T08:46:17.000Z" itemprop="datePublished">2015-09-17</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Golang/">Golang</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/编程语言/">编程语言</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 itemprop="name" class="entry-title">
+      <a class="article-title" href="/2015/09/17/golang-project-import/">Golang 项目结构和模块导入</a>
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+			<p>Golang项目结构与其他语言类似，但是仍然有一些需要注意的地方。<br>
+			
+				</p><p class="article-more-link">
+					<a href="/2015/09/17/golang-project-import/#more">Read More</a>
+				</p>
+      
+    
+	</div>
+	
+</article>
+
+
+	<hr class="article-devider">
+
+
+
+
+
+
+  
+</div>
+
+    <!--/div-->
     <div class="mb-search">
   <form action="//google.com/search" method="get" accept-charset="utf-8">
     <input type="search" name="q" results="0" placeholder="Search">

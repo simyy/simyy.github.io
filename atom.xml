@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://simyy.cn/"/>
-  <updated>2020-05-27T06:41:29.492Z</updated>
+  <updated>2020-05-30T14:56:10.414Z</updated>
   <id>http://simyy.cn/</id>
   
   <author>
@@ -15,6 +15,32 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>领域驱动设计的理解与实践</title>
+    <link href="http://simyy.cn/2020/05/30/domain-driven-design/"/>
+    <id>http://simyy.cn/2020/05/30/domain-driven-design/</id>
+    <published>2020-05-30T14:33:56.000Z</published>
+    <updated>2020-05-30T14:56:10.414Z</updated>
+    
+    <content type="html"><![CDATA[<p>记录领域驱动设计的理解与实践。</p><a id="more"></a><h3 id="DDD-amp-架构"><a href="#DDD-amp-架构" class="headerlink" title="DDD &amp; 架构"></a>DDD &amp; 架构</h3><p><code>DDD（Domain Driven Design，领域驱动设计）</code>是基于业务领域实现的一种软件架构方法。</p><blockquote><p><code>DDD</code>的作用是将<code>业务架构</code>转变为<code>系统架构和技术架构</code>。</p></blockquote><p>按照架构角度的不同，可分为如下三类：</p><ul><li><code>业务架构</code>：业务视角，描述业务模块以及关系；</li></ul><p>业务架构的原型往往是业务方最先提出的，包含大体的业务需求。</p><p>完整的业务架构图是由业务、产品、技术在不断的需求迭代与架构演进不断完善的。</p><p><img src="/images/domain-driven-design-01.png" alt=""></p><ul><li><code>应用架构</code>：应用（系统）视角，描述应用系统及其依赖关系；</li></ul><p>应用架构图是架构演进的结果。</p><p>随着业务的发展，会带来组织划分与应用拆分，应用架构也在不断演进。</p><p><img src="/images/domain-driven-design-02.png" alt=""></p><ul><li><code>技术架构</code>：技术视角，描述应用技术选型及其功能作用。</li></ul><p>技术架构是当前系统（应用）的技术细节的描述，包括技术选型以及其应用场景。</p><p>技术架构是面向技术人员的，用于了解软件设计的细节。</p><p><img src="/images/domain-driven-design-03.png" alt=""></p><h3 id="Domain-Driven-Design"><a href="#Domain-Driven-Design" class="headerlink" title="Domain Driven Design"></a>Domain Driven Design</h3><p>开发视角的转变：从单纯的<code>技术视角</code>转变为<code>业务视角</code>。</p><p>开发人员往往从技术角度来剖析需求，大部分情况缺少从业务角度的全局思考，对业务与架构的演进缺少前瞻性导致架构的局限性。</p><blockquote><p>尤其在业务开展的初级，开发人员对业务理解不够深入。</p></blockquote><h4 id="领域专家"><a href="#领域专家" class="headerlink" title="领域专家"></a>领域专家</h4><p><code>领域专家</code>是指那些掌握领域内知识的人，对该领域有很深入的理解。</p><p><code>产品</code>、<code>技术</code>、<code>业务</code>都可以是领域专家，其中，<code>业务</code>一般掌握着最真实的领域知识。</p><p>与<code>领域专家</code>沟通学习是架构设计的基础，无论是产品、技术、架构师，都需要与领域专家深入的学习领域知识。</p><h4 id="通用语言"><a href="#通用语言" class="headerlink" title="通用语言"></a>通用语言</h4><p>由于领域专家并不一定是产品、技术，因此与领域专家的沟通必然存在一定问题（行业不同）。</p><p><code>通用语言</code>是解决领域专家与产品开发沟通的关键。</p><blockquote><p>让大家都能听懂的专业名词，例如，SPU是商品，SKU是某种规格的商品。</p></blockquote><h4 id="领域建模"><a href="#领域建模" class="headerlink" title="领域建模"></a>领域建模</h4><p>基于通用语言，与领域专家沟通学习领域知识，抽象出一套领域知识模型。</p><h5 id="领域-amp-限界上下文"><a href="#领域-amp-限界上下文" class="headerlink" title="领域 &amp; 限界上下文"></a>领域 &amp; 限界上下文</h5><p><code>限界上下文</code>是领域的边界，也是领域模型的边界。</p><blockquote><p><code>康威定律</code>可以作为领域划分的一种规则。</p><p>组织与领域按照一一对应的关系来划分，实现领域的高内聚。</p></blockquote><p>领域内可以包含多个<code>限界上下文</code>，此时，可以划分为多个<code>细分子域</code>。</p><p><img src="/images/domain-driven-design-04.png" alt=""></p><p>根据细分子域的不同性质，又可以划分为：</p><ul><li><code>核心子域</code>：领域的核心，包含该领域内的核心领域知识；</li><li><code>支撑子域</code>：用于支撑核心子域；</li><li><code>通用子域</code>：公共的功能模块。</li></ul><p><img src="/images/domain-driven-design-05.png" alt=""></p><h5 id="架构演进"><a href="#架构演进" class="headerlink" title="架构演进"></a>架构演进</h5><p>领域模型需要不断演进来满足业务的迭代。</p><p>业务迭代会造成领域模型的拆分、增加，都会对原有架构产生巨大的挑战。</p><p><img src="/images/domain-driven-design-06.png" alt=""></p><h5 id="细分子域"><a href="#细分子域" class="headerlink" title="细分子域"></a>细分子域</h5><p>领域划分是从全局来考虑架构结构的划分，属于架构顶层功能模块的划分。</p><p>对于开发人员来说，<code>细分子域的领域模型的构建</code>才是软件实现的关键。</p><blockquote><p>开发人员不仅仅不要掌握细分子域，也需要了解和掌握整理领域的划分。</p></blockquote><h5 id="实体-amp-值对象"><a href="#实体-amp-值对象" class="headerlink" title="实体 &amp; 值对象"></a>实体 &amp; 值对象</h5><p><code>实体</code>是指<code>具有唯一标识</code>的对象，例如，User（实体）包含唯一的用户ID。</p><p><code>值对象</code>是指<code>不包含唯一标识</code>的对象且<code>不可修改</code>，例如，Address对于其他用户来说，只是用户的一个属性，不可修改。</p><p>实体与值对象的区别在于<code>唯一性</code>。</p><p>例如，不同规格的商品属于不同实体；规格只是一种属性，对于商品来说属于值对象。</p><h5 id="聚合-amp-聚合根"><a href="#聚合-amp-聚合根" class="headerlink" title="聚合 &amp; 聚合根"></a>聚合 &amp; 聚合根</h5><p><code>聚合</code>是指一组相关对象的集合，<code>聚合根</code>作为聚合根节点，并由<code>实体</code>与<code>值对象</code>组成。</p><p>聚合属于<code>领域内知识的子集</code>，可包含多个子域知识，用于对外提供领域服务。</p><p><img src="/images/domain-driven-design-07.png" alt=""></p><h5 id="领域模型-amp-领域事件-amp-领域服务"><a href="#领域模型-amp-领域事件-amp-领域服务" class="headerlink" title="领域模型 &amp; 领域事件 &amp; 领域服务"></a>领域模型 &amp; 领域事件 &amp; 领域服务</h5><p><code>领域模型</code>是指<code>领域知识的抽象描述</code>，用于指导软件架构设计。</p><p><code>领域事件</code>是指<code>领域内发生事件的描述</code>，用于驱动关联领域的变更，可采用发布订阅模式实现。</p><p><code>领域服务</code>是指<code>领域对外提供的查询或更新服务</code>，用于外部调用。</p><p><strong>领域建模的步骤</strong></p><ul><li>领域边界、界限上下文的划分；</li><li>确认限界上下文中的核心子域、支撑子域、通用子域；</li><li>确定子域内部的实体、值对象；</li><li>划分聚合，确定聚合根；</li><li>确认限界上下文之间的关系。</li></ul><p><strong>康威定律</strong></p><p><code>康威定律</code>是指系统结构应尽量的与组织结构保持一致。</p><p>对于多个团队来说，按照团队划分顶层领域边界；</p><p>对于团队内部来说，按照小组来划分细分子域的边界。</p><h5 id="架构分类"><a href="#架构分类" class="headerlink" title="架构分类"></a>架构分类</h5><p>软件架构上一般包括为<code>CQRS</code>、<code>六边形架构（适配器架构）</code>、<code>分层架构</code>。</p><p><strong>CQRS</strong></p><p><code>CQRS</code>被称为<code>命令和查询责任分离</code>，通过拆分读写模型来实现避免资源竞争。</p><p>CQRS按照<code>读写</code>把模型拆分为：</p><ul><li><code>命令 - 领域模型</code>：用于持久化，包括领域行为，结构相对简单，事务支持；</li><li><code>查询 - 视图模型</code>：用于展示，属于非规范的模型，不包括领域行为；</li><li><code>通知 - 领域事件</code>：用于发布领域变更事件，包含领域行为。</li></ul><p><strong>六边形架构（适配器架构）</strong></p><p><code>六边形架构（适配器架构）</code>是基于适配器的设计模式的架构模型，</p><p>其主要特性如下：</p><ul><li>利用<code>依赖倒置</code>原则来分离技术框架</li><li>功能模块均采用<code>接口来实现相互依赖</code></li><li>用<code>防腐层与适配器</code>来实现外部技术框架的依赖</li></ul><p>六边形架构屏蔽了外部技术框架的细节，<code>内部功能高内聚，外部依赖低耦合</code>。</p><p><strong>分层架构</strong></p><p><code>分层架构</code>是最常见的架构模型，按照功能层级拆分为：</p><ul><li><code>用户层</code>：聚合多个顶层领域的数据，用于用户展示；</li><li><code>应用层</code>：聚合多个细分子域的数据，用于对外提供服务；</li><li><code>领域层</code>：细分子域的领域模型，可发布领域事件、执行领域行为，包括实体阈值对象的定义；</li><li><code>基础设施层</code>：提供持久化、防腐层等基础中间件的功能。</li></ul><p><img src="/images/domain-driven-design-08.png" alt=""></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;记录领域驱动设计的理解与实践。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="架构" scheme="http://simyy.cn/categories/%E6%9E%B6%E6%9E%84/"/>
+    
+    
+      <category term="架构" scheme="http://simyy.cn/tags/%E6%9E%B6%E6%9E%84/"/>
+    
+      <category term="领域建模" scheme="http://simyy.cn/tags/%E9%A2%86%E5%9F%9F%E5%BB%BA%E6%A8%A1/"/>
+    
+      <category term="DDD" scheme="http://simyy.cn/tags/DDD/"/>
+    
+  </entry>
   
   <entry>
     <title>架构设计与演进</title>
@@ -509,30 +535,6 @@
       <category term="Java" scheme="http://simyy.cn/tags/Java/"/>
     
       <category term="JVM" scheme="http://simyy.cn/tags/JVM/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>拓扑排序</title>
-    <link href="http://simyy.cn/2019/11/10/topological-sort/"/>
-    <id>http://simyy.cn/2019/11/10/topological-sort/</id>
-    <published>2019-11-10T10:20:35.000Z</published>
-    <updated>2019-12-17T02:24:46.038Z</updated>
-    
-    <content type="html"><![CDATA[<p>简单介绍下图及拓扑排序。</p><a id="more"></a><h3 id="图"><a href="#图" class="headerlink" title="图"></a>图</h3><p>图（Graph）是由<code>顶点的有穷非空集合</code>和顶点之间的<code>边的集合</code>组合。</p><blockquote><p>一般可以用<code>G(V,E)</code>来标识一个<code>图</code>，其中，<code>V</code>表示图G的<code>顶点集合</code>，<code>E</code>表示图G的<code>边集合</code>。</p></blockquote><p><strong>无向图</strong>：图中任意两个顶点之间的边都是<code>无向边</code>（顶点之间的边没有方向，则称该条边为无向边）。</p><p><img src="/images/topological_sort_01.png?200x" alt="无向图"></p><p><strong>连通图</strong>：所有顶点之间都是连通的无向图（顶点之间的连通允许跨多条边的路径）。</p><p><strong>有向图</strong>：图中任意两个顶点之间的边都是<code>有向边</code>（顶点之间的边有方向，则称该条边为有向边）。</p><p><img src="/images/topological_sort_02.png" alt="有向图"></p><p><strong>入度</strong>：有向图中以顶点为<code>终点</code>的边的个数。</p><p><strong>出度</strong>：有向图中以顶点为<code>起点</code>的边的个数。</p><h3 id="邻接矩阵"><a href="#邻接矩阵" class="headerlink" title="邻接矩阵"></a>邻接矩阵</h3><p><code>邻接矩阵（Adjaceny Matrix）</code>是图的存储方式，由<code>一维数组存储图的顶点集合</code>和<code>二维数据存储图的边集合</code>组成。</p><p>假设图G存在<code>n个顶点</code>，则邻接矩阵可以表示为一个<code>n * n</code>的矩阵matrix，<code>matix[i][j]</code>代表<code>顶点i</code>和<code>顶点j</code>之间的边。</p><p><img src="/images/topological_sort_03.png" alt="无向图邻接矩阵"></p><p><img src="/images/topological_sort_04.png" alt="有向图邻接矩阵"></p><h3 id="拓扑排序"><a href="#拓扑排序" class="headerlink" title="拓扑排序"></a>拓扑排序</h3><p>在图论中，由一个有向无环图的顶点组成的序列，当且仅当满足下列条件时，称为该图的一个拓扑排序（Topological Sort）</p><ul><li>每个顶点出现且只出现一次；</li><li>若A在序列中排在B的前面，则在图中不存在从B到A的路径。</li></ul><p>在拓扑排序中实现方式有两种：<code>Kahn算法</code>和<code>DFS深度遍历算法</code>，算法的时间复杂度均为<code>O(N+E)</code>。</p><blockquote><p>由于遍历存在随机性，所以拓扑排序的结果不一定唯一。</p></blockquote><h4 id="Kahn算法"><a href="#Kahn算法" class="headerlink" title="Kahn算法"></a>Kahn算法</h4><blockquote><p>以入度（或出度）为零的顶点作为遍历的开始，不断排除入度为零的顶点的所有边，不断重复此过程。</p></blockquote><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">L ← 包含已排序的元素的空列表</span><br><span class="line">S ← 没有入边的顶点（入度为零的顶点）的集合</span><br><span class="line">G ← 统计所有顶点的出边顶点集合（记录顶点的下级顶点）</span><br><span class="line"></span><br><span class="line">while S 非空时：</span><br><span class="line">    从S取出顶点n</span><br><span class="line">    将点n从S移走</span><br><span class="line">    将n加到L尾</span><br><span class="line">    从G中获取顶点N的所有出边顶点集合T</span><br><span class="line">    for 顶点t in 遍历顶点集合T：</span><br><span class="line">        顶点t的入度减一</span><br><span class="line">        if 顶点t的入度为零：</span><br><span class="line">            把顶点t加入S集合</span><br><span class="line">            顶点t的入度减一（此时入度=-1，不会再处理）</span><br><span class="line"></span><br><span class="line">return L</span><br></pre></td></tr></table></figure><p>Kahn算法可以分为<code>无前趋的的顶点优先拓扑排序</code>和<code>无后继的的顶点优先拓扑排序</code>，区别在于使用<code>入度为零</code>还是<code>出度为零</code>的边作为起点。</p><h4 id="DFS深度遍历算法"><a href="#DFS深度遍历算法" class="headerlink" title="DFS深度遍历算法"></a>DFS深度遍历算法</h4><blockquote><p>DFS同样使用以入度为零的顶点作为遍历的开始，通过记录节点的访问状态不断遍历前置顶点。</p></blockquote><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">L ← 包含已排序的元素的空列表</span><br><span class="line">G ← 统计所有顶点的入边顶点集合（记录顶点的前置条件）</span><br><span class="line">S ← 没有进入边的节点（入度为零的节点）的集合</span><br><span class="line">V ← 所有顶点的访问记录（初始化为False）</span><br><span class="line"></span><br><span class="line">for n in S:</span><br><span class="line">    dfs(n)</span><br><span class="line">    </span><br><span class="line">function dfs(n)</span><br><span class="line">    if 已经访问过 n in V:</span><br><span class="line">        return</span><br><span class="line">    记录n的访问状态 V[n] = True</span><br><span class="line">    从G中找到顶点所有的出边集合T</span><br><span class="line">    for t in 出边集合T：</span><br><span class="line">        dfs(t)</span><br><span class="line">    将n加到L尾</span><br><span class="line">   </span><br><span class="line">return L</span><br></pre></td></tr></table></figure><p>在算法中，集合V是用来记录节点的访问记录，从而实现环的判断（如果已经访问的节点再次访问则一定存在环）。</p><h4 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h4><blockquote><p>在碰到该类问题，一般需要注意几点：</p><ul><li>是否存在环（循环依赖）；</li><li>顶点的入度和出度，不存在环的情况下，至少存在一个入度为0和一个出度为0的顶点；</li><li>遍历的起点一定是入度或出度为零的顶点；</li><li>入度和出度计算出的排序不同；</li><li>对于kahn算法，如果同时出现多个入度或出度为零的顶点则拓扑排序结果不唯一。</li></ul></blockquote><p> 在某校的选课系统中，存在这样的规则：</p><ul><li>每门课可能有若干门先修课，如果要修读某一门课，则必须要先修读此课程所要求的先修课后才能修读 （图的有向边）。</li><li>假设一个学生同时只能修读一门课程，那么，被选课系统允许的他修完他需要所有课程的顺序是一个拓扑序。</li></ul><p><a href="https://leetcode.com/problems/course-schedule/" target="_blank" rel="noopener">course-schedule</a><br><a href="https://leetcode.com/problems/course-schedule-ii/" target="_blank" rel="noopener">course-schedule-ii</a></p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;简单介绍下图及拓扑排序。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="算法" scheme="http://simyy.cn/categories/%E7%AE%97%E6%B3%95/"/>
-    
-    
-      <category term="算法" scheme="http://simyy.cn/tags/%E7%AE%97%E6%B3%95/"/>
-    
-      <category term="排序" scheme="http://simyy.cn/tags/%E6%8E%92%E5%BA%8F/"/>
     
   </entry>
   

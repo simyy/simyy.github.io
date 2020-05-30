@@ -5,23 +5,23 @@
   
   <title>go语言的并发 | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="Go语言是原生支持并发的，通过goroutine提供了并发执行接口。 并行和并发  两个队列，一个coffee机器，是并发 两个队列，两个coffee机器，是并行  go调度器go的调度器包含：  S：调度器，维护M和G的队列及调度状态信息； M：内核级线程，所有的goroutine都在M上运行； P：processor处理器，执行goroutine； G：一个goroutine协程。   板砖图">
+  <meta name="description" content="Go语言是原生支持并发的，通过goroutine提供了并发执行接口。">
 <meta name="keywords" content="编程语言,Golang,协程">
 <meta property="og:type" content="article">
 <meta property="og:title" content="go语言的并发">
 <meta property="og:url" content="http://simyy.cn/2018/10/30/go-concurrent/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="Go语言是原生支持并发的，通过goroutine提供了并发执行接口。 并行和并发  两个队列，一个coffee机器，是并发 两个队列，两个coffee机器，是并行  go调度器go的调度器包含：  S：调度器，维护M和G的队列及调度状态信息； M：内核级线程，所有的goroutine都在M上运行； P：processor处理器，执行goroutine； G：一个goroutine协程。   板砖图">
+<meta property="og:description" content="Go语言是原生支持并发的，通过goroutine提供了并发执行接口。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://simyy.cn/images/go_concurrent_1.jpg">
 <meta property="og:image" content="http://simyy.cn/images/go_concurrent_2.jpg">
 <meta property="og:image" content="http://simyy.cn/images/go_concurrent_3.jpg">
 <meta property="og:image" content="http://simyy.cn/images/go_concurrent_4.jpg">
 <meta property="og:image" content="http://simyy.cn/images/go_concurrent_5.jpg">
-<meta property="og:updated_time" content="2020-05-20T12:59:19.102Z">
+<meta property="og:updated_time" content="2020-05-30T15:34:30.905Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="go语言的并发">
-<meta name="twitter:description" content="Go语言是原生支持并发的，通过goroutine提供了并发执行接口。 并行和并发  两个队列，一个coffee机器，是并发 两个队列，两个coffee机器，是并行  go调度器go的调度器包含：  S：调度器，维护M和G的队列及调度状态信息； M：内核级线程，所有的goroutine都在M上运行； P：processor处理器，执行goroutine； G：一个goroutine协程。   板砖图">
+<meta name="twitter:description" content="Go语言是原生支持并发的，通过goroutine提供了并发执行接口。">
 <meta name="twitter:image" content="http://simyy.cn/images/go_concurrent_1.jpg">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
@@ -89,6 +89,7 @@
 	<div class="entry-content">
 		
     	<p>Go语言是原生支持并发的，通过goroutine提供了并发执行接口。</p>
+<a id="more"></a>
 <h2 id="并行和并发"><a href="#并行和并发" class="headerlink" title="并行和并发"></a>并行和并发</h2><p><img src="/images/go_concurrent_1.jpg" alt=""></p>
 <ul>
 <li>两个队列，一个coffee机器，是并发</li>

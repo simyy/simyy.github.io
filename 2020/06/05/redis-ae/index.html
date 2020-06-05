@@ -13,7 +13,6 @@
 <meta property="og:site_name" content="simyy">
 <meta property="og:description" content="AE事件驱动是Redis命令解析处理的基础。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://simyy.cn/images/redis-ae-10.png">
 <meta property="og:image" content="http://simyy.cn/images/redis-ae-1.png">
 <meta property="og:image" content="http://simyy.cn/images/redis-ae-2.png">
 <meta property="og:image" content="http://simyy.cn/images/redis-ae-3.png">
@@ -22,11 +21,11 @@
 <meta property="og:image" content="http://simyy.cn/images/redis-ae-6.png">
 <meta property="og:image" content="http://simyy.cn/images/redis-ae-7.png">
 <meta property="og:image" content="http://simyy.cn/images/redis-ae-8.png">
-<meta property="og:updated_time" content="2020-06-05T11:23:30.987Z">
+<meta property="og:updated_time" content="2020-06-05T11:24:39.893Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis AE事件驱动">
 <meta name="twitter:description" content="AE事件驱动是Redis命令解析处理的基础。">
-<meta name="twitter:image" content="http://simyy.cn/images/redis-ae-10.png">
+<meta name="twitter:image" content="http://simyy.cn/images/redis-ae-1.png">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -98,7 +97,6 @@
 <blockquote>
 <p><code>Memcached</code>的事件驱动时基于<code>libevent</code>的。</p>
 </blockquote>
-<p><img src="/images/redis-ae-10.png" alt=""></p>
 <h5 id="事件结构"><a href="#事件结构" class="headerlink" title="事件结构"></a>事件结构</h5><p><img src="/images/redis-ae-1.png" alt=""></p>
 <p><code>aeEventLoop</code>是整个事件驱动的核心，事件的注册与触发都基于此。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 事件循环结构体 */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">aeEventLoop</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">int</span> setsize;                  <span class="comment">// 支持连接的最大句柄数量</span></span><br><span class="line">    aeFileEvent *events;           <span class="comment">// 已注册的事件</span></span><br><span class="line">    aeFiredEvent *fired;           <span class="comment">// 已触发的事件</span></span><br><span class="line">    aeTimeEvent *timeEventHead;     <span class="comment">// 时间事件(定时触发)</span></span><br><span class="line">    aeBeforeSleepProc *beforesleep; <span class="comment">// 事件循环sleep之前的的执行函数 </span></span><br><span class="line">    aeBeforeSleepProc *aftersleep;  <span class="comment">// 事件循环sleep之后的的执行函数</span></span><br><span class="line">    <span class="keyword">void</span> *apidata;                <span class="comment">// select/poll/epoll的API交互数据</span></span><br><span class="line">    ...</span><br><span class="line">&#125; aeEventLoop;</span><br></pre></td></tr></table></figure>

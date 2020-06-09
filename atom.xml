@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://simyy.cn/"/>
-  <updated>2020-06-05T11:24:39.893Z</updated>
+  <updated>2020-06-07T08:54:54.997Z</updated>
   <id>http://simyy.cn/</id>
   
   <author>
@@ -15,6 +15,34 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Redis 高可用</title>
+    <link href="http://simyy.cn/2020/06/07/redis-ha/"/>
+    <id>http://simyy.cn/2020/06/07/redis-ha/</id>
+    <published>2020-06-07T08:53:13.000Z</published>
+    <updated>2020-06-07T08:54:54.997Z</updated>
+    
+    <content type="html"><![CDATA[<p>简单记录下Redis高可用方案。</p><a id="more"></a><h4 id="Replication"><a href="#Replication" class="headerlink" title="Replication"></a>Replication</h4><p><code>Replication</code>被称为<code>主从</code>架构，通过增加复制副本来提高数据的容错性与服务的可用性。</p><p><img src="/images/redis-ha-1.png" alt=""></p><p>数据的同步方式有<code>AOF与RDB</code>，其中<code>RDB</code>属于内存镜像的全量同步，<code>AOF</code>属于基于操作日志的增量同步。</p><p><strong>优点</strong></p><ul><li>主从架构解决单节点可用性问题；</li><li>读写分离，提高系统性能。</li></ul><p><strong>缺点</strong></p><ul><li>当主节点出现异常情况下，需要手动调整从节点为主节点；</li><li>写压力全部集中在主节点，造成了并发写入性能的瓶颈；</li><li>由于所有的数据复制都是基于单个主节点完成的，无法支持大量的横向扩展。</li></ul><h4 id="Sentinel"><a href="#Sentinel" class="headerlink" title="Sentinel"></a>Sentinel</h4><p><code>Sentinel</code>被称为<code>哨兵</code>，通过增加额外的监控系统来实现主从的动态切换，解决<code>Replication</code>的问题。</p><p><img src="/images/redis-ha-2.png" alt=""></p><p>由于Sentinel仍然存在这但点问题，因此一般会采用多个Sentinel来实现监控集群，实现高可用的双重保护。</p><p><strong>优点</strong></p><ul><li>解决了Replicaion无法自动切换的问题。</li></ul><p><strong>缺点</strong></p><ul><li>引入了额外的监控系统，系统复杂度增大；</li><li>单点写问题仍然没有解决，无法支撑大量的横向扩展。</li></ul><h4 id="Codis"><a href="#Codis" class="headerlink" title="Codis"></a>Codis</h4><p><code>Codis</code>是第三方实现的一套高可用方案，利用中间件实现Redis的集群功能。</p><p><img src="/images/redis-ha-3.png" alt=""></p><p><img src="/images/redis-ha-4.png" alt=""></p><p>其中，<code>codis proxy</code>被设计为无状态，可利用<code>HAProxy</code>或<code>Zookeeper</code>实现高可用。</p><p><strong>优点</strong></p><ul><li>解决了单节点写入的瓶颈；</li><li>支持大量的很想扩展。</li></ul><p><strong>缺点</strong></p><ul><li>引入了多个中间件，运维成本高；</li><li>每个中间件都存在可用性问题；</li><li>无法支持不同key的事务；</li><li>增加了一层代理影响系统性能。</li></ul><h4 id="Cluster"><a href="#Cluster" class="headerlink" title="Cluster"></a>Cluster</h4><p><code>Cluster</code>是<code>无中心化</code>架构，集群中的各个节点相互通信达成共识，并把客户端请求通过<code>slot</code>路由到目标数据节点。</p><p><img src="/images/redis-ha-5.png" alt=""></p><p><strong>优点</strong></p><ul><li>去中心化，高容错性；</li><li>支持大量横向扩容；</li><li>支持高可用；</li><li>不存在单点问题；</li><li>运维成本低。</li></ul><p><strong>缺点</strong></p><ul><li>client复杂，需要处理slot信息；</li><li>不同key会路由到不同的节点，无法支持事务。</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;简单记录下Redis高可用方案。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="中间件" scheme="http://simyy.cn/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
+    
+    
+      <category term="中间件" scheme="http://simyy.cn/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
+    
+      <category term="分布式" scheme="http://simyy.cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    
+      <category term="缓存" scheme="http://simyy.cn/tags/%E7%BC%93%E5%AD%98/"/>
+    
+      <category term="Redis" scheme="http://simyy.cn/tags/Redis/"/>
+    
+  </entry>
   
   <entry>
     <title>Redis AE事件驱动</title>
@@ -500,41 +528,11 @@
     
       <category term="中间件" scheme="http://simyy.cn/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
     
-      <category term="架构" scheme="http://simyy.cn/tags/%E6%9E%B6%E6%9E%84/"/>
-    
       <category term="网络" scheme="http://simyy.cn/tags/%E7%BD%91%E7%BB%9C/"/>
     
-      <category term="网络模型" scheme="http://simyy.cn/tags/%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>分布式任务调度</title>
-    <link href="http://simyy.cn/2019/12/08/distributed-job-dispatch/"/>
-    <id>http://simyy.cn/2019/12/08/distributed-job-dispatch/</id>
-    <published>2019-12-08T04:19:34.000Z</published>
-    <updated>2019-12-17T02:24:47.671Z</updated>
-    
-    <content type="html"><![CDATA[<p>任务调度解决定时触发的问题，分布式解决单点触发的问题。</p><a id="more"></a><h3 id="任务调度"><a href="#任务调度" class="headerlink" title="任务调度"></a>任务调度</h3><blockquote><p><code>任务调度</code>来<code>触发</code>那些无法自动触发的任务。</p></blockquote><p>任务调度中最重要的三个基础组件：<code>任务</code>、<code>触发器</code>和<code>执行器</code>。</p><p><strong>任务</strong>：保存待处理的任务，包括任务的触发的关键信息（例如，目标地址、调用方式、触发参数）。</p><p><strong>触发器</strong>：保存待处理任务的执行时间，包括定时触发、周期触发。</p><p><strong>执行器</strong>：任务触发的媒介，任务达到触发状态后都交于执行器来触发任务的执行。</p><h4 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h4><p>任务调度的组件大体依赖关系如下图，</p><p><img src="/images/distributed_job_dispatch_1.png" alt="组件依赖关系"></p><p><strong>任务的创建和触发流程</strong>：</p><ul><li>创建<code>Job</code>，并指定具体的任务类型（<code>RpcJob</code>或<code>HttpJob</code>）；</li><li>创建<code>Trigger</code>作为任务的触发器，指定任务触发方式（<code>TimeTrigger</code>或<code>CrondTrigger</code>）；</li><li>计算<code>Trigger</code>下一次触发时间；</li><li>关联<code>Job</code>和<code>Trigger</code>，用于组装<code>JobContext</code>；</li><li>扫描<code>最近一段时间内</code>待触发的<code>Trigger</code>，并组装对应的<code>JobContext</code>；</li><li><code>Executor</code>拉取待触发的<code>JobContext</code>，按<code>Trigger</code>指定的执行时间来执行<code>Job</code>。</li></ul><h4 id="任务状态"><a href="#任务状态" class="headerlink" title="任务状态"></a>任务状态</h4><p>任务调度系统的状态可划分为：</p><p><img src="/images/distributed_job_dispatch_2.png" alt="任务状态流转图"></p><h3 id="分布式"><a href="#分布式" class="headerlink" title="分布式"></a>分布式</h3><p>对于单机任务调度系统来说，存在问题包括：<code>单点故障</code>、<code>任务堆积</code>。</p><blockquote><p>分布式系统通过把任务分配给到不同的调度节点来解决<code>单点</code>和<code>任务堆积</code>的问题。</p></blockquote><p>常见的分布式解决方案：</p><ul><li><code>Quartz</code>：基于数据库实现作业的高可用，存在代码入侵。</li><li><code>Elastic Job</code>：采用zookeeper实现分布式协调，实现任务高可用以及分片。</li></ul><h5 id="并行调度"><a href="#并行调度" class="headerlink" title="并行调度"></a>并行调度</h5><blockquote><p><code>并行调度</code>：将任务分配到多个实例节点，使得多个应用实例能并行执行任务，以提升调度系统的执行效率。</p></blockquote><p>从单实例到多实例，<code>任务的分配</code>是<code>并行调度</code>的关键问题，常见的分配方式包括：</p><p><code>哈希分配</code>：计算任务的哈希值，分配到固定的实例节点，需要处理集群扩容和缩容的问题。</p><p><code>负载优先分配</code>：需要动态调整各个实例节点的负载压力，难点在于机器负载的定义与计算。</p><p><code>平均分配</code>：任务轮询分配到各个集群实例节点。</p><p><code>抢占式分配</code>：实现相对简单，不需要集群的管理节点来实现，只需要控制好并发锁的问题。</p><h5 id="高可用性"><a href="#高可用性" class="headerlink" title="高可用性"></a>高可用性</h5><blockquote><p><code>高可用性</code>：当执行任务的应用实例崩溃后，其他应用实例可以继续执行该任务。</p><p>也就是说，如何保证分布式中节点异常情况下，所有任务的正常执行。</p></blockquote><p><code>异常节点的任务迁移</code>是关<code>高可用</code>的键问题。</p><p>迁移必然带来任务的<code>动态分配</code>问题（与扩容类似），具体方法与使用的<code>任务分配</code>方式相关。</p><ul><li><code>哈希分配</code>：采用<code>一致性哈希算法</code>来解决节点异常导致的大量的任务迁移问题；</li><li><code>负载优先分配</code>：把节点异常的任务迁移到负载最低的节点来处理；</li><li><code>平均分配</code>：把节点异常的任务平均分配到集群其他节点上。</li><li><code>抢占式分配</code>：把节点异常的任务丢回任务池中等待其他节点来抢占。</li></ul><p>其中，负载优先分配方式下需要实时监控每个实例节点的负载能力，并需要实现动态调整实例的负载，实现任务的高效执行。</p><blockquote><p>集群实例节点的状态如何监控？</p></blockquote><p>利用<code>Zookeeper</code>和<code>Etcd</code>来实现应用实例状态的监控，当发生异常情况时及时迁移异常节点的待处理任务。</p><p>一般情况下，集群中会有一台实例节点充当管理者，利用<code>Zookeeper</code>和<code>Etcd</code>的分布式协调能力来选择集群的管理者，并监控整个集群的状态。</p><blockquote><p><code>Zookeeper</code>和<code>Etcd</code>分别实现了<code>zab</code>和<code>raft</code>一致性算法，可以辅助其他系统实现集群的状态管理。</p></blockquote><hr><p>下图代表了一致性hash来实现集群任务的分配及异常节点的任务迁移。</p><p><img src="/images/distributed_job_dispatch_3.png" alt="一致性哈希下的任务分配和异常迁移"></p><hr><h5 id="弹性扩容"><a href="#弹性扩容" class="headerlink" title="弹性扩容"></a>弹性扩容</h5><blockquote><p><code>动态扩容</code>：当集群无法满足大量任务的并发执行时，需要动态增加集群实例数量，同时保证历史任务的正常触发。</p></blockquote><p>上面有提到过，<code>一致性哈希</code>来实现任务的哈希分配扩容情况下造成的节点任务迁移问题。</p><p>此外，在扩容过程中也需要考虑扩容的任务迁移对任务的准时执行是否存在的影响，如果存在影响的话，是否可以考虑把可能会受到影响的任务留在当前实例节点。</p><h5 id="失败处理"><a href="#失败处理" class="headerlink" title="失败处理"></a>失败处理</h5><blockquote><p>只要是程序就会出现异常，任务调度也不例外，异常处理也是重要的一部分。</p></blockquote><p>失败一般包括以下几种情况：</p><ul><li>集群实例节点down机</li><li>任务调用超时</li><li>任务无法调用到目标应用（网络 or 目标应用down机）</li></ul><p>任务调度系统需要设置合理的<code>任务重试机制</code>，包括<code>重试次数</code>、<code>超时时间</code>等。</p><p>此外，对于异常任务，需要配置对应的<code>报警策略</code>来通知相关业务人员及时处理异常问题。</p><h5 id="任务优先级"><a href="#任务优先级" class="headerlink" title="任务优先级"></a>任务优先级</h5><blockquote><p>集群的并行处理能力是有限的，在满足需求的条件下，允许配置任务的优先级。</p></blockquote><p>任务调度系统中，通过设置<code>不同的优先级的任务处理器</code>来实现任务的优先处理。</p><p><code>带有优先级的任务处理器</code>可以由预分配多个线程池来处理，优先级的高低决定了任务处理器线程池中并发执行线程的数量，高优先级的线程池配置更多的线程，低优先级的线程池配置更少的线程，从而实现高低优先级任务的隔离处理。</p><h5 id="任务分片"><a href="#任务分片" class="headerlink" title="任务分片"></a>任务分片</h5><blockquote><p><code>任务分片</code>：任务按照参数可以拆分成多个子任务，子任务下发到集群的不同实例节点并发执行。</p></blockquote><p>任务分片的关键问题：<code>任务的拆分</code>。</p><p>可以分片的任务一定是可以<code>逻辑拆分</code>的，拆分之后的子任务没有任何关联关系。</p><p>例如，为每一个用户统计他最近一天的消费信息，可以按照用户id的取模方式来实现任务的拆分：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1. id % 5 = 任务拆分为5个子任务</span><br><span class="line">2. 5个子任务分配分配到集群的5个节点来并发执行</span><br></pre></td></tr></table></figure></p><h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>任务调度的目的是准时触发任务，分布式的目的是解决单点问题，通过zookeeper和etcd等组件来实现集群的状态管理。</p><p>为了试下准时触发和优先级触发，实例节点需要配置对应的线程池来实现高低优先级任务的隔离。</p><h5 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h5><p><a href="https://zhuanlan.zhihu.com/p/26493355" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/26493355</a><br><a href="https://juejin.im/post/5c55ac0bf265da2da771a216" target="_blank" rel="noopener">https://juejin.im/post/5c55ac0bf265da2da771a216</a><br><a href="https://www.cnblogs.com/davidwang456/p/9057839.html" target="_blank" rel="noopener">https://www.cnblogs.com/davidwang456/p/9057839.html</a></p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;任务调度解决定时触发的问题，分布式解决单点触发的问题。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="架构" scheme="http://simyy.cn/categories/%E6%9E%B6%E6%9E%84/"/>
-    
-      <category term="中间件" scheme="http://simyy.cn/categories/%E6%9E%B6%E6%9E%84/%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
-    
-    
-      <category term="中间件" scheme="http://simyy.cn/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
-    
       <category term="架构" scheme="http://simyy.cn/tags/%E6%9E%B6%E6%9E%84/"/>
     
-      <category term="分布式" scheme="http://simyy.cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
-    
-      <category term="任务调度" scheme="http://simyy.cn/tags/%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6/"/>
+      <category term="网络模型" scheme="http://simyy.cn/tags/%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/"/>
     
   </entry>
   

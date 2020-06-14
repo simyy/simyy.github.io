@@ -14,7 +14,7 @@
 <meta property="og:description" content="分析InnoDB为什么使用B+tree作为索引结构。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://simyy.cn/images/mysql_btree_1.png">
-<meta property="og:updated_time" content="2019-12-17T06:04:18.400Z">
+<meta property="og:updated_time" content="2020-06-13T03:27:00.839Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="InnoDB B+tree索引">
 <meta name="twitter:description" content="分析InnoDB为什么使用B+tree作为索引结构。">
@@ -107,7 +107,7 @@
 <h4 id="数据加载"><a href="#数据加载" class="headerlink" title="数据加载"></a>数据加载</h4><blockquote>
 <p>背景：计算机在加载内存数据时是按照页为单位来加载的，也就是说一次至少加载一个页的数据。</p>
 </blockquote>
-<p>不同的系统页的大小不同，MACOS上是PAGE_SIZE=4096，也就是4K，因此一次内存加载至少加载4K数据。</p>
+<p>不同的系统页的大小不同，MACOS上是<code>PAGE_SIZE=4096(4k)</code>，因此<code>一次内存加载至少加载4K数据</code>。</p>
 <p>为了提高数据库读写性能，必须减少内存的加载次数。</p>
 <blockquote>
 <p><code>Btree</code>和<code>B+tree</code>的区别在于<code>非叶子节点是否存储数据</code>。</p>

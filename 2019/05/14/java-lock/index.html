@@ -15,7 +15,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://simyy.cn/images/java_lock_1.png">
 <meta property="og:image" content="http://simyy.cn/images/java_lock_3.png">
-<meta property="og:updated_time" content="2020-01-09T06:45:57.042Z">
+<meta property="og:updated_time" content="2020-06-14T05:06:03.944Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java 锁与多线程协作">
 <meta name="twitter:description" content="一般谈到多线程都会谈到锁这个概念，通过限制并发控制来保证操作互斥的要求。">
@@ -122,11 +122,12 @@
 <h3 id="Object-wait-notify"><a href="#Object-wait-notify" class="headerlink" title="Object wait/notify"></a>Object wait/notify</h3><p>Object提供了<code>wait</code>和<code>notify</code>来实现多线程协作，而其底层实现也是基于<code>Monitor</code>来实现的。</p>
 <p>对于每一个对象都存在一个<code>ObjectMonitor结构</code>,</p>
 <blockquote>
-<p><strong>Owner</strong>：当前持有锁的线程ID；<br><strong>WaitSet</strong>：存放处于wait状态的线程队列；<br><strong>EntryList</strong>：存放处于等待锁block状态的线程队列。</p>
+<p><strong>Owner</strong>：当前持有锁的线程ID；<br><strong>WaitSet</strong>：存放处于wait状态的线程队列；<br><strong>EntryList</strong>：候选队列，存放处于等待锁block状态的线程队列；<br><strong>ContentionList</strong>：竞争队列，所有请求锁的线程首先被放在这个竞争队列中。</p>
 </blockquote>
 <p><strong>步骤：</strong></p>
 <ol>
-<li>当多个线程同时访问一段同步代码时，会进入<code>EntryList</code>队列中尝试获取锁。</li>
+<li>当多个线程同时访问一段同步代码时，会进入<code>ContentionList</code>队列中尝试获取锁；</li>
+<li>JVM会将一部分线程移动到<code>EntryList</code>中作为候选竞争线程；</li>
 <li>当一个线程获取到锁的时候会更新对象的<code>Owner</code>字段中的线程ID为当前线程ID。</li>
 <li>当线程调用<code>wait</code>方法时，释放当前对象的Monitor，<code>Owner</code>字段恢复为null，当前线程加入到<code>WaitSet</code>中等待被其他线程唤醒。</li>
 <li>当线程调用<code>notify</code>方法时，释放当前对象得Monitor，<code>Owner</code>字段恢复为null，并唤醒处于<code>WaitSet</code>中的线程。</li>

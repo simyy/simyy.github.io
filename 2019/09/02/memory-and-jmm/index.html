@@ -18,7 +18,7 @@
 <meta property="og:image" content="http://simyy.cn/images/memory_and_jmm_0_1.png">
 <meta property="og:image" content="http://simyy.cn/images/memory_and_jmm_2.jpg">
 <meta property="og:image" content="http://simyy.cn/images/memory_and_jmm_3.jpg">
-<meta property="og:updated_time" content="2019-12-23T06:07:36.432Z">
+<meta property="og:updated_time" content="2020-06-16T10:30:00.968Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="计算机内存架构 &amp; JMM">
 <meta name="twitter:description" content="总结下计算机内存架构的基本原理以及JMM的不同之处。">
@@ -148,7 +148,7 @@
 <blockquote>
 <p><code>指令重排</code>：处理器会对输入的代码进行乱序优化，在保证结果不变的情况下，优化指令排序，从而实现CPU的充分利用。</p>
 </blockquote>
-<h4 id="JMM"><a href="#JMM" class="headerlink" title="JMM"></a>JMM</h4><p><code>JMM</code>的全程是<code>Java内存模型(Java Memory Model)</code>。</p>
+<h4 id="JMM"><a href="#JMM" class="headerlink" title="JMM"></a>JMM</h4><p><code>JMM</code>的全程是<code>Java内存模型(Java Memory Model)</code>，是用来屏蔽掉各种硬件和操作系统的内存访问差异。</p>
 <p><img src="/images/memory_and_jmm_2.jpg" alt="映射关系"></p>
 <p><code>JMM</code>与硬件内存架构是不同的，区别在于：<strong>硬件内存架构未区分线程栈和堆</strong>。</p>
 <p><code>JMM</code>中<code>工作内存（Working Memory）</code>是一个抽象概念，涵盖了CPU寄存器、高速缓存等。</p>

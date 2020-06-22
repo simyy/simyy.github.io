@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>InnoDB MVCC | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="梳理下MVCC的具体实现。">
+<meta name="keywords" content="MySQL,数据库,中间件,MVCC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="InnoDB MVCC">
+<meta property="og:url" content="http://simyy.cn/2020/06/23/mysql-mvcc/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="梳理下MVCC的具体实现。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://simyy.cn/images/mysql-mvcc-1.png">
+<meta property="og:image" content="http://simyy.cn/images/mysql-mvcc-4.png">
+<meta property="og:image" content="http://simyy.cn/images/mysql-mvcc-2.png">
+<meta property="og:image" content="http://simyy.cn/images/mysql-mvcc-3.png">
+<meta property="og:updated_time" content="2020-06-22T16:48:24.418Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="InnoDB MVCC">
+<meta name="twitter:description" content="梳理下MVCC的具体实现。">
+<meta name="twitter:image" content="http://simyy.cn/images/mysql-mvcc-1.png">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<script src="/js/hexo_resize_image.js"></script>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">主页</a></li><li><a href="/2014/07/07/book-list">书单</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <!--div id="main"-->
+      <div id="main">
+
+
+<article id="post-mysql-mvcc" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2020/06/23/mysql-mvcc/" class="article-date">
+  <time datetime="2020-06-22T16:25:12.000Z" itemprop="datePublished">2020-06-23</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MVCC/">MVCC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/中间件/">中间件</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/数据库/">数据库</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      InnoDB MVCC
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>梳理下MVCC的具体实现。</p>
+<a id="more"></a>
+<p>全文基于MySQLV8.0版本。</p>
+<h3 id="HiddenRow"><a href="#HiddenRow" class="headerlink" title="HiddenRow"></a>HiddenRow</h3><p>InnoDB的每一行数据都隐藏了四个字段，具体如下：</p>
+<ul>
+<li><code>DB_TRX_ID</code>：记录更新该行最后一次的<code>事务ID</code>。</li>
+</ul>
+<blockquote>
+<p>事务ID是不断递增的，最新的事务ID永远大于原有事务ID，便于校验事务是否已经过期。</p>
+</blockquote>
+<ul>
+<li><p><code>DB_ROLL_PTR</code>：记录该行<code>回滚段（Undo Log）的指针</code>，用于查找该行的历史数据。</p>
+</li>
+<li><p><code>DB_ROW_ID</code>：在没有主键的情况下生成的<code>隐藏单调自增ID</code>。</p>
+</li>
+</ul>
+<blockquote>
+<p>被物理删除的DB_ROW_ID会被重用，。</p>
+</blockquote>
+<ul>
+<li><code>DELELE_BIT</code>：用于标识该记录<code>是否被删除</code>。</li>
+</ul>
+<blockquote>
+<p>DELELE_BIT状态位属于逻辑删除，MySQL利用后台运行<code>purge</code>线程来实现异步的物理删除。</p>
+</blockquote>
+<p><img src="/images/mysql-mvcc-1.png" alt=""></p>
+<p>其中，<code>DB_TRX_ID</code>与<code>DB_ROLL_PTR</code>是实现MVCC的关键。</p>
+<h3 id="UndoLog"><a href="#UndoLog" class="headerlink" title="UndoLog"></a>UndoLog</h3><blockquote>
+<p><code>undolog</code>是事务回滚与可重复读的关键。</p>
+</blockquote>
+<p><img src="/images/mysql-mvcc-4.png" alt=""></p>
+<p><code>undolog</code>属于逻辑日志，包含每行数据的所有版本的数据，用于支持事务与MVCC特性。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* undo结构 */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">trx_undo_t</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">/* undo ID */</span></span><br><span class="line">    ulint id;</span><br><span class="line">    <span class="comment">/* 类型：insert or update */</span></span><br><span class="line">    ulint type;  </span><br><span class="line">    <span class="comment">/* 事务ID */</span></span><br><span class="line">    <span class="keyword">trx_id_t</span> trx_id;</span><br><span class="line">    <span class="comment">/* undo对应回滚段 */</span></span><br><span class="line">    <span class="keyword">trx_rseg_t</span> *rseg;</span><br><span class="line">    <span class="comment">/* undo链表 */</span></span><br><span class="line">    UT_LIST_NODE_T(<span class="keyword">trx_undo_t</span>) undo_list;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>undo_list</code>是一个链表结构，链表节点正是<code>trx_undo_t</code>，也就是说UndoLog在内存里是按照链表存储的。</p>
+<p>此外，每一个<code>trx_undo_t</code>都绑定了对应的<code>事务ID</code>、<code>操作类型</code>以及对应的<code>回滚段</code>。</p>
+<blockquote>
+<p><code>redolog</code>属于物理日志，被称为重做日志，记录数据的修改，防止数据丢失，主要用于数据库重启恢复的时候被使用。</p>
+<p>为了提高持久化效率，可用<code>Redo Log Buffer（重做日志缓冲）</code>来缓存变更，达到阈值大小或定期flush到<code>Redo Log File（重做日志文件）</code>。</p>
+<p>为确保每次日志都能写入到事务日志文件，每次日志缓存的写入都会调用操作系统<code>fsync操作</code>（将OS Buffer中的日志刷到磁盘上的Log File中）。</p>
+</blockquote>
+<h3 id="trx-sys-t"><a href="#trx-sys-t" class="headerlink" title="trx_sys_t"></a>trx_sys_t</h3><p><code>trx_sys_t</code>可以被称为事务管理系统，包含<code>MVCC</code>、<code>事务</code>以及<code>回滚段</code>的管理。</p>
+<p><img src="/images/mysql-mvcc-2.png" alt=""></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">/* trx_t类型为节点的链表 */</span></span><br><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">UT_LIST_BASE_NODE_T</span><span class="params">(<span class="keyword">trx_t</span>)</span> trx_ut_list_t</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 事务管理系统 */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">trx_sys_t</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">/* 多版本控制器 */</span></span><br><span class="line">    MVCC *mvcc;</span><br><span class="line">    <span class="comment">/* 下一个被分配的事务ID */</span></span><br><span class="line">    <span class="keyword">volatile</span> <span class="keyword">trx_id_t</span> max_trx_id;</span><br><span class="line">    <span class="comment">/* 最小的活跃事务ID */</span></span><br><span class="line">    <span class="built_in">std</span>::atomic&lt;<span class="keyword">trx_id_t</span>&gt; min_active_id;</span><br><span class="line">    <span class="comment">/* 最大的活跃事务ID */</span></span><br><span class="line">    <span class="keyword">trx_id_t</span> rw_max_trx_id;</span><br><span class="line">    <span class="comment">/* 事务链表, 包含用户事务、系统事务与恢复事务 */</span></span><br><span class="line">    <span class="keyword">trx_ut_list_t</span> rw_trx_list;</span><br><span class="line">    <span class="comment">/* 用户事务链表 */</span></span><br><span class="line">    <span class="keyword">trx_ut_list_t</span> mysql_trx_list;</span><br><span class="line">    <span class="comment">/* 回滚段列表，用于存储UndoLog */</span></span><br><span class="line">    Rsegs rsegs;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>Rsegs</code>回滚段是由<code>trx_rseg_t</code>组成的数组。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* trx_rseg_t类型为节点的数组 */</span></span><br><span class="line"><span class="keyword">using</span> Rsegs_Vector = <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">trx_rseg_t</span> *, ut_allocator&lt;<span class="keyword">trx_rseg_t</span> *&gt;&gt;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 回滚段 */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rsegs</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        <span class="comment">/* 回滚段对应的事务ID */</span></span><br><span class="line">        <span class="keyword">trx_id_t</span> m_trx_no;</span><br><span class="line">        <span class="comment">/* 具体的回滚段数据 */</span></span><br><span class="line">        Rsegs_Vector m_rsegs;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="trx-rseg-t"><a href="#trx-rseg-t" class="headerlink" title="trx_rseg_t"></a>trx_rseg_t</h4><p><code>trx_rseg_t</code>是事务回滚段的基本结构，是组成回滚段的基本单元。</p>
+<p>从回滚段的结构中可以得到：<code>UndoLog</code>是被分为<code>update</code>与<code>insert</code>两种类型的。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 事务回滚段 */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">trx_rseg_t</span> &#123;</span></span><br><span class="line">    <span class="comment">/* 回滚段id */</span></span><br><span class="line">    ulint id;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">/* update undo日志缓存及链表 */</span></span><br><span class="line">    UT_LIST_BASE_NODE_T(<span class="keyword">trx_undo_t</span>) update_undo_list;</span><br><span class="line">    UT_LIST_BASE_NODE_T(<span class="keyword">trx_undo_t</span>) update_undo_cached;</span><br><span class="line">    <span class="comment">/* insert undo日志缓存及链表 */</span></span><br><span class="line">    UT_LIST_BASE_NODE_T(<span class="keyword">trx_undo_t</span>) insert_undo_list;</span><br><span class="line">    UT_LIST_BASE_NODE_T(<span class="keyword">trx_undo_t</span>) insert_undo_cached;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>trx_undo_t</code>的具体结构在上面已经介绍过了，是具体存储UndoLog的结构。</p>
+<h3 id="ReadView"><a href="#ReadView" class="headerlink" title="ReadView"></a>ReadView</h3><p><code>ReadView</code>是用来判断undolog中多版本数据的可见性。</p>
+<p><code>trx_t</code>是事务的结构体，每一个事务都包含一个<code>read_view</code>字段。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 事务 */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">trx_t</span> &#123;</span></span><br><span class="line">  ...</span><br><span class="line">  <span class="comment">/* 事务ID */</span></span><br><span class="line">  <span class="keyword">trx_id_t</span> id;</span><br><span class="line">  <span class="comment">/* 解决可见性 */</span></span><br><span class="line">  ReadView *read_view;</span><br><span class="line">  ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* ReadView事务可见范围 */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ReadView</span> &#123;</span></span><br><span class="line">    <span class="comment">/* 大于该ID的事务不可见（high water mark） */</span></span><br><span class="line">    <span class="keyword">trx_id_t</span> m_low_limit_id;</span><br><span class="line">    <span class="comment">/* 小于该ID的事务不可见（low water mark） */</span></span><br><span class="line">    <span class="keyword">trx_id_t</span> m_up_limit_id;</span><br><span class="line">    <span class="comment">/* 创建ReadView的事务ID */</span></span><br><span class="line">    <span class="keyword">trx_id_t</span> m_creator_trx_id;</span><br><span class="line">    <span class="comment">/* 创建ReadView时活跃事务 */</span></span><br><span class="line">    <span class="keyword">ids_t</span> m_ids;</span><br><span class="line">    <span class="comment">/* 用于记录可被purge清理的事务 */</span></span><br><span class="line">    <span class="keyword">trx_id_t</span> m_low_limit_no;</span><br><span class="line">    <span class="comment">/* 状态 */</span></span><br><span class="line">    <span class="keyword">bool</span> m_closed;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">typedef</span> <span class="title">UT_LIST_NODE_T</span><span class="params">(ReadView)</span> node_t</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* 具体view链表 */</span></span><br><span class="line">    byte pad1[<span class="number">64</span> - <span class="keyword">sizeof</span>(<span class="keyword">node_t</span>)];</span><br><span class="line">    <span class="keyword">node_t</span> m_view_list;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> UT_LIST_NODE_T(TYPE)/</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> &#123;</span>/</span><br><span class="line">       TYPE *   prev;       <span class="comment">/* pointer to the previous node, NULL if start of list */</span>/</span><br><span class="line">       TYPE *   next;       <span class="comment">/* pointer to next node, NULL if end of list */</span>/</span><br><span class="line">&#125;/</span><br></pre></td></tr></table></figure>
+<p>InnoDB每次创建一个事务，都会创建一个包含当前活跃事务列表以及保证事务可见性的ReadView。</p>
+<blockquote>
+<p>事务的可见性的判断规则如下：</p>
+<p>① <code>m_ids</code>中大于<code>m_low_limit_id</code>的事务不可见；<br>② <code>m_ids</code>中小于<code>m_up_limit_id</code>的事务不可见。</p>
+</blockquote>
+<p><img src="/images/mysql-mvcc-3.png" alt=""></p>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><p><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-multi-versioning.html" target="_blank" rel="noopener">innodb-multi-versioning</a><br>[trx0sys_8h_source]<a href="https://dev.mysql.com/doc/dev/mysql-server/8.0.12/trx0sys_8h_source.html" target="_blank" rel="noopener">https://dev.mysql.com/doc/dev/mysql-server/8.0.12/trx0sys_8h_source.html</a><br><a href="https://dev.mysql.com/doc/dev/mysql-server/8.0.12/trx0trx_8h_source.html" target="_blank" rel="noopener">trx0trx_8h_source</a><br><a href="https://dev.mysql.com/doc/dev/mysql-server/8.0.12/read0types_8h_source.html" target="_blank" rel="noopener">read0types_8h_source</a><br><a href="http://www.leviathan.vip/2019/02/14/InnoDB%E7%9A%84%E4%BA%8B%E5%8A%A1%E5%88%86%E6%9E%90-Undo-Log/" target="_blank" rel="noopener">InnoDB事务分析-undo log</a><br><a href="http://www.leviathan.vip/2019/03/20/InnoDB%E7%9A%84%E4%BA%8B%E5%8A%A1%E5%88%86%E6%9E%90-MVCC/" target="_blank" rel="noopener">InnoDB的事务分析-MVCC</a><br><a href="https://colinback.github.io/szyblogs/database/2018/06/15/innodb-kernel-12/" target="_blank" rel="noopener">InnoDB 内核阅读笔记（十二）- 事务处理</a></p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/06/21/threadpool/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          线程池的思考
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</div>
+
+    <!--/div-->
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2020 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

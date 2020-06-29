@@ -3,20 +3,22 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>同步、异步、阻塞、非阻塞 | simyy</title>
+  <title>HTTPS | simyy</title>
   <meta name="viewport" content="width=device-width">
-  <meta name="description" content="简单介绍同步/异步、阻塞/非阻塞。">
+  <meta name="description" content="记录HTTPS认证过程。">
 <meta name="keywords" content="计算机原理,网络">
 <meta property="og:type" content="article">
-<meta property="og:title" content="同步、异步、阻塞、非阻塞">
-<meta property="og:url" content="http://simyy.cn/2016/04/26/block-sync/index.html">
+<meta property="og:title" content="HTTPS">
+<meta property="og:url" content="http://simyy.cn/2020/06/29/https/index.html">
 <meta property="og:site_name" content="simyy">
-<meta property="og:description" content="简单介绍同步/异步、阻塞/非阻塞。">
+<meta property="og:description" content="记录HTTPS认证过程。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-05-20T11:14:32.777Z">
+<meta property="og:image" content="http://simyy.cn/images/https-1.png">
+<meta property="og:updated_time" content="2020-06-29T08:47:33.151Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="同步、异步、阻塞、非阻塞">
-<meta name="twitter:description" content="简单介绍同步/异步、阻塞/非阻塞。">
+<meta name="twitter:title" content="HTTPS">
+<meta name="twitter:description" content="记录HTTPS认证过程。">
+<meta name="twitter:image" content="http://simyy.cn/images/https-1.png">
   
     <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
   
@@ -52,11 +54,11 @@
       <div id="main">
 
 
-<article id="post-block-sync" class="post">
+<article id="post-https" class="post">
 	<footer class="entry-meta-header">
 		<span class="meta-elements date">
-			<a href="/2016/04/26/block-sync/" class="article-date">
-  <time datetime="2016-04-25T16:01:00.000Z" itemprop="datePublished">2016-04-26</time>
+			<a href="/2020/06/29/https/" class="article-date">
+  <time datetime="2020-06-29T04:34:45.000Z" itemprop="datePublished">2020-06-29</time>
 </a>
 
 		</span>
@@ -75,26 +77,34 @@
 		
   
     <h1 class="article-title entry-title" itemprop="name">
-      同步、异步、阻塞、非阻塞
+      HTTPS
     </h1>
   
 
 	</header>
 	<div class="entry-content">
 		
-    	<p>简单介绍同步/异步、阻塞/非阻塞。</p>
+    	<p>记录HTTPS认证过程。</p>
 <a id="more"></a>
-<h2 id="同步-amp-异步"><a href="#同步-amp-异步" class="headerlink" title="同步 &amp; 异步"></a>同步 &amp; 异步</h2><blockquote>
-<p>同步和异步属于<code>行为</code>，区别在于<code>调用方与被调用方通信行为的不同</code>。</p>
+<p><a href="https://zh.wikipedia.org/wiki/超文本传输安全协议" target="_blank" rel="noopener">HTTPS</a>是基于<code>SSL/TLS</code>来加密的HTTP安全协议。</p>
+<p><img src="/images/https-1.png" alt=""></p>
+<p>如图所示，HTTPS协议可分为两部分：<code>安全认证</code>与<code>加密传输</code>。</p>
+<p><strong>安全认证</strong></p>
+<blockquote>
+<p>Client &amp; Server 利用CA证书验证、RSA非对称加密实现传输密钥的安全传递。</p>
 </blockquote>
-<p><strong>同步的行为：</strong>调用方主动等待调用结果的返回。</p>
-<p><strong>异步的行为：</strong>调用方不再等待调用结果的返回，而是通过被调用方的回调来实现结果的返回。</p>
-<h2 id="阻塞-amp-非阻塞"><a href="#阻塞-amp-非阻塞" class="headerlink" title="阻塞 &amp; 非阻塞"></a>阻塞 &amp; 非阻塞</h2><blockquote>
-<p>阻塞和非阻塞属于<code>状态</code>，区别在于<code>调用方出发调用后的状态</code>。</p>
-<p>阻塞和非阻塞均属于<code>同步行为</code>。</p>
+<p>1&gt; Client发起认证申请，向Server请求<code>CA证书</code>及<code>RSA公钥</code>；</p>
+<p>2&gt; Server接收到认证申请，向Client端下发<code>CA证书</code>及<code>RSA公钥</code>；</p>
+<p>3&gt; Client验证<code>CA证书</code>的有效性（签名校验、有效期校验等）；</p>
+<p>4&gt; Client生成<code>AES密钥</code>，向Server发送<code>RSA公钥</code>加密过的<code>AES密钥</code>；</p>
+<p>5&gt; Server接受到加密过的<code>AES密钥</code>，利用<code>RSA私钥</code>解密得到<code>AES密钥</code>。</p>
+<p><strong>加密传输</strong></p>
+<blockquote>
+<p>Client &amp; Server 利用AES对称加密实现数据的加密与解密。</p>
 </blockquote>
-<p><strong>阻塞状态</strong>：调用方触发调用后当前线程会被挂起，直到结果返回。</p>
-<p><strong>非阻塞状态</strong>：调用方触发调用后当前线程不会挂起，而是通过重试（获取结果）来获取结果。</p>
+<p>1&gt; Client利用<code>AES密钥</code>加密Request请求；</p>
+<p>2&gt; Server利用<code>AES密钥</code>解密接受到的请求，再次利用<code>AES密钥</code>加密Response返回；</p>
+<p>3&gt; Client端利用<code>AES密钥</code>解密接受到的返回。</p>
 
     
 	</div>
@@ -102,21 +112,12 @@
     
 <nav id="article-nav">
   
-    <a href="/2016/05/17/maven/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          Maven 简介
-        
-      </div>
-    </a>
   
-  
-    <a href="/2016/04/15/MyISAM-InnoDB/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2020/06/23/mysql-mvcc/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">
         
-          MySQL MyISAM VS InnoDB
+          InnoDB MVCC
         
       </div>
     </a>

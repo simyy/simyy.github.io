@@ -14,7 +14,7 @@
 <meta property="og:description" content="到底该如何设计与使用线程池？">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://simyy.cn/images/threadpool-1.png">
-<meta property="og:updated_time" content="2020-06-20T16:35:25.417Z">
+<meta property="og:updated_time" content="2020-06-23T02:55:39.070Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="线程池的思考">
 <meta name="twitter:description" content="到底该如何设计与使用线程池？">
@@ -104,6 +104,10 @@
 <p>此时，<code>WT/ST≈0</code>、<code>Num=N*(1+0)=N</code>，</p>
 <p>但由于线程切换是基于等待线程的，因此需要增加一个等待线程来避免新线程创建导致的CPU空闲，</p>
 <p>因此，Num = N + 1</p>
+<blockquote>
+<p>上面的计算都是基于CPU充分使用的前提下，那么如果保证CPU性能的冗余来估计线程数量呢？</p>
+<p><code>Num = N * U * (1 + WT / ST)</code>，其中，U为CPU的目标使用率。</p>
+</blockquote>
 <p><strong>内存资源的消耗</strong></p>
 <p>首先，线程的申请包括<code>线程资源的申请</code>、<code>线程资源的初始化</code>以及<code>线程资源的释放</code>。</p>
 <blockquote>
@@ -216,12 +220,14 @@
 <p>并行任务可能会占用多倍的内存，因此需要仔细计算内存占用情况是否会导致机器内存不足。</p>
 <h4 id="降级策略"><a href="#降级策略" class="headerlink" title="降级策略"></a>降级策略</h4><p>线程池只是一种资源集中管理与优化的手段，它并不能解决资源不足与资源竞争的问题。</p>
 <p>在线程池无法支持当前任务的情况下，需要提前设计适当的降级策略。</p>
-<p>降级策略就是【线程池的拒绝策略】，它包括：</p>
-<ul>
-<li>异常报错、报警、动态调整线程配置？</li>
-<li>任务持久化到DB、MQ、利用延迟消息再次触发？</li>
-<li>动态调整线程池配置，增大线程数量限制与队列大小？</li>
-</ul>
+<p>线程池的降级策略实际可以理解为<code>线程池的拒绝策略</code>。</p>
+<blockquote>
+<p>那么如何设计线程池的拒绝策略？</p>
+<p>① 动态调整线程池配置，线程池的配置应该与具体的业务场景有关。</p>
+<p>在高并发的场景下，动态调整线程池的配置对机器CPU、内存会造成不同情况的影响，严重情况下导致系统不可用。</p>
+<p>② 异常报警，是异常监控的必要手段。</p>
+<p>③ 任务持久化到DB、MQ，利用异步线程、延迟消息等方式再次触发。</p>
+</blockquote>
 <h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://tech.meituan.com/2020/04/02/java-pooling-pratice-in-meituan.html" target="_blank" rel="noopener">Java线程池实现原理及其在美团业务中的实践</a><br><a href="http://ifeve.com/how-to-calculate-threadpool-size/" target="_blank" rel="noopener">如何合理地估算线程池大小？</a><br><a href="http://xifxiong.online/java-threadpool/" target="_blank" rel="noopener">Java线程池-ThreadPoolExecutor原理分析</a><br><a href="https://www.ibm.com/developerworks/library/j-jtp0730/index.html" target="_blank" rel="noopener">Thread pools and work queues</a><br><a href="https://www.geeksforgeeks.org/thread-pools-java/" target="_blank" rel="noopener">Thread Pools in Java</a><br><a href="https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ThreadPoolExecutor.html" target="_blank" rel="noopener">Oracle ThreadPoolExecutor</a></p>
 
     

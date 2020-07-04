@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>Redlock - Distributed locks with Redis | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="Redlock - 基于Redis的分布式锁.">
+<meta name="keywords" content="中间件,Redis,分布式锁">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redlock - Distributed locks with Redis">
+<meta property="og:url" content="http://simyy.cn/2020/07/04/redis-redlock/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="Redlock - 基于Redis的分布式锁.">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://simyy.cn/images/redis-lock-unsafe-lock.png">
+<meta property="og:image" content="http://simyy.cn/images/redis-lock-fencing-tokens.png">
+<meta property="og:image" content="http://simyy.cn/images/redis-lock-time-forward.png">
+<meta property="og:updated_time" content="2020-07-04T06:57:10.795Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Redlock - Distributed locks with Redis">
+<meta name="twitter:description" content="Redlock - 基于Redis的分布式锁.">
+<meta name="twitter:image" content="http://simyy.cn/images/redis-lock-unsafe-lock.png">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<script src="/js/hexo_resize_image.js"></script>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">主页</a></li><li><a href="/2014/07/07/book-list">书单</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <!--div id="main"-->
+      <div id="main">
+
+
+<article id="post-redis-redlock" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2020/07/04/redis-redlock/" class="article-date">
+  <time datetime="2020-07-04T06:53:10.000Z" itemprop="datePublished">2020-07-04</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/">Redis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/中间件/">中间件</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/分布式锁/">分布式锁</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      Redlock - Distributed locks with Redis
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>Redlock - 基于Redis的分布式锁.</p>
+<a id="more"></a>
+<blockquote>
+<p>除了自己的思考以外，内容来源如下：</p>
+<p><a href="https://redis.io/topics/distlock" target="_blank" rel="noopener">Distributed locks with Redis</a><br><a href="https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html" target="_blank" rel="noopener">How to do distributed locking</a><br><a href="http://antirez.com/news/101" target="_blank" rel="noopener">Is Redlock safe?</a></p>
+</blockquote>
+<h3 id="SETNX-amp-SET-NX"><a href="#SETNX-amp-SET-NX" class="headerlink" title="SETNX &amp; SET NX"></a>SETNX &amp; SET NX</h3><p>通常，大家利用Redis实现分布式锁最简单的方案是<code>命令SETNX</code>。</p>
+<p><code>SETNX</code>全称为<code>SET IF NOT EXIST</code>，也就是说如果不存在则设置该值。</p>
+<p><strong>那为什么<code>SETNX</code>可以实现分布式锁的功能呢？</strong></p>
+<p>由于Redis的单线程（无锁化的命令执行）特性，可以保证不会出现多个客户端同时执行SETNX的情况。</p>
+<h4 id="Implements"><a href="#Implements" class="headerlink" title="Implements"></a>Implements</h4><p>在Redlock之前，Redis分布式锁大体包含以下四种实现方式，</p>
+<p>不过仔细考量下这种实现方式就会发现一些问题，具体如下：</p>
+<p><code>① 加锁成功后没有释放锁，导致死锁</code>，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 加锁</span></span><br><span class="line">SETNX LOCK_KEY <span class="number">1</span></span><br><span class="line"><span class="comment">// 业务逻辑</span></span><br><span class="line"><span class="keyword">do</span> somethind ...</span><br><span class="line"><span class="comment">// 释放锁</span></span><br><span class="line">EXPIRE LOCK_KEY <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>在上面的<code>业务逻辑</code>中如果出现业务异常导致无法触发<code>释放锁</code>的操作，从而导致<code>LOCK_KEY</code>无法释放，</p>
+<p>此时，其他业务线程就会一致等待<code>LOCK_KEY</code>的释放，从而造成<code>死锁</code>。</p>
+<p><code>② 为解决死锁的问题，加锁后立即设置超时时间，降低死锁可能性</code>，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 加锁</span></span><br><span class="line">SETNX LOCK_KEY <span class="number">1</span></span><br><span class="line"><span class="comment">// 设置过期时间</span></span><br><span class="line">EXPIRE LOCK_KEY <span class="number">5</span>s</span><br><span class="line"><span class="comment">// 业务逻辑</span></span><br><span class="line"><span class="keyword">do</span> somethind ...</span><br><span class="line"><span class="comment">// 释放锁</span></span><br><span class="line">EXPIRE LOCK_KEY <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>与①中不同之处在于<code>新增了[设置默认时间]</code>，避免了业务逻辑异常导致无法执行<code>释放锁</code>的操作，</p>
+<p>但仍然存在<code>执行加锁成功但设置默认时间失败</code>的情况，可理解为<code>加锁与过期设置操作的非原子性</code>，也会造成<code>死锁</code>。</p>
+<p><code>③ 利用时间特性来生成特定的LOCK_KEY来解决非原子性操作</code>，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 生成特定的时间锁</span></span><br><span class="line">LOCK_KEY = FUNC(LOCK_KEY, TIME)</span><br><span class="line"><span class="comment">// 加锁</span></span><br><span class="line">SETNX LOCK_KEY <span class="number">1</span></span><br><span class="line"><span class="comment">// 业务逻辑</span></span><br><span class="line"><span class="keyword">do</span> somethind ...</span><br><span class="line"><span class="comment">// 释放锁</span></span><br><span class="line">EXPIRE LOCK_KEY <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>利用时间来生成特定的时间锁来解决死锁问题，但是会生成大量无效KEY。</p>
+<p>由于与时间相关，<code>业务逻辑的处理时间可能大于锁的有效期</code>，就会造成<code>业务逻辑还没有处理完的同时其他线程就可以竞争『同一把锁』</code>。</p>
+<blockquote>
+<p>『同一把锁』是指原始锁是同样的，也就是未执行<code>FUNC(LOCK_KEY, TIME)</code>之前的<code>LOCK_KEY</code>。</p>
+<p>当执行完<code>LOCK_KEY = FUNC(LOCK_KEY, TIME)</code>后，LOCK_KEY将与TIME相关，也就是说<code>不同时段使用不同的逻辑锁</code>。</p>
+</blockquote>
+<p><code>④ 使用SET EX NX来解决SETNX与EXPIRE非原子性的问题</code>，</p>
+<blockquote>
+<p><a href="https://redis.io/commands/set" target="_blank" rel="noopener">&gt;= 2.6.12: Added the EX, PX, NX and XX options. </a></p>
+</blockquote>
+<p>此方法需要Redis版本大于等于<code>v2.6.12</code>，如下，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 加锁并设置过期时间</span></span><br><span class="line">SET LOCK_KEY <span class="number">1</span> EX <span class="number">5</span>s NX</span><br><span class="line"><span class="comment">// 业务逻辑</span></span><br><span class="line"><span class="keyword">do</span> somethind ...</span><br><span class="line"><span class="comment">// 释放锁</span></span><br><span class="line">EXPIRE LOCK_KEY <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>通过该命令很好的解决了方法②中的不足，也不许引入③中的复杂逻辑，实现了<code>设置与过期的原子性操作</code>，</p>
+<p>但其仍然没有解决<code>业务逻辑超长的执行时间导致的锁自动过期的问题</code>。</p>
+<hr>
+<p>上面讨论的实际上都是<code>如何解决互斥</code>，那么如何保证<code>分布式锁的容错性</code>并没有讨论。</p>
+<p>假设线程<code>锁定的默认时间 &gt; Master节点宕机恢复时间</code>，考虑以下主备场景，</p>
+<ul>
+<li>A线程尝试加锁并加锁成功；</li>
+<li>B线程尝试加锁并加锁失败；</li>
+<li>Master节点宕机；</li>
+<li>尝试切换Slave为Master提供服务；</li>
+<li>C线程尝试加锁并加锁成功；</li>
+</ul>
+<p>以上步骤中，<code>Master节点宕机</code>是关键，再主备场景下主从存在延时，</p>
+<p>假设<code>Master节点</code>宕机前未将A线程的加锁数据同步至<code>Slave节点</code>，</p>
+<p>那么，此时Slave切换为Master后中缺少A线程的加锁数据，从而C线程获取了锁造成了资源的竞争。</p>
+<blockquote>
+<p>最近由于所谓的政治舆论压力，作者将<code>master-slave</code>改为了<code>master-replica</code>。</p>
+</blockquote>
+<h3 id="Redlock"><a href="#Redlock" class="headerlink" title="Redlock"></a>Redlock</h3><p><code>Redlock</code>主要就是解决分布式场景下<code>互斥</code>、<code>死锁</code>以及<code>容错</code>这三个关键问题。</p>
+<blockquote>
+<p>Redlock核心思想：基于Quorum机制，采用大于一半的投票方式来实现分布式锁。</p>
+</blockquote>
+<p><strong>Redlock具体步骤如下：</strong></p>
+<p>① 采用<code>N(奇数)台相互独立</code>的Redis实例<code>参与投票</code>；</p>
+<p>② Client随机生成<code>random_val</code>，向实例发送<code>set(key, random_val, nx=True, px=TTL)</code>命令的方式获取<code>投票结果</code>；</p>
+<blockquote>
+<p>每次循环调用Redis实例与上面讲到的单实例情况下分布式锁的实现大体相同，其中，<code>TTL是业务方来控制的，不设置的话有可能导致死锁</code>。</p>
+</blockquote>
+<p>③ 由于①中说明存在多个实例，则Client端通过<code>顺序请求</code>的方式来获取多个实例的投票。</p>
+<blockquote>
+<p>为了避免某个实例问题导致的阻塞情况，增加一个<code>默认的超时时间以防止长时间的阻塞</code>。</p>
+</blockquote>
+<p>④ 完成③中的投票后，统计投票结果以及投票过程的耗时，<code>当通过半数(N/2+1)的(设置)成功投票以及超时校验后则认为成功加锁</code>；</p>
+<blockquote>
+<p>不仅仅需要过半的成功投票，还需要校验整个加锁过程的耗时是否超时，其中锁默认的有效期(defaultValidityTime)是业务相关的。</p>
+<p>当④中成功获取锁后，锁的有效期需要减去投票过程的耗时：<code>validityTime = TTL - elapsedTime</code>。</p>
+</blockquote>
+<p>⑤ Client<code>加锁失败</code>的话需要<code>释放掉已经设置成功的实例</code>。</p>
+<blockquote>
+<p>加锁失败的原因有<code>加锁超时</code>、<code>投票未过半</code>两种情况，无论那种情况都需要释放掉已经设置的锁（这里会尝试释放所有实例的锁）。</p>
+</blockquote>
+<h4 id="Safety"><a href="#Safety" class="headerlink" title="Safety"></a>Safety</h4><p>原文<code>Safety arguments</code>中讨论了Redlock是如何保证加锁的安全性。</p>
+<p><strong>锁定策略</strong></p>
+<p>通过<code>半数投票</code>机制来实现锁定策略，具体实现如下，</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># N为实例数量，m为投票数量</span></span><br><span class="line"><span class="keyword">if</span> m &gt; N/<span class="number">2</span> + <span class="number">1</span>:</span><br><span class="line">    successed</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    failed</span><br></pre></td></tr></table></figure>
+<p><strong>锁定时间</strong></p>
+<p>锁的实际有效期计算公式如下，</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># TTL为锁的过期时间，T1为开始加锁时间，T2为结束加锁时间，CLOCK_DRIFT为时钟偏移</span></span><br><span class="line">MIN_VALIDITY = TTL - (T2 - T1) - CLOCK_DRIFT,</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>可以理解为：<code>在尝试加锁的开始已经属于锁定时间的一部分</code>，锁的具体锁定时间与加锁过程耗时有关。</p>
+</blockquote>
+<p>此外，如果任务优先执行完会立即释放锁，从而实际锁定时间可能会小于<code>MIN_VALIDITY</code>。</p>
+<h4 id="Liveness"><a href="#Liveness" class="headerlink" title="Liveness"></a>Liveness</h4><p><strong>锁的释放</strong></p>
+<p>锁的释放也包括两种情况：<code>主动释放</code>与<code>自动释放</code>。</p>
+<p>自动释放是利用Redis自动过期实现的，而主动释放是基于Client主动触发来实现的，具体如下，</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> processTime &lt; MIN_VALIDITY:</span><br><span class="line">    <span class="keyword">for</span> server <span class="keyword">in</span> servers:</span><br><span class="line">        <span class="keyword">if</span> server.get(LOCK_KEY) == current_val;</span><br><span class="line">            server.<span class="keyword">del</span> LOCK_KEY</span><br></pre></td></tr></table></figure>
+<p>在Client删除实例的LOCK_KEY时会去判断VAL值是否是该节点之前设置过的。</p>
+<h3 id="Unsafety"><a href="#Unsafety" class="headerlink" title="Unsafety"></a>Unsafety</h3><p><strong>STW</strong></p>
+<p><code>Garbage Collector（垃圾回收器）</code>是用于帮助应用自动回收已过期的内存空间的一种辅助工具。</p>
+<p>如何衡量一个垃圾回收器的性能的好坏，大多体现在如何保证更小<code>Stop The World</code>的。</p>
+<p>先看下面这个场景，当STW时间大于持有锁的有效时间时，就会造成分布式锁的异常。</p>
+<p><img src="/images/redis-lock-unsafe-lock.png" alt="STW unsafe lock"></p>
+<p>如图所示，<code>Stop The World</code>导致了线程执行时延，</p>
+<p>线程从暂停中恢复时已经超过了锁的有效期，从而导致锁失效，此时另外一个线程尝试并成功获取锁，造成资源竞争。</p>
+<blockquote>
+<p>原文提到：<code>STW恢复后再次验证锁的有效性</code>来避免锁定超时的情况。</p>
+<p>但这里其实存在一个问题：<code>如果进程执行了一部分逻辑怎么办？</code></p>
+<p>在MySQL中，基于undolog与redview的MVCC实现了事务的功能。</p>
+<p>那么在分布式的场景下业务如何保证锁失效导致的资源竞争的问题，是支持业务回滚？还是支持垃圾数据的容错？</p>
+<p>实际上，无论进程在做什么都应该有一个耗时的上限，而这个上限是由具体的业务场景决定的（甚至需要考虑STW的时间）。</p>
+</blockquote>
+<p><strong>Blocking</strong></p>
+<p>除了垃圾回收造成的长时间STW，进程运行过程中会遇到资源抢占等一系列造成阻塞的问题。</p>
+<p>例如，磁盘容量不足、内存容量不足、IO阻塞、CPU的异常抢占策略等等，都有可能造成进程长时间的Blocking。</p>
+<h3 id="Safety-with-fencing-token"><a href="#Safety-with-fencing-token" class="headerlink" title="Safety with fencing token"></a>Safety with fencing token</h3><p><img src="/images/redis-lock-fencing-tokens.png" alt="fencing-tokens"></p>
+<p>Martin提出<code>fencing token</code>来解决上面延时导致的过期问题。</p>
+<blockquote>
+<p><code>fencing token</code>可以理解为<code>zookeeper中自增的zxid</code>或<code>znode的版本号</code>。</p>
+<p>zookeeper中，zxid是用于实现事务的全局有序，而znode的版本号是用来解决资源竞争的新老问题（也就是fancing token）。</p>
+</blockquote>
+<p><code>fencing token</code>是用于解决新老版本的问题，在分布式锁场景下用于解决锁异常情况下的有效性问题。</p>
+<p><code>fencing token</code>一定是<code>全局唯一</code>且<code>全局有序</code>，</p>
+<ul>
+<li><code>全局唯一</code>是为了保证锁的唯一性，不允许存在两个进程获取到同一把锁；</li>
+<li><code>全局有序</code>是为了保证锁的有效性，总会认为最后持有的锁有效，也就是所谓的ID最大的有效。</li>
+</ul>
+<hr>
+<p>Antirez并不认为Redlock存在这个问题，由于Redlock实现了随机数的VAL机制保证了唯一性，已经满足了锁竞争的场景。</p>
+<p>如果进程获取锁当前的VAL与本地设置的VAL不同，那么自然可以认为锁已经被抢占了。</p>
+<h3 id="Safety-with-timing-assumptions"><a href="#Safety-with-timing-assumptions" class="headerlink" title="Safety with timing assumptions"></a>Safety with timing assumptions</h3><p>Martin提出Redlock锁的有效期与Redis实例的时钟强依赖，而Redis实例的时钟是不可靠的。</p>
+<p>假设一种场景，假设共五个Redis实例1~5，两个客户端A与B参与投票：</p>
+<ul>
+<li>客户端A 在 1、2、3 三个节点抢占成功；</li>
+<li>此时，节点3时钟前跳，导致客户端A的抢占失效（客户端A并无感知）；</li>
+<li>客户端B 在 3、4、5 两个节点抢占成功；</li>
+</ul>
+<p>因此，当时钟发生异常的情况下，客户端A与客户端B均成功获取锁，导致分布式锁失效。</p>
+<p><img src="/images/redis-lock-time-forward.png" alt="time forward"></p>
+<p>此外，linux提供了两种获取系统时间：<code>CLOCK_REALTIME</code>与<code>CLOCK_MONOTONIC</code><a href="https://stackoverflow.com/questions/3523442/difference-between-clock-realtime-and-clock-monotonic" target="_blank" rel="noopener">参考</a>，</p>
+<ul>
+<li><code>CLOCK_REALTIME</code>：会发生向前或向后的时钟跳跃，包括认为修改与NTP的影响；</li>
+<li><code>CLOCK_MONOTONIC</code>：只会收到NTP的影响，合理的运维可以尽量避免此问题。</li>
+</ul>
+<blockquote>
+<p>Redis使用<code>CLOCK_REALTIME</code>，存在时钟跳跃的风险。</p>
+</blockquote>
+<h3 id="Is-Redlock-safe"><a href="#Is-Redlock-safe" class="headerlink" title="Is Redlock safe"></a>Is Redlock safe</h3><p>Redis作者antirez对Martin提出的不安全问题给出了自己的理由。</p>
+<p>Redlock是一种基于客户端实现分布式锁的思路，不仅仅适用于redis。</p>
+<p>Redlock的目标用于是哪些使用原本使用Redis作为分布式锁的用户，提高原有分布式锁的容错性。</p>
+<p>类似于Zookeeper，只要满足半数投票就可以认为加锁成功，允许部分机器出现异常情况。</p>
+<hr>
+<p>Redlock无法保证绝对的安全性，这也是它可以实现高性能的关键。</p>
+<p>常见的共识系统为了避免时钟问题，使用<code>fencing token</code>来的全局有序来保证绝对的安全性，而如何保证全局有序又将成为为系统性能的瓶颈。</p>
+<h3 id="Thoughts"><a href="#Thoughts" class="headerlink" title="Thoughts"></a>Thoughts</h3><p>虽然很久之前就有打算对这块内容整理一下，不过一拖再拖。</p>
+<p>微服务场景下通常会涉及到分布式锁的问题，常用的实现有：</p>
+<ul>
+<li>MySQL</li>
+<li>Redis</li>
+<li>Zookeeper</li>
+<li>Etcd</li>
+</ul>
+<p>其中，基于数据库来实现可以解决了大部分的场景，ZK/ETCD提供了强一致性的保证，Redis提供了更好的性能。</p>
+<p>如何选择还是要看业务场景，分布式锁对于微服务来说等同于JVM的STW、PYTHON中的GIL，无锁话设计才是性能提升的关键。</p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/06/29/https/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          HTTPS
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</div>
+
+    <!--/div-->
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2020 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

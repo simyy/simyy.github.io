@@ -14,7 +14,7 @@
 <meta property="og:description" content="记录HTTPS认证过程。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://simyy.cn/images/https-1.png">
-<meta property="og:updated_time" content="2020-06-29T08:47:33.151Z">
+<meta property="og:updated_time" content="2020-07-01T08:13:47.925Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HTTPS">
 <meta name="twitter:description" content="记录HTTPS认证过程。">
@@ -105,12 +105,26 @@
 <p>1&gt; Client利用<code>AES密钥</code>加密Request请求；</p>
 <p>2&gt; Server利用<code>AES密钥</code>解密接受到的请求，再次利用<code>AES密钥</code>加密Response返回；</p>
 <p>3&gt; Client端利用<code>AES密钥</code>解密接受到的返回。</p>
+<blockquote>
+<p>那为什么需要使用两种加密方式呢？</p>
+<p>由于RSA适用于不适用于大文件的加密，会导致整个加密过程很缓慢，相反，AES会好很多。</p>
+<p><a href="https://www.quora.com/How-much-faster-is-AES-than-RSA" target="_blank" rel="noopener">How much faster is AES than RSA?</a></p>
+</blockquote>
 
     
 	</div>
 	
     
 <nav id="article-nav">
+  
+    <a href="/2020/07/04/redis-redlock/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Redlock - Distributed locks with Redis
+        
+      </div>
+    </a>
   
   
     <a href="/2020/06/23/mysql-mvcc/" id="article-nav-older" class="article-nav-link-wrap">

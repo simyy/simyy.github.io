@@ -17,7 +17,7 @@
 <meta property="og:image" content="http://simyy.cn/images/netty-2.png">
 <meta property="og:image" content="http://simyy.cn/images/netty-3.png">
 <meta property="og:image" content="http://simyy.cn/images/netty-4.png">
-<meta property="og:updated_time" content="2020-07-19T11:31:42.118Z">
+<meta property="og:updated_time" content="2020-07-20T02:24:36.044Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Netty设计原理">
 <meta name="twitter:description" content="Netty设计原理。">
@@ -163,6 +163,13 @@
 <p><strong>零拷贝</strong></p>
 <p><code>CompositeByteBuf</code>是多个ByteBuf的逻辑拼接，使用<code>Component数组</code>来存储ByteBuf的引用，不会产生复制。</p>
 <p>当Component数组大小不足时候，支持自动扩容数组大小，此时的扩容也仅仅涉及到引用的复制。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>Netty是典型的Reactor模型，</p>
+<ul>
+<li>Master与Worker线程分离</li>
+<li>基于线程池的Executor</li>
+<li>基于pipeline的Handler处理机制</li>
+<li>ByteBuf降低缓冲区复制的性能损耗</li>
+</ul>
 
     
 	</div>

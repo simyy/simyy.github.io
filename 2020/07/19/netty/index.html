@@ -17,7 +17,7 @@
 <meta property="og:image" content="http://simyy.cn/images/netty-2.png">
 <meta property="og:image" content="http://simyy.cn/images/netty-3.png">
 <meta property="og:image" content="http://simyy.cn/images/netty-4.png">
-<meta property="og:updated_time" content="2020-07-20T02:24:36.044Z">
+<meta property="og:updated_time" content="2020-07-22T02:37:11.988Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Netty设计原理">
 <meta name="twitter:description" content="Netty设计原理。">
@@ -144,7 +144,7 @@
 </ul>
 <h3 id="EventLoopGroup"><a href="#EventLoopGroup" class="headerlink" title="EventLoopGroup"></a>EventLoopGroup</h3><p><code>EventLoopGroup</code>是用来管理<code>EventLoop</code>的，类似于线程池的管理。</p>
 <p>EventLoopGroup继承自<code>EventExecutorGroup</code>，它实现了整个事件池的管理。</p>
-<p><code>MultithreadEventLoopGroup</code>是EventExecutorGroup的抽象实现，负责管理事件执行器的声明周期，</p>
+<p><code>MultithreadEventLoopGroup</code>是EventExecutorGroup的抽象实现，负责管理事件执行器的生命周期，</p>
 <p>主要变量有：</p>
 <ul>
 <li>处理器的存储：<code>EventExecutor[] children</code></li>

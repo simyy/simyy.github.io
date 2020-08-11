@@ -17,7 +17,7 @@
 <meta property="og:image" content="http://simyy.cn/images/mysql-mvcc-4.png">
 <meta property="og:image" content="http://simyy.cn/images/mysql-mvcc-2.png">
 <meta property="og:image" content="http://simyy.cn/images/mysql-mvcc-3.png">
-<meta property="og:updated_time" content="2020-06-23T02:34:33.803Z">
+<meta property="og:updated_time" content="2020-08-10T02:51:54.054Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="InnoDB MVCC">
 <meta name="twitter:description" content="梳理下MVCC的具体实现。">
@@ -151,7 +151,7 @@
 <p>InnoDB每次创建一个事务，都会创建一个包含当前活跃事务列表以及保证事务可见性的ReadView。</p>
 <blockquote>
 <p>事务的可见性的判断规则如下：</p>
-<p>① <code>m_ids</code>中大于<code>m_low_limit_id</code>的事务不可见；<br>② <code>m_ids</code>中小于<code>m_up_limit_id</code>的事务不可见。</p>
+<p>① <code>m_ids</code>中大于<code>m_low_limit_id</code>的事务不可见；<br>② <code>m_ids</code>中小于<code>m_up_limit_id</code>的事务可见。</p>
 </blockquote>
 <p><img src="/images/mysql-mvcc-3.png" alt=""></p>
 <hr>
@@ -160,7 +160,7 @@
 <li>对于RC来说，已提交事务的数据对当前事务来说是可见的；</li>
 <li>对于RR来说，事务启动前所有未提交事务的数据对当前事务来说都是不可见的。</li>
 </ul>
-<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><p><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-multi-versioning.html" target="_blank" rel="noopener">innodb-multi-versioning</a><br>[trx0sys_8h_source]<a href="https://dev.mysql.com/doc/dev/mysql-server/8.0.12/trx0sys_8h_source.html" target="_blank" rel="noopener">https://dev.mysql.com/doc/dev/mysql-server/8.0.12/trx0sys_8h_source.html</a><br><a href="https://dev.mysql.com/doc/dev/mysql-server/8.0.12/trx0trx_8h_source.html" target="_blank" rel="noopener">trx0trx_8h_source</a><br><a href="https://dev.mysql.com/doc/dev/mysql-server/8.0.12/read0types_8h_source.html" target="_blank" rel="noopener">read0types_8h_source</a><br><a href="http://www.leviathan.vip/2019/02/14/InnoDB%E7%9A%84%E4%BA%8B%E5%8A%A1%E5%88%86%E6%9E%90-Undo-Log/" target="_blank" rel="noopener">InnoDB事务分析-undo log</a><br><a href="http://www.leviathan.vip/2019/03/20/InnoDB%E7%9A%84%E4%BA%8B%E5%8A%A1%E5%88%86%E6%9E%90-MVCC/" target="_blank" rel="noopener">InnoDB的事务分析-MVCC</a><br><a href="https://colinback.github.io/szyblogs/database/2018/06/15/innodb-kernel-12/" target="_blank" rel="noopener">InnoDB 内核阅读笔记（十二）- 事务处理</a></p>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><p><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-multi-versioning.html" target="_blank" rel="noopener">innodb-multi-versioning</a><br><a href="https://dev.mysql.com/doc/dev/mysql-server/8.0.12/trx0sys_8h_source.html" target="_blank" rel="noopener">trx0sys_8h_source</a><br><a href="https://dev.mysql.com/doc/dev/mysql-server/8.0.12/trx0trx_8h_source.html" target="_blank" rel="noopener">trx0trx_8h_source</a><br><a href="https://dev.mysql.com/doc/dev/mysql-server/8.0.12/read0types_8h_source.html" target="_blank" rel="noopener">read0types_8h_source</a><br><a href="http://www.leviathan.vip/2019/02/14/InnoDB%E7%9A%84%E4%BA%8B%E5%8A%A1%E5%88%86%E6%9E%90-Undo-Log/" target="_blank" rel="noopener">InnoDB事务分析-undo log</a><br><a href="http://www.leviathan.vip/2019/03/20/InnoDB%E7%9A%84%E4%BA%8B%E5%8A%A1%E5%88%86%E6%9E%90-MVCC/" target="_blank" rel="noopener">InnoDB的事务分析-MVCC</a><br><a href="https://colinback.github.io/szyblogs/database/2018/06/15/innodb-kernel-12/" target="_blank" rel="noopener">InnoDB 内核阅读笔记（十二）- 事务处理</a></p>
 
     
 	</div>

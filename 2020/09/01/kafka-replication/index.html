@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>Kafka Replication | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="记录与翻译Kafka多副本的设计原理。">
+<meta name="keywords" content="中间件,消息队列,Kafka,Paper">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kafka Replication">
+<meta property="og:url" content="http://simyy.cn/2020/09/01/kafka-replication/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="记录与翻译Kafka多副本的设计原理。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-09-01T11:22:45.017Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Kafka Replication">
+<meta name="twitter:description" content="记录与翻译Kafka多副本的设计原理。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<script src="/js/hexo_resize_image.js"></script>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">主页</a></li><li><a href="/2014/07/07/book-list">书单</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <!--div id="main"-->
+      <div id="main">
+
+
+<article id="post-kafka-replication" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2020/09/01/kafka-replication/" class="article-date">
+  <time datetime="2020-09-01T11:22:03.000Z" itemprop="datePublished">2020-09-01</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Paper/">Paper</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/中间件/">中间件</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/消息队列/">消息队列</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      Kafka Replication
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>记录与翻译Kafka多副本的设计原理。</p>
+<a id="more"></a>
+<h3 id="Kafka-Replication"><a href="#Kafka-Replication" class="headerlink" title="Kafka Replication"></a>Kafka Replication</h3><blockquote>
+<p><a href="https://cwiki.apache.org/confluence/display/KAFKA/Kafka+Replication" target="_blank" rel="noopener">Kafka Replication</a></p>
+</blockquote>
+<p>Kafka通过数据写入的多个副本来实现数据的持久化与高可用。</p>
+<p>为了保证消息的成功投递，可以把消息投递的整个生命周期分为三部分：</p>
+<p>① <code>生产消息</code>：消息从Producer传递到Broker；</p>
+<p>② <code>存储消息</code>：消息写入到Broker的磁盘；</p>
+<p>③ <code>消费消息</code>：消息从Broker传递到Comsumer。</p>
+<p><code>存储消息</code>是数据持久化范畴，而<code>如何保证消息不丢</code>是多副本设计的初衷。</p>
+<p><strong>设计目标</strong></p>
+<p>考虑到Kafka不同场景的应用，设计目标包括：</p>
+<p>① <code>可配置的持久化策略</code>：高吞吐量/低时延，低吞吐量/高时延（通过调整备份副本的个数）；</p>
+<p>② <code>自动的副本备份策略</code>：自动调整备份，自动化的集群扩容能力。</p>
+<blockquote>
+<p><code>强一致</code>需要保证数据写入多个备份，从而导致写入时延的增加；<code>弱一致</code>不需要保证备份写入，会导致数据存在软状态，从而获得更好的性能。</p>
+</blockquote>
+<p><strong>解决问题</strong></p>
+<p>多副本场景下，存在两个关键问题：</p>
+<p>① <code>副本分片策略</code>：副本该如何保存与分配到不同的Broker；</p>
+<p>② <code>消息广播策略</code>：消息该如何广播到所有的副本。</p>
+<h4 id="Data-Replication"><a href="#Data-Replication" class="headerlink" title="Data Replication"></a>Data Replication</h4><p>多副本的数据复制可以分为<code>同步复制</code>与<code>异步复制</code>。</p>
+<p>无论那种复制策略都需要考虑以下问题：</p>
+<p>① 如何实现<code>数据广播</code>；</p>
+<p>② 如何权衡<code>数据复制的份数</code>；</p>
+<p>③ <code>副本宕机的异常处理</code>；</p>
+<p>④ <code>副本宕机恢复数据</code>的一致性如何保证。</p>
+<hr>
+<p>常见的复制策略分为两种：<code>主备复制</code>与<code>选举复制</code>。</p>
+<p><strong>Primary-Backup Replication</strong></p>
+<p><code>主备复制</code>的场景下，主节点在写入数据完成后会<code>阻塞等待所有从节点</code>的写入完成。</p>
+<p>在从节点写入的过程中，如果发生故障（宕机、断网、超时）就需要主节点来协调管理<code>可用的从节点列表</code>。</p>
+<p>对于故障恢复后的从节点，需要从主节点拉取最新的数据才能重新加入集群。</p>
+<blockquote>
+<p>如果副本数量为N，则主备策略最多可以容忍N-1个节点异常。</p>
+</blockquote>
+<p><strong>Quorum-Based Replication</strong></p>
+<p><code>选举复制</code>的场景下，主节点在写入数据完成后会<code>阻塞等待多数从节点</code>的写入完成。</p>
+<blockquote>
+<p>选举的特点在于不需要等待所有从节点的写入。</p>
+<p>考虑到集群数量是预设的，由于半数以上的写入策略，从而最大的异常容忍度是可知的。</p>
+<p>如果副本数量为2N+1，则选举策略最多可以容忍N个节点异常。</p>
+</blockquote>
+<hr>
+<p>那么，两种策略如何权衡？</p>
+<p>主要从<code>时延性能</code>、<code>可用性</code>两方面考虑，</p>
+<p>① 选举复制只需要写入大部分节点就可返回，因此选举复制的时延低；</p>
+<p>② 主备复制可以容忍更多数量的异常节点；</p>
+<p>③ 选举复制至少最多容忍半数的异常节点。</p>
+<p>考虑到，副本数量会直接影响到磁盘的有效使用率，<code>Kafka选择主备来尽量减少磁盘空间的浪费</code>。</p>
+<h4 id="Synchronous-Replication"><a href="#Synchronous-Replication" class="headerlink" title="Synchronous Replication"></a>Synchronous Replication</h4><p>Kafka使用<code>主备</code>作为同步复制策略。</p>
+<p>主节点维护一个<code>同步副本的列表（In-Sync Replicas（ISR））</code>，用于<code>记录与主节点保持同步的从节点</code>。</p>
+<p>为了维护多个副本的可用性，Kafka使用<code>Zookeeper</code>来保存<code>Leader节点</code>与<code>ISR</code>。</p>
+<hr>
+<p>数据存储分为两部分：<code>本地日志</code>与<code>偏移量</code>。</p>
+<p>其中，<code>LEO（The Log End Offset）</code>记录当前日志的最新偏移量，<code>HW（High Watermark）</code>记录最后一次Commited的偏移量。</p>
+<blockquote>
+<p>LEO是用来标记日志同步的进度，而HW是用来标记Commited的进度。</p>
+</blockquote>
+<h5 id="Writes"><a href="#Writes" class="headerlink" title="Writes"></a>Writes</h5><p>Client通过Zookeeper获取目标分区最新的Leader节点。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">       Zookeeper</span><br><span class="line">      /</span><br><span class="line">Client ----&gt; Broker-Partition(Leader) ----&gt; Broker-Partition (Follower)</span><br></pre></td></tr></table></figure>
+<p>副本之间的通信采用Socket直连的方式来提高性能。</p>
+<p>主节点在接收到数据后会优先写入本地磁盘（日志），然后同步写入多个副本。</p>
+<blockquote>
+<p>主节点（Partition）的写入是有序的，但不同主节点之间写入的顺序是无序的。</p>
+</blockquote>
+<p>消息的写入判断条件是<code>ISR列表中所有从节点均写入完成</code>。</p>
+<blockquote>
+<p>为了提高副本的写入效率，仅保证消息写入到副本节点的内存（不保证持久化到磁盘）。</p>
+</blockquote>
+<p>通过提供<code>可配置化的Flush策略</code>来提供不同的应用场景：<code>同步刷盘</code>与<code>异步刷盘</code>。</p>
+<h5 id="Reads"><a href="#Reads" class="headerlink" title="Reads"></a>Reads</h5><p>读操作仅从Leader主节点读取数据，而主节点是根据Zookeeper来获取的。</p>
+<h4 id="Failure-Scenarios"><a href="#Failure-Scenarios" class="headerlink" title="Failure Scenarios"></a>Failure Scenarios</h4><p><strong>Follower Failure</strong></p>
+<p>从节点异常情况下，会被主节点从ISR列表中移除，直到从节点恢复。</p>
+<p>从节点的恢复不仅需要机器恢复正常，也需要数据恢复到同步状态。</p>
+<p>因此，<code>ISR列表是Kafka实现主备自动切换的关键</code>。</p>
+<p><strong>Leader Failure</strong></p>
+<p>主节点异常的三种场景：</p>
+<p>① 未写入本地日志（无影响）；</p>
+<p>② 写入本地日志，未写入从节点；</p>
+<p>③ 写入本地日志，写入部分从节点；</p>
+<p>由于第①种场景中没有持有化数据，因此不会存在主从切换数据不一致的问题。</p>
+<p>为了实现主从切换后数据的一致性，被选举为Leader的节点一定拥有最新的数据，</p>
+<p>Kafka的主备切换主节点的选举策略如下：</p>
+<p>① Zookeeper中注册ISR信息，用来保证元数据的一致性；</p>
+<p>② 基于Zookeeper的临时节点来选举主节点，用来保证Leader的唯一性；</p>
+<p>③ 利用Zookeeper的Watcher功能实现自动的选举功能；</p>
+<p>④ Leader需要保证ISR中节点的同步进度，即时移除超时等异常的从节点。</p>
+<h4 id="Asynchronous-Replication"><a href="#Asynchronous-Replication" class="headerlink" title="Asynchronous Replication"></a>Asynchronous Replication</h4><p>异步复制是数据写入主节点后直接返回给Client，通过异步的方式同步数据到从节点。</p>
+<p>因此，异步复制不能保证数据的持久化，当发生主从切换时可能造成数据的不一致（重复消息、丢消息）。</p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/08/23/kafka-paper/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          Kafka论文笔记
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</div>
+
+    <!--/div-->
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2020 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

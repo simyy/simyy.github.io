@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://simyy.cn/"/>
-  <updated>2020-05-19T11:55:34.000Z</updated>
+  <updated>2020-09-01T11:22:46.000Z</updated>
   <id>http://simyy.cn/</id>
   
   <author>
@@ -15,30 +15,6 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
-  
-  <entry>
-    <title>Python列表</title>
-    <link href="http://simyy.cn/2022/05/01/python-list/"/>
-    <id>http://simyy.cn/2022/05/01/python-list/</id>
-    <published>2022-05-01T02:49:56.564Z</published>
-    <updated>2020-05-19T11:55:34.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>记录Python列表的一些优雅的写法。</p><a id="more"></a><h4 id="单循环"><a href="#单循环" class="headerlink" title="单循环"></a>单循环</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 普通写法</span></span><br><span class="line">x = list()</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">10</span>)</span><br><span class="line">    x.append(x)</span><br><span class="line">```　　</span><br><span class="line"></span><br><span class="line"><span class="comment"># 优雅写法</span></span><br><span class="line">x = [x <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">10</span>)]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 增加if判断</span></span><br><span class="line">x = [x <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">10</span>) <span class="keyword">if</span> x &gt; <span class="number">5</span>]</span><br></pre></td></tr></table></figure><h4 id="多层循环"><a href="#多层循环" class="headerlink" title="多层循环"></a>多层循环</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 普通写法</span></span><br><span class="line">x = list()</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">10</span>):</span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> range(<span class="number">10</span>):</span><br><span class="line">    x.append(i + j)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 优雅写法</span></span><br><span class="line">x = [x + y <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">10</span>) <span class="keyword">for</span> y <span class="keyword">in</span> range(<span class="number">10</span>)]</span><br></pre></td></tr></table></figure>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;记录Python列表的一些优雅的写法。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="编程语言" scheme="http://simyy.cn/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
-    
-    
-      <category term="编程语言" scheme="http://simyy.cn/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/"/>
-    
-      <category term="Python" scheme="http://simyy.cn/tags/Python/"/>
-    
-  </entry>
   
   <entry>
     <title>Kafka Replication</title>
@@ -547,6 +523,32 @@
       <category term="分布式" scheme="http://simyy.cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
     
       <category term="事务" scheme="http://simyy.cn/tags/%E4%BA%8B%E5%8A%A1/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>NoSQL分类</title>
+    <link href="http://simyy.cn/2020/05/07/nosql-classify/"/>
+    <id>http://simyy.cn/2020/05/07/nosql-classify/</id>
+    <published>2020-05-07T15:09:09.000Z</published>
+    <updated>2020-05-07T15:36:40.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>NoSQL分类简介。</p><a id="more"></a><p>NoSQL数据库可分为：<code>键值存储</code>、<code>列存储</code>、<code>文档存储</code>与<code>图存储</code>。</p><p><img src="/images/nosql_classify_01.png" alt=""></p><h5 id="键值存储"><a href="#键值存储" class="headerlink" title="键值存储"></a>键值存储</h5><p><code>键值存储</code>是由KV哈希表来实现，例如，<code>Redis</code>、<code>Memcached</code>。</p><p><strong>优点</strong>：查找速度快，查找数据时间复杂度O(1)。</p><p><strong>缺点</strong>：数据无结构化，通常只被当作字符串或者二进制数据，数据无序。</p><p><code>Redis</code>支持了特殊的数据结构。</p><h5 id="列存储"><a href="#列存储" class="headerlink" title="列存储"></a>列存储</h5><p><code>列存储</code>是按列存储数据的，例如，<code>HBase</code>/<code>Cassandra</code>。</p><p><strong>优点</strong>：针对列的查询性能好；方便存储结构化和半结构化数据，方便做数据压缩与按列扩展（横向扩展）。</p><p><strong>缺点</strong>：功能相对受限。</p><h5 id="文档存储"><a href="#文档存储" class="headerlink" title="文档存储"></a>文档存储</h5><p><code>文档存储</code>是基于键值对的扩展，例如，<code>MongoDB</code>/<code>CouchDB</code>。</p><p><strong>优点</strong>：数据结构要求不严格；表结构可变；不需要预先定义表结构。</p><!-- **缺点**：查询性能不高，缺乏统一的查询语法。 --><h5 id="图存储"><a href="#图存储" class="headerlink" title="图存储"></a>图存储</h5><p><code>图存储</code>是基于节点和关系组成的图，例如，<code>Neo4j</code>。</p><p><strong>优点</strong>：利用图结构相关算法(最短路径、节点度关系查找等)。</p><p><strong>缺点</strong>：可能需要对整个图做计算，不利于图数据分布存储。</p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;NoSQL分类简介。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="中间件" scheme="http://simyy.cn/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
+    
+    
+      <category term="数据库" scheme="http://simyy.cn/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    
+      <category term="中间件" scheme="http://simyy.cn/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
+    
+      <category term="NoSQL" scheme="http://simyy.cn/tags/NoSQL/"/>
     
   </entry>
   

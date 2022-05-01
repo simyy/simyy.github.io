@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>Java GC 调优 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="记录Java GC调优的相关问题。">
+<meta name="keywords" content="计算机原理,编程语言,垃圾回收,Java,调优">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java GC 调优">
+<meta property="og:url" content="http://simyy.cn/2020/05/21/java-gc-optimize/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="记录Java GC调优的相关问题。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-05-26T03:12:14.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java GC 调优">
+<meta name="twitter:description" content="记录Java GC调优的相关问题。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<script src="/js/hexo_resize_image.js"></script>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">主页</a></li><li><a href="/2014/07/07/book-list">书单</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <!--div id="main"-->
+      <div id="main">
+
+
+<article id="post-java-gc-optimize" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2020/05/21/java-gc-optimize/" class="article-date">
+  <time datetime="2020-05-21T12:21:32.000Z" itemprop="datePublished">2020-05-21</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/垃圾回收/">垃圾回收</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/编程语言/">编程语言</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/计算机原理/">计算机原理</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/调优/">调优</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      Java GC 调优
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>记录Java GC调优的相关问题。</p>
+<a id="more"></a>
+<h4 id="常用"><a href="#常用" class="headerlink" title="常用"></a>常用</h4><p>常用的方式如下，</p>
+<p><strong>第一种：</strong><code>ParNew（新生代）</code>、<code>CMS（老年代）</code></p>
+<p><strong>第二种：</strong><code>G1（新生轻与老年代）</code></p>
+<h4 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h4><p>按照GC范围的不同，GC可分为：<code>MinorGC（YoungGC）</code>、<code>MajorGC（FullGC）</code>、<code>OldGC</code>、<code>MixedGC</code>。</p>
+<h5 id="MinorGC"><a href="#MinorGC" class="headerlink" title="MinorGC"></a>MinorGC</h5><p><code>MinorGC</code>是<code>新生代GC</code>，在分代回收中负责堆内存年轻代的回收。</p>
+<p><strong>触发条件</strong></p>
+<blockquote>
+<p>当<code>Eden区空间不足</code>就会触发<code>MinorGC</code>。</p>
+</blockquote>
+<p>在分代回收中，如果年轻代的空间不足会导致年轻代的垃圾回收。</p>
+<p><strong>回收算法</strong></p>
+<p>由于新生代的对象生命周期较短，垃圾回收也会相对频繁，因此需要考虑垃圾回收的效率。</p>
+<p>考虑到新生代<code>朝生夕死</code>的特点，新生代采用<code>复制算法</code>，例如，<code>ParNew中仅复制存活数据到Survivor</code>。</p>
+<p><strong>具体步骤</strong></p>
+<p>① 扫描新生代以及老年代；</p>
+<blockquote>
+<p>由于存在<code>跨代引用</code>，因此需要扫描老年代。</p>
+<p>CMS使用CardTable来记录新老代之间的跨代引用，<br>G1使用RememberSet（占堆的20%）来记录Region之间的跨代引用。</p>
+</blockquote>
+<p>② 复制存活对象到Survivor区，增加对象年龄；</p>
+<blockquote>
+<p>复制属于耗时操作，但由于<code>Eden区对象朝生夕死</code>的特点，需要复制的对象并不多。。</p>
+</blockquote>
+<p>③ 年龄达到阈值，晋升至老年代。</p>
+<blockquote>
+<p><strong>注意：</strong><code>单次MinorGC时间更多取决于GC后存活对象的数量</code>。</p>
+</blockquote>
+<h5 id="OldGC"><a href="#OldGC" class="headerlink" title="OldGC"></a>OldGC</h5><p><code>OldGC</code>是<code>老年代GC</code>。</p>
+<p><code>CMS</code>属于<code>OldGC</code>，仅对分代回收中的老年代进行老几回收，一般配合<code>新生代ParNew</code>。</p>
+<p><strong>触发条件</strong></p>
+<p>① 手动触发<code>System.gc()</code>；</p>
+<p>② 老年代的使用率达到阈值；</p>
+<p><strong>回收算法</strong></p>
+<p>由于老年代的对象生命周期较长，存活的对象比例高，因此无法使用复制算法。</p>
+<p><code>CMS</code>采用<code>标记清除算法</code>，同样可以开启<code>内存整理</code>功能来避免内存空间碎片的问题。</p>
+<blockquote>
+<p>标记清除中常见的问题：<code>STW（Stop The World）</code>。</p>
+<p><code>STW（Stop The World）</code>是为了保证标记的一致性，避免标记过程中出现遗漏的情况。</p>
+</blockquote>
+<blockquote>
+<p>STW并不是必须的，但是在极端情况下，遗漏可能会导致大量的内存泄露，甚至导致宕机。</p>
+</blockquote>
+<p><strong>具体步骤</strong></p>
+<p>① <code>Initial Mark</code>：从<code>GC Root</code>开始标记可达对象，触发<code>STW</code>；</p>
+<blockquote>
+<p>什么是<code>GC Root</code>？</p>
+<p><strong>Local variables</strong> are kept alive by the stack of a thread.<br><strong>Active Java threads</strong> are always considered live objects and are therefore GC roots.<br><strong>Static variables</strong> are referenced by their classes.<br><strong>JNI References</strong> are Java objects that the native code has created as part of a JNI call.</p>
+</blockquote>
+<p>② <code>Cocurrent Mark</code>：根据①中标记的可达对象<code>并发遍历标记</code>相关联的对象状态；</p>
+<p>③ <code>Remark</code>：重新标记在并发标记阶段发生变化的对象，触发<code>STW</code>；</p>
+<p>④ <code>Concurrent Sweep</code>：在对象标记的基础之上，清理老年代非可达对象。</p>
+<h5 id="MajorGC"><a href="#MajorGC" class="headerlink" title="MajorGC"></a>MajorGC</h5><p><code>MajorGC</code>是<code>FullGC</code>，不仅会触发<code>OldGC</code>，也会触发<code>YoungGC</code>。</p>
+<blockquote>
+<p><code>MajorGC</code>是收集整个堆内存。</p>
+</blockquote>
+<p><code>MajorGC</code>会自动触发<code>MinorGC</code>。</p>
+<h5 id="MixedGC"><a href="#MixedGC" class="headerlink" title="MixedGC"></a>MixedGC</h5><p><code>MixedGC</code>是<code>新生代与老年代的混合GC</code>，它不属于<code>FullGC</code>。</p>
+<p><code>MixedGC</code>是建立在<code>YoungGC</code>的基础之上再<code>回收部分老年代的内存</code>。</p>
+<p><code>G1</code>属于<code>MixedGC</code>。</p>
+<blockquote>
+<p><code>G1</code>通过划分<code>Region</code>来实现增量回收。</p>
+</blockquote>
+<p><strong>触发条件</strong></p>
+<p>当<code>E区</code>无法分配新的对象内存时会触发G1中的<code>YoungGC</code>。</p>
+<p>当<code>使用率大于InitiatingHeapOccupancyPercent</code>会触发<code>MixedGC</code>。</p>
+<p>当<code>Metaspace内存不足</code>时会触发<code>MixedGC</code>。</p>
+<p><strong>回收算法</strong></p>
+<p><code>YongGC</code>选定<code>所有年轻代Region</code>进行回收，使用<code>复制算法</code>。</p>
+<p><code>MixedGC</code>不仅选定<code>所有年轻代Region</code>，还会根据<code>global concurrent marking</code>统计得出<code>收集后收益高的若干老年代Region</code>来选择，最终采用<code>标记清除算法</code>。</p>
+<blockquote>
+<p><code>G1</code>保证<code>在用户指定的开销目标范围内尽可能选择收益高的老年代Region</code>进行回收。</p>
+<p>因此，<code>MixedGC</code>不是<code>FullGC</code>。</p>
+</blockquote>
+<p>当<code>MixedGC无法解决老年代内存不足</code>时，会降级为<code>SerialGC（FullGC）</code>。</p>
+<p><strong>具体步骤</strong></p>
+<p>① <code>Initial Mark</code>：同CMS的步骤①；</p>
+<p>② <code>Cocurrent Mark</code>：同CMS的步骤②；</p>
+<blockquote>
+<p><code>SATB</code>是GC开始时活着的对象的一个快照（通过<code>Root Tracing</code>得到），用于维持并发GC的正确性。</p>
+</blockquote>
+<p>③ <code>Remark</code>：与CMS的区别在于<code>重新标记的范围不同</code>：G1仅需要扫描<code>SATB（snapshot-at-the-beginning, 起始快照）</code>；</p>
+<blockquote>
+<p><code>CMS Remark</code>的扫描范围不仅包括<code>SATB</code>，而且会扫描整个根集合。</p>
+</blockquote>
+<p>④ <code>Clean up/Copy</code>：在对象标记的基础之上，清理<code>新生代全部非可达</code>对象与<code>老年代部分非可达</code>对象。</p>
+<!-- TODO R大的分析：https://hllvm-group.iteye.com/group/topic/44381#post-272188 -->
+<h3 id="FullGC"><a href="#FullGC" class="headerlink" title="FullGC"></a>FullGC</h3><p>FullGC产生的原因有以下四种，</p>
+<p><strong>MetaSpcae空间不足与自动扩容</strong></p>
+<p>在Java8中，当<code>MetaSpace空间内存不足</code>时，会触发FullGC来尝试清理掉无用的内存。</p>
+<p>为了避免这种情况，可以通过<code>增大MetaSpace空间大小</code>与<code>预设足够大的MetaSpace空间避免动态扩容</code>。</p>
+<p><strong>CMS的promotion failed与concurrent mode failure</strong></p>
+<p><code>MinorGC</code>时，如果<code>Survivor</code>空间不足，对象会直接进入老年代，</p>
+<p>但由于<code>老年代有碎片或者剩余空间不足</code>导致没有足够空间存储晋升对象，就会产生<code>promotion failed</code>。</p>
+<blockquote>
+<p><code>promotion failed</code>会导致<code>GC降级为SerialGC（Old）</code>。</p>
+</blockquote>
+<p><strong><em>解决方法：</em></strong></p>
+<p>① 增大Survivor大小；</p>
+<blockquote>
+<p><code>内存整理</code>属于耗时操作，会造成<code>STW</code>。</p>
+</blockquote>
+<p>② 设置老年代的<code>内存碎片整理</code>功能以及合理的<code>整理周期</code>。</p>
+<hr>
+<p><code>CMS GC</code>时，如果由于某种原因，业务线程直接在老年代内分配对象，但老年代没有足够的空间，就会产生<code>concurrent mode failure</code>。</p>
+<blockquote>
+<p>同样，<code>concurrent mode failure</code>会导致<code>GC降级为SerialGC（Old）</code>。</p>
+</blockquote>
+<p><strong><em>解决方法：</em></strong></p>
+<p>① <code>增大老年代大小</code>，避免老年代的内存不足；</p>
+<p>② 设置<code>老年代的合理回收阈值</code>，尽早释放内存空间，保证老年代的剩余空间大小；</p>
+<p><strong>Young GC晋升的平均大小大于老年代的剩余空间</strong></p>
+<p>当<code>老年代的内存空间存在内存不足的风险</code>时，会触发FullGC，如果频繁出现此类情况，需要<code>关注晋升对象大小</code>以及是<code>否存在内存泄露</code>的情况。</p>
+<p><strong>主动触发Full GC（System.gc）</strong></p>
+<p>应用通过调用<code>System.gc()</code>来触发<code>FullGC</code>。</p>
+<h3 id="配置调优"><a href="#配置调优" class="headerlink" title="配置调优"></a>配置调优</h3><h4 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h4><p><strong>-Xms &amp; -Xmx</strong></p>
+<p><code>-Xms</code>： 初始堆大小。</p>
+<p><code>-Xmx</code>： 最大堆大小。</p>
+<p>一般情况下设置为相同值，避免内存扩展。</p>
+<p><strong>-Xmn</strong></p>
+<p><code>-Xmn</code>： 新生代大小。</p>
+<p>Sun官方推荐配置为<code>整个堆的3/8</code>，但是不同的业务场景应该不同。</p>
+<blockquote>
+<p><code>对于Web应用3/8设置并不合理</code>，原因在于：<br>每个请求的生命周期较小，尤其对于高并发的场景下，大量的并发会导致新生代快速填满；<br>由于新生代内存不足，请求对象直接进入老年代，这部分对象并不会被MinorGC清理，从而造成内存空间的浪费。</p>
+</blockquote>
+<p>① 增大Eden增大触发间隔：</p>
+<ul>
+<li>[Eden <em> 2] 会影响 [Minor GC间隔 </em> 2]:</li>
+<li>内存空间增大一倍，空间被占满的时间也会同步增大一倍。</li>
+</ul>
+<p>② 增大Eden对单次MinorGC时间的影响不大：</p>
+<ul>
+<li>[Eden * 2] 会增加新生代扫描与复制的时间；</li>
+<li>扫描时间占比很小（并发扫描），对MinorGC影响不大；</li>
+</ul>
+<blockquote>
+<p>复制是一个耗时的操作，但Eden区由于对象的生命周期较小，需要复制的对象也不会增加太多。</p>
+</blockquote>
+<ul>
+<li>由于堆中短期对象很多，不需要额外复制一倍的空间；</li>
+</ul>
+<blockquote>
+<p>因此，<code>增加Eden区大小可以提高新生代内存回收（MinorGC）的效率</code>。</p>
+</blockquote>
+<p><strong>-XX:MetaspaceSize &amp; -XX:MaxMetaspaceSize</strong></p>
+<p>该用于设置元空间的大小，存在<code>内存不足</code>与<code>自动扩容</code>的情况，可能造成<code>MajorGC</code>。</p>
+<p>64位JVM默认20M，最大值为宿主机内存大小。</p>
+<h4 id="CMS"><a href="#CMS" class="headerlink" title="CMS"></a>CMS</h4><p><strong>-CMSScavengeBeforeRemark</strong></p>
+<p>该配置时用来保证<code>Remark前强制进行一次MinorGC</code>，从而<code>减少Remark的时间</code>。</p>
+<blockquote>
+<p>考虑到新生代对象的生命周期很短，在<code>触发CMS之前强制JVM执行一次Minor GC</code>，清理掉无效的对象，<code>避免大范围的Remark</code>。</p>
+</blockquote>
+<p><strong>-XX:UseCMSCompactAtFullCollection  &amp; -XX:CMSFullGCBeforeCompaction</strong></p>
+<p>该配置是用于解决<code>promotion failed</code>，</p>
+<p>分别为<code>开启开启CMS GC的内存整理功能</code>和<code>设置CMS GC的内存整理频次</code>，</p>
+<p>从而减少内存碎片造成的内存不足。</p>
+<p><strong>-XX:CMSInitiatingOccupancyFraction &amp; -XX:+UseCMSInitiatingOccupancyOnly</strong></p>
+<p>该配置是用于解决<code>cocurrent mode failed</code>，</p>
+<p>分别为<code>设定CMS在对内存占用率达到X%的时候开始GC</code>和<code>设置JVM回收阈值（不基于运行时收集的数据来启动CMS垃圾收集周期）</code>，</p>
+<p>从而避免垃圾回收不及时造成的内存不足。</p>
+<h4 id="G1"><a href="#G1" class="headerlink" title="G1"></a>G1</h4><p><strong>-XX:NewRatio</strong></p>
+<p>该配置是用来<code>设置新生代与老年代的比例</code>（默认2）。</p>
+<p>调整新生代的大小可避免大量短生命周期对象进入老年代。</p>
+<p><strong>-XX:MaxGCPauseMillis=n</strong></p>
+<p>该配置是用来<code>设置最大GC停顿时间的目标</code>，主要是为了<code>降低STW对应用的影响</code>。</p>
+<p>虽然设置了最大GC停顿时间，但这只是JVM自动回收优化的目标，不保证每次都会低于该配置的值。</p>
+<p><strong>-XX:G1ReservePercent</strong></p>
+<p>该配置是用来<code>设置堆内存保留空间的大小</code>，用以<code>降低Eden晋升失败</code>的可能性。</p>
+<p>当对内存空间大小达到堆内存预留值会触发MixedGC。</p>
+<p><strong>-XX:G1HeapRegionSize</strong></p>
+<p>该配置是用来<code>设置堆Region的大小</code>，默认1~32。</p>
+<p>在特殊的业务场景下可能存在小生命周期的大对象的产生，可以通过此设置<code>优化Region大小解决大对象直接进入老年代的问题</code>。</p>
+<p><a href="https://tech.meituan.com/2017/12/29/jvm-optimize.html" target="_blank" rel="noopener">美团的案例</a></p>
+<h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><p><a href="https://tech.meituan.com/2017/12/29/jvm-optimize.html" target="_blank" rel="noopener">美团的案例</a><br><a href="https://www.dynatrace.com/resources/ebooks/javabook/how-garbage-collection-works/" target="_blank" rel="noopener">https://www.dynatrace.com/resources/ebooks/javabook/how-garbage-collection-works/</a><br><a href="https://hllvm-group.iteye.com/group/topic/44381#post-272188" target="_blank" rel="noopener">https://hllvm-group.iteye.com/group/topic/44381#post-272188</a></p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2020/05/24/mysql-replication-rw-router/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          MySQL 读写分离
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/05/14/java-64bit-jvm-compressed-pointer/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          JVM在64位系统上的指针压缩
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</div>
+
+    <!--/div-->
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2022 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

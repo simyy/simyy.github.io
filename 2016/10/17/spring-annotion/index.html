@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>Spring Annotion | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="Spring Annotion注解配置和使用说明。">
+<meta name="keywords" content="编程语言,Java,Spring">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring Annotion">
+<meta property="og:url" content="http://simyy.cn/2016/10/17/spring-annotion/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="Spring Annotion注解配置和使用说明。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-12-17T02:24:44.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spring Annotion">
+<meta name="twitter:description" content="Spring Annotion注解配置和使用说明。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<script src="/js/hexo_resize_image.js"></script>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">主页</a></li><li><a href="/2014/07/07/book-list">书单</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <!--div id="main"-->
+      <div id="main">
+
+
+<article id="post-spring-annotion" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2016/10/17/spring-annotion/" class="article-date">
+  <time datetime="2016-10-17T15:39:45.000Z" itemprop="datePublished">2016-10-17</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring/">Spring</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/编程语言/">编程语言</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      Spring Annotion
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p><code>Spring Annotion</code>注解配置和使用说明。</p>
+<a id="more"></a>
+<h3 id="注解配置"><a href="#注解配置" class="headerlink" title="注解配置"></a>注解配置</h3><p><strong>开启<code>Spring Annotion</code>注解功能</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;context:annotation-config/&gt;</span><br></pre></td></tr></table></figure>
+<p>它将隐式地向 Spring 容器注册<code>AutowiredAnnotationBeanPostProcessor</code>、<code>CommonAnnotationBeanPostProcessor</code>、<code>PersistenceAnnotationBeanPostProcessor</code>以及<code>RequiredAnnotationBeanPostProcessor</code> 这 4 个 BeanPostProcessor。</p>
+<p><strong>开启<code>SpringMVC</code>注解功能</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;mvc:annotation-driven /&gt;</span><br></pre></td></tr></table></figure>
+<p>它将隐式地向Spring容器注册<code>DefaultAnnotationHandlerMapping</code>和<code>AnnotationMethodHandlerAdapter</code>。</p>
+<h2 id="Required"><a href="#Required" class="headerlink" title="Required"></a>Required</h2><p><code>@Required</code>注解用于检查被注解属性是否已经设置，但并不会检测属性是否为空。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@Required</span><br><span class="line">public void setName(name) &#123;</span><br><span class="line">    this.name = name;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;person&quot; class=&quot;Persoon&quot;&gt;</span><br><span class="line">    &lt;property name=&quot;name&quot; value=&quot;jack&quot; /&gt;</span><br><span class="line">&lt;/bean&gt;</span><br></pre></td></tr></table></figure>
+<p>如果bean中没有设置<code>name</code>，则会抛出BeanInitializationException异常。</p>
+<h3 id="Autowired"><a href="#Autowired" class="headerlink" title="Autowired"></a>Autowired</h3><p><code>@Autowired</code>注解用于对类进行自动装配工作（按照类型注入）。</p>
+<p><strong>常见情况：</strong></p>
+<ul>
+<li>匹配的候选Bean数目必须有且仅有一个；</li>
+<li>无匹配的Bean时将抛出<code>BeanCreationException 异常</code>；</li>
+<li><code>@Autowired(required = false)</code>意味着该Bean不是必须的，即使匹配不到也不会报错；</li>
+<li>多个候选Bean将抛出 BeanCreationException 异常。</li>
+</ul>
+<blockquote>
+<p>如果有多个候选的bean该如何处理？</p>
+</blockquote>
+<p><code>@Qualifier</code>可以用来指定注入的bean。</p>
+<p><code>@Qualifier</code>是与<code>@Autowired</code>结合使用，这样就会把注入类型从按名称注入转变为按按名称注入。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">public class Student &#123;</span><br><span class="line">    @Autowired</span><br><span class="line">    @Qualifier(&quot;math&quot;) // 指定数学书</span><br><span class="line">    private Book book;</span><br><span class="line">    private Pen pen;</span><br><span class="line">   </span><br><span class="line">    @Autowired</span><br><span class="line">    public void setPen(@Qualifier(&quot;pencil&quot;)Pen pen) &#123;</span><br><span class="line">        this.pen = pen;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public class Student &#123;</span><br><span class="line">    private Book book;</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    public Student(Book book) &#123;</span><br><span class="line">        this.book = book;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Resource"><a href="#Resource" class="headerlink" title="Resource"></a>Resource</h3><p><code>@Resource</code>注解是按照名称来装配注入的，只有找不到对应的名称才会按照类型来装配注入。</p>
+<p><code>@Resource</code>注解是由J2EE提供，而<code>@Autowired</code>是由<code>Spring</code>提供。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Resource(name=&quot;math&quot;)</span><br><span class="line">private Book book;</span><br><span class="line"></span><br><span class="line">@Reousrce(type=Book.class)</span><br><span class="line">private Book book;</span><br></pre></td></tr></table></figure>
+<p>一般情况下，无需使用type方式（反射可以获取类型）。</p>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p><code>@Service</code>用于标注业务层组件;</p>
+<p><code>@Controller</code>用于标注控制层组件（如struts中的action）;</p>
+<p><code>@Repository</code>用于标注数据访问组件，即DAO组件;</p>
+<p><code>@Component</code>泛指组件，当组件不好归类的时候，我们可以使用这个注解进行标注。</p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2016/10/24/spider-selenium/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Selenium驱动问题
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/10/10/spring-bean/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          Spring Bean
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</div>
+
+    <!--/div-->
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2022 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

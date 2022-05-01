@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>RabbitMQ Work Queues | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="RabbitMQ使用Work Queues的主要目的是为了避免资源使用密集的任务。">
+<meta name="keywords" content="中间件,消息队列,RabbitMQ">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RabbitMQ Work Queues">
+<meta property="og:url" content="http://simyy.cn/2015/03/15/rabbitmq-work-queues/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="RabbitMQ使用Work Queues的主要目的是为了避免资源使用密集的任务。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-12-17T02:24:58.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RabbitMQ Work Queues">
+<meta name="twitter:description" content="RabbitMQ使用Work Queues的主要目的是为了避免资源使用密集的任务。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<script src="/js/hexo_resize_image.js"></script>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">主页</a></li><li><a href="/2014/07/07/book-list">书单</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <!--div id="main"-->
+      <div id="main">
+
+
+<article id="post-rabbitmq-work-queues" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2015/03/15/rabbitmq-work-queues/" class="article-date">
+  <time datetime="2015-03-15T04:32:10.000Z" itemprop="datePublished">2015-03-15</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RabbitMQ/">RabbitMQ</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/中间件/">中间件</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/消息队列/">消息队列</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      RabbitMQ Work Queues
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p><code>RabbitMQ</code>使用<code>Work Queues</code>的主要目的是为了避免资源使用密集的任务。</p>
+<a id="more"></a>
+<p>它不同于定时任务处理的方式，而是把任务封装为消息添加到队列中。而消息队列正是共享于多个工作者中使用，它们可以随意pop出数据进行处理。</p>
+<h2 id="消息的持久化-Message-durability"><a href="#消息的持久化-Message-durability" class="headerlink" title="消息的持久化 Message durability"></a>消息的持久化 Message durability</h2><p>为了保证<code>rabbitmq</code>意外重启等原因造成的消息丢失，通过设置消息的durable来实现数据的持久化，但是需要生产者和消费者同时设置持久化才能生效。</p>
+<p>需要注意的是，<code>rabbitmq</code>并不允许更改已经创建的消息队列的属性，假如之前已经创建过非持久化的hello消息队列，那么会返回一个错误信息。</p>
+<p>设置消息队列的可持久化属性（第二个参数）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">channel.queue_declare(queue=&apos;hello&apos;, durable=True)</span><br></pre></td></tr></table></figure>
+<p>在消息发送时，需要指定<code>delivery_mode</code>来实现消息持久化：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">channel.basic_publish(exchange=&apos;&apos;, routing_key=&quot;task_queue&quot;, body=message, properties=pika.BasicProperties(delivery_mode = 2, # make message persistent))</span><br></pre></td></tr></table></figure></p>
+<h2 id="平均分配-Fair-dispatch"><a href="#平均分配-Fair-dispatch" class="headerlink" title="平均分配 Fair dispatch"></a>平均分配 Fair dispatch</h2><p><code>rabbitmq</code>实现了消息均分的功能，通过设置<code>basic.qos</code>方法的<code>prefetch_count</code>来实现。它会告诉<code>rabbitmq</code>的生产者不要给一个消费者分配过多的任务，也就是说不要在消费者处理完成已经接收到的任务之前分配新的任务。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">channel.basic_qos(prefetch_count=1)</span><br></pre></td></tr></table></figure>
+<p>其中prefetch_count为可以接受处理的任务个数，如果未达到上限rabbitmq会继续向消费者推送任务。</p>
+<h2 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h2><p><strong>生产者</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># coding=utf-8</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> pika</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">connection = pika.BlockingConnection(pika.ConnectionParameters(host=<span class="string">'localhost'</span>))</span><br><span class="line">channel = connection.channel()</span><br><span class="line"></span><br><span class="line">channel.queue_declare(queue=<span class="string">'task_queue'</span>, durable=<span class="keyword">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">100</span>):</span><br><span class="line">    message = str(i) + <span class="string">' Hello World!'</span></span><br><span class="line">    channel.basic_publish(exchange=<span class="string">''</span>,</span><br><span class="line">    routing_key=<span class="string">'task_queue'</span>,</span><br><span class="line">    body=message,</span><br><span class="line">    properties=pika.BasicProperties(delivery_mode = <span class="number">2</span>, <span class="comment"># make message persistent))</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">" [x] Sent %r"</span> % (message,)</span><br><span class="line">    time.sleep(<span class="number">1</span>)</span><br><span class="line">connection.close()</span><br></pre></td></tr></table></figure>
+<p><strong>消费者</strong></p>
+<pre><code class="python"><span class="comment">#!/usr/bin/env python</span>
+<span class="comment"># coding=utf-8</span>
+
+<span class="keyword">import</span> pika
+<span class="keyword">import</span> time
+
+connection = pika.BlockingConnection(pika.ConnectionParameters(host=<span class="string">'localhost'</span>))
+channel = connection.channel()
+
+channel.queue_declare(queue=<span class="string">'task_queue'</span>, durable=<span class="keyword">True</span>)
+<span class="keyword">print</span> <span class="string">' [*] Waiting for messages. To exit press CTRL+C'</span>
+
+<span class="function"><span class="keyword">def</span> <span class="title">callback</span><span class="params">(ch, method, properties, body)</span>:</span>
+    <span class="keyword">print</span> <span class="string">" [x] Received %r"</span> % (body,)
+    time.sleep(<span class="number">2</span>)
+    <span class="keyword">print</span> <span class="string">" [x] Done"</span>
+    ch.basic_ack(delivery_tag = method.delivery_tag)
+
+channel.basic_qos(prefetch_count=<span class="number">1</span>)
+channel.basic_consume(callback, queue=<span class="string">'task_queue'</span>)
+
+channel.start_consuming()
+</code></pre>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2015/03/16/rabbitmq-publish-subscribe/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          RabbitMQ Publish/Subscribe
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/03/14/rabbitmq-hello-world/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          RabbitMQ Hello world
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</div>
+
+    <!--/div-->
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2022 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

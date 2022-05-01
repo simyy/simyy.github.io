@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>Redis 跳跃表 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="时隔四年，补课。">
+<meta name="keywords" content="中间件,缓存,Redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis 跳跃表">
+<meta property="og:url" content="http://simyy.cn/2020/08/08/redis-skiplist/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="时隔四年，补课。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://simyy.cn/images/redis-skiplist-1.png">
+<meta property="og:image" content="http://simyy.cn/images/redis-skiplist-2.png">
+<meta property="og:updated_time" content="2020-08-08T14:43:38.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Redis 跳跃表">
+<meta name="twitter:description" content="时隔四年，补课。">
+<meta name="twitter:image" content="http://simyy.cn/images/redis-skiplist-1.png">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<script src="/js/hexo_resize_image.js"></script>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">主页</a></li><li><a href="/2014/07/07/book-list">书单</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <!--div id="main"-->
+      <div id="main">
+
+
+<article id="post-redis-skiplist" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2020/08/08/redis-skiplist/" class="article-date">
+  <time datetime="2020-08-08T13:30:00.000Z" itemprop="datePublished">2020-08-08</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/">Redis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/中间件/">中间件</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/缓存/">缓存</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      Redis 跳跃表
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>时隔四年，补课。</p>
+<a id="more"></a>
+<h3 id="Skip-List"><a href="#Skip-List" class="headerlink" title="Skip List"></a>Skip List</h3><blockquote>
+<p>关键词：链表、多级索引、动态结构</p>
+</blockquote>
+<p>跳表是基于链表建立多级索引的动态数据结构。</p>
+<p>在链表的基础之上，跳表利用空间换时间的方法，把单链表的时间复杂度从<code>O(n)</code>降低到跳表的<code>O(log(n))</code>。</p>
+<p>在跳表索引的构建上，需要维护索引大小平衡性，避免退化为单链表。</p>
+<h3 id="Source-Code"><a href="#Source-Code" class="headerlink" title="Source Code"></a>Source Code</h3><p>Redis中<code>ZSET</code>也被称为<code>有序集合（Sorted Set）</code>，是通过跳表来实现的。</p>
+<p>Redis为什么使用跳表来实现ZSET？</p>
+<p>① Redis并不是仅使用跳表来实现；</p>
+<blockquote>
+<p>在数据量比较少时使用ziplist来实现，当数据量比较多的时候才会采用skiplist实现；</p>
+</blockquote>
+<p>② 基于双向链表的跳表很容易实现<code>ZRANGE</code>与<code>ZRERANGE</code>，而红黑树等树形结构就没这么容易；</p>
+<p>③ 跳表节点的插入与删除的复杂度更低，而红黑树等平衡树都需要旋转平衡操作。</p>
+<blockquote>
+<p>在高并发场景下跳表性能更加，不过针对Redis来说单线程的数据变更来说红黑树的平衡旋转应该不是瓶颈。</p>
+</blockquote>
+<p>下面将简单介绍下redis跳表的<code>结构</code>、<code>节点插入</code>、<code>节点排序</code>以及<code>范围检索</code>。</p>
+<h4 id="zskiplist"><a href="#zskiplist" class="headerlink" title="zskiplist"></a>zskiplist</h4><p><img src="/images/redis-skiplist-1.png" alt=""></p>
+<p>ZSET是通过两部分组成：<code>KV字典（dict）</code>与<code>跳表索引（zskiplist）</code>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* ZSET结构体 */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">zset</span> &#123;</span></span><br><span class="line">    dict *dict;          <span class="comment">// KV字典</span></span><br><span class="line">    zskiplist *zsl;      <span class="comment">// 跳表索引</span></span><br><span class="line">&#125; zset;</span><br></pre></td></tr></table></figure>
+<p>其中，<code>KV字典（dict）</code>是基于哈希的数据存储的基础结构，<code>跳表索引（zskiplist）</code>是基于跳表的数据遍历搜索结构。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 跳表节点 */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">zskiplistNode</span> &#123;</span></span><br><span class="line">    sds ele;                          <span class="comment">// 具体元素</span></span><br><span class="line">    <span class="keyword">double</span> score;                     <span class="comment">// 用于排序的分值</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">zskiplistNode</span> *<span class="title">backward</span>;</span>     <span class="comment">// 向后的指针</span></span><br><span class="line">    <span class="comment">/* 节点层次 */</span> </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">zskiplistLevel</span> &#123;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">zskiplistNode</span> *<span class="title">forward</span>;</span>  <span class="comment">// 向前的指针</span></span><br><span class="line">        <span class="keyword">unsigned</span> <span class="keyword">long</span> span;            <span class="comment">// 当前节点与forward节点之间的节点数</span></span><br><span class="line">    &#125; level[];</span><br><span class="line">&#125; zskiplistNode;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 跳表结构体 */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">zskiplist</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">zskiplistNode</span> *<span class="title">header</span>, *<span class="title">tail</span>;</span>  <span class="comment">// 跳表的头节点与尾节点</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> length;               <span class="comment">// 跳表的长度</span></span><br><span class="line">    <span class="keyword">int</span> level;                         <span class="comment">// 跳表的层次数</span></span><br><span class="line">&#125; zskiplist;</span><br></pre></td></tr></table></figure>
+<p><img src="/images/redis-skiplist-2.png" alt=""></p>
+<h4 id="zslGetRank"><a href="#zslGetRank" class="headerlink" title="zslGetRank"></a>zslGetRank</h4><p><code>zslGetRank</code>是跳表中用于获取指定元素排名的功能。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 获取排名 */</span></span><br><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="title">zslGetRank</span><span class="params">(zskiplist *zsl, <span class="keyword">double</span> score, sds ele)</span> </span>&#123;</span><br><span class="line">    zskiplistNode *x;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> rank = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="comment">/* 从跳表的最高层开始遍历 */</span></span><br><span class="line">    x = zsl-&gt;header;</span><br><span class="line">    <span class="keyword">for</span> (i = zsl-&gt;level<span class="number">-1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">        <span class="comment">/* 找到当前层级中与目标值最接近的位置 */</span></span><br><span class="line">        <span class="keyword">while</span> (x-&gt;level[i].forward &amp;&amp;</span><br><span class="line">             <span class="comment">// 当前层有forward的score小于目标值 或 当前层有forward的ele小于目标值</span></span><br><span class="line">            (x-&gt;level[i].forward-&gt;score &lt; score ||</span><br><span class="line">                (x-&gt;level[i].forward-&gt;score == score &amp;&amp;</span><br><span class="line">                sdscmp(x-&gt;level[i].forward-&gt;ele,ele) &lt;= <span class="number">0</span>))) &#123;</span><br><span class="line">            rank += x-&gt;level[i].span;</span><br><span class="line">            x = x-&gt;level[i].forward;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* x might be equal to zsl-&gt;header, so test if obj is non-NULL */</span></span><br><span class="line">        <span class="keyword">if</span> (x-&gt;ele &amp;&amp; sdscmp(x-&gt;ele,ele) == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> rank;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="zslInsert"><a href="#zslInsert" class="headerlink" title="zslInsert"></a>zslInsert</h4><p><code>zslInsert</code>是跳表的插入逻辑。</p>
+<p>插入流程大体如下：</p>
+<ul>
+<li><code>位置搜索</code>：从跳表的最高层到最底层开始遍历，记录每层的跳跃节点以及移动位置；</li>
+<li><code>构造新节点</code>：随机生成一个level用于构造带插入节点；</li>
+<li><code>初始化新增层级</code>：如果level大于原有最大层级，则需要对新增的层级初始化；</li>
+<li><code>节点加入到跳跃表</code>：把待插入节点的层级节点加入到跳表层级的每一层，并重新计算span；</li>
+<li><code>更新跳表指针</code>：更新节点的backward。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 插入数据 */</span></span><br><span class="line"><span class="function">zskiplistNode *<span class="title">zslInsert</span><span class="params">(zskiplist *zsl, <span class="keyword">double</span> score, sds ele)</span> </span>&#123;</span><br><span class="line">    zskiplistNode *update[ZSKIPLIST_MAXLEVEL]; <span class="comment">// 记录每层插入节点的跳跃位置</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> rank[ZSKIPLIST_MAXLEVEL];    <span class="comment">// 记录到达每层跳跃节点的移动位置</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* 从跳表的最高层开始遍历 */</span></span><br><span class="line">    x = zsl-&gt;header;</span><br><span class="line">    <span class="keyword">for</span> (i = zsl-&gt;level<span class="number">-1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">        <span class="comment">/* 初始化rank，如果是最高层则为0，否则为上一层的值 */</span></span><br><span class="line">        rank[i] = i == (zsl-&gt;level<span class="number">-1</span>) ? <span class="number">0</span> : rank[i+<span class="number">1</span>];</span><br><span class="line">        <span class="comment">/* 找到当前层级中与目标值最接近的位置 */</span></span><br><span class="line">        <span class="keyword">while</span> (x-&gt;level[i].forward &amp;&amp;  </span><br><span class="line">                <span class="comment">// 当前层有forward的score小于目标值 或 当前层有forward的ele小于目标值</span></span><br><span class="line">                (x-&gt;level[i].forward-&gt;score &lt; score ||</span><br><span class="line">                    (x-&gt;level[i].forward-&gt;score == score </span><br><span class="line">                    &amp;&amp; sdscmp(x-&gt;level[i].forward-&gt;ele,ele) &lt; <span class="number">0</span>)))</span><br><span class="line">        &#123;</span><br><span class="line">            rank[i] += x-&gt;level[i].span;    <span class="comment">// 更新每层的偏移动位置</span></span><br><span class="line">            x = x-&gt;level[i].forward;       <span class="comment">// 更新跳跃节点</span></span><br><span class="line">        &#125;</span><br><span class="line">        update[i] = x;                    <span class="comment">// 记录每层的跳跃节点</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* 随机生成层级，并初始化新增所有层级 */</span></span><br><span class="line">    level = zslRandomLevel();</span><br><span class="line">    <span class="keyword">if</span> (level &gt; zsl-&gt;level) &#123;</span><br><span class="line">        <span class="keyword">for</span> (i = zsl-&gt;level; i &lt; level; i++) &#123;</span><br><span class="line">            <span class="comment">/* 初始化移动位置以及跳跃位置 */</span></span><br><span class="line">            rank[i] = <span class="number">0</span>;</span><br><span class="line">            update[i] = zsl-&gt;header;</span><br><span class="line">            update[i]-&gt;level[i].span = zsl-&gt;length;</span><br><span class="line">        &#125;</span><br><span class="line">        zsl-&gt;level = level; <span class="comment">// 重置跳表层级</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* 创建节点，并加入到层级链表 */</span></span><br><span class="line">    x = zslCreateNode(level,score,ele);</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; level; i++) &#123;</span><br><span class="line">        <span class="comment">/* 链表插入（利用update记录的每层插入节点） */</span></span><br><span class="line">        x-&gt;level[i].forward = update[i]-&gt;level[i].forward;</span><br><span class="line">        update[i]-&gt;level[i].forward = x;</span><br><span class="line">        <span class="comment">/* span计算（利用rank记录的每层移动位置（从第i层到第0层）） */</span></span><br><span class="line">        x-&gt;level[i].span = update[i]-&gt;level[i].span - (rank[<span class="number">0</span>] - rank[i]);</span><br><span class="line">        update[i]-&gt;level[i].span = (rank[<span class="number">0</span>] - rank[i]) + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 大于当前层级的span都需要span+1 */</span></span><br><span class="line">    <span class="keyword">for</span> (i = level; i &lt; zsl-&gt;level; i++) &#123;</span><br><span class="line">        update[i]-&gt;level[i].span++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 更新新增节点的前向指针，如果是链表头节点则忽略，否则更新为0层节点 */</span></span><br><span class="line">    x-&gt;backward = (update[<span class="number">0</span>] == zsl-&gt;header) ? <span class="literal">NULL</span> : update[<span class="number">0</span>];</span><br><span class="line">    <span class="comment">/* 第0层为正向指针，节点本身带有的反向指针 */</span></span><br><span class="line">    <span class="keyword">if</span> (x-&gt;level[<span class="number">0</span>].forward)</span><br><span class="line">        x-&gt;level[<span class="number">0</span>].forward-&gt;backward = x;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        zsl-&gt;tail = x;</span><br><span class="line">    zsl-&gt;length++;</span><br><span class="line">    <span class="keyword">return</span> x;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="zrangeGenericCommand"><a href="#zrangeGenericCommand" class="headerlink" title="zrangeGenericCommand"></a>zrangeGenericCommand</h4><p><code>zrangeGenericCommand</code>是跳表的范围查询逻辑。</p>
+<p>范围查询的流程大体如下：</p>
+<ul>
+<li><code>计算遍历位置以及长度</code>：主要在于<code>start</code>、<code>end</code>、<code>rangelen</code>的边界条件以及内容计算；</li>
+<li><code>搜索目标范围的起始节点</code>：利用<code>zslGetElementByRank</code>获取正序或倒序序列的起始位置；</li>
+<li><code>以起始节点开始遍历指定范围的节点</code>：基于上一步计算的起始节点开始循环遍历（基于双向链表），需要注意遍历的方向；</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 范围查询 ZRANGE */</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">zrangeGenericCommand</span><span class="params">(client *c, <span class="keyword">int</span> reverse)</span> </span>&#123;</span><br><span class="line">    robj *key = c-&gt;argv[<span class="number">1</span>]; <span class="comment">// KEY</span></span><br><span class="line">    <span class="keyword">long</span> start;            <span class="comment">// 开始位置</span></span><br><span class="line">    <span class="keyword">long</span> end;              <span class="comment">// 结束位置</span></span><br><span class="line">    <span class="keyword">long</span> rangelen;          <span class="comment">// 扫描范围</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">/* start end 赋值 */</span></span><br><span class="line">    <span class="keyword">if</span> ((getLongFromObjectOrReply(c, c-&gt;argv[<span class="number">2</span>], &amp;start, <span class="literal">NULL</span>) != C_OK) ||</span><br><span class="line">        (getLongFromObjectOrReply(c, c-&gt;argv[<span class="number">3</span>], &amp;end, <span class="literal">NULL</span>) != C_OK)) <span class="keyword">return</span>;</span><br><span class="line">    </span><br><span class="line">    ...</span><br><span class="line">    llen = zsetLength(zobj); <span class="comment">// 跳表长度</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">/* 记录扫描长度 */</span></span><br><span class="line">    rangelen = (end-start)+<span class="number">1</span>;</span><br><span class="line">    <span class="comment">/* ziplist */</span></span><br><span class="line">    <span class="keyword">if</span> (zobj-&gt;encoding == OBJ_ENCODING_ZIPLIST) &#123;</span><br><span class="line">        ...</span><br><span class="line">    <span class="comment">/* skiplist */</span>    </span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (zobj-&gt;encoding == OBJ_ENCODING_SKIPLIST) &#123;</span><br><span class="line">        zset *zs = zobj-&gt;ptr;</span><br><span class="line">        zskiplist *zsl = zs-&gt;zsl;</span><br><span class="line">        zskiplistNode *ln;</span><br><span class="line">        sds ele;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* 反向 or 正向，利用zslGetElementByRank获取起始节点 */</span></span><br><span class="line">        <span class="keyword">if</span> (reverse) &#123;</span><br><span class="line">            <span class="comment">/* 默认从跳表尾部开始 */</span></span><br><span class="line">            ln = zsl-&gt;tail;</span><br><span class="line">            <span class="keyword">if</span> (start &gt; <span class="number">0</span>)</span><br><span class="line">                <span class="comment">/* zslGetElementByRank仅支持正序排序，则反序起始位置为 llen-start（rank以llen结束） */</span></span><br><span class="line">                ln = zslGetElementByRank(zsl, llen-start);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">/* 默认从跳表头部开始 */</span></span><br><span class="line">            ln = zsl-&gt;header-&gt;level[<span class="number">0</span>].forward;</span><br><span class="line">            <span class="keyword">if</span> (start &gt; <span class="number">0</span>)</span><br><span class="line">                 <span class="comment">/* zslGetElementByRank仅支持正序排序，则正序起始位置为 start+1（rank从1开始） */</span></span><br><span class="line">                ln = zslGetElementByRank(zsl,start+<span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">/* 从起始节点开始，遍历(正向 or 反向)获取所有数据 */</span></span><br><span class="line">        <span class="keyword">while</span>(rangelen--) &#123;</span><br><span class="line">            ele = ln-&gt;ele;</span><br><span class="line">            addReplyBulkCBuffer(c,ele,sdslen(ele));</span><br><span class="line">            <span class="keyword">if</span> (withscores)</span><br><span class="line">                addReplyDouble(c,ln-&gt;score);</span><br><span class="line">            ln = reverse ? ln-&gt;backward : ln-&gt;level[<span class="number">0</span>].forward;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        serverPanic(<span class="string">"Unknown sorted set encoding"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 获取指定排序的元素 */</span></span><br><span class="line"><span class="function">zskiplistNode* <span class="title">zslGetElementByRank</span><span class="params">(zskiplist *zsl, <span class="keyword">unsigned</span> <span class="keyword">long</span> rank)</span> </span>&#123;</span><br><span class="line">    zskiplistNode *x;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> traversed = <span class="number">0</span>; <span class="comment">// 记录移动次数</span></span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="comment">/* 从跳表的最高层开始遍历 */</span></span><br><span class="line">    x = zsl-&gt;header;</span><br><span class="line">    <span class="keyword">for</span> (i = zsl-&gt;level<span class="number">-1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">        <span class="comment">/* 如果当前层的移动次数 小于 rank，则继续当前层遍历，否则，进入下一层 */</span></span><br><span class="line">        <span class="keyword">while</span> (x-&gt;level[i].forward &amp;&amp; (traversed + x-&gt;level[i].span) &lt;= rank)</span><br><span class="line">        &#123;</span><br><span class="line">            traversed += x-&gt;level[i].span;</span><br><span class="line">            x = x-&gt;level[i].forward;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">/* 如果遍历到指定排序位置 */</span></span><br><span class="line">        <span class="keyword">if</span> (traversed == rank) &#123;</span><br><span class="line">            <span class="keyword">return</span> x;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><p><a href="https://snayan.github.io/post/2019/algorithm_skip_list/" target="_blank" rel="noopener">数据结构和算法-跳表的原理及实现</a><br><a href="https://lotabout.me/2018/skip-list/" target="_blank" rel="noopener">跳表──没听过但很犀利的数据结构</a></p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2020/08/23/kafka-paper/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Kafka论文笔记
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/08/08/mysql-innodb-lock/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          InnoDB Locking
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</div>
+
+    <!--/div-->
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2022 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

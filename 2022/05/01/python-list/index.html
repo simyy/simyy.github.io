@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>Python列表 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="记录Python列表的一些优雅的写法。">
+<meta name="keywords" content="编程语言,Python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python列表">
+<meta property="og:url" content="http://simyy.cn/2022/05/01/python-list/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="记录Python列表的一些优雅的写法。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-05-19T11:55:34.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Python列表">
+<meta name="twitter:description" content="记录Python列表的一些优雅的写法。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<script src="/js/hexo_resize_image.js"></script>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">主页</a></li><li><a href="/2014/07/07/book-list">书单</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <!--div id="main"-->
+      <div id="main">
+
+
+<article id="post-python-list" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2022/05/01/python-list/" class="article-date">
+  <time datetime="2022-05-01T02:49:56.564Z" itemprop="datePublished">2022-05-01</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/">Python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/编程语言/">编程语言</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      Python列表
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>记录Python列表的一些优雅的写法。</p>
+<a id="more"></a>
+<h4 id="单循环"><a href="#单循环" class="headerlink" title="单循环"></a>单循环</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 普通写法</span></span><br><span class="line">x = list()</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">10</span>)</span><br><span class="line">    x.append(x)</span><br><span class="line">```　　</span><br><span class="line"></span><br><span class="line"><span class="comment"># 优雅写法</span></span><br><span class="line">x = [x <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">10</span>)]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 增加if判断</span></span><br><span class="line">x = [x <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">10</span>) <span class="keyword">if</span> x &gt; <span class="number">5</span>]</span><br></pre></td></tr></table></figure>
+<h4 id="多层循环"><a href="#多层循环" class="headerlink" title="多层循环"></a>多层循环</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 普通写法</span></span><br><span class="line">x = list()</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">10</span>):</span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> range(<span class="number">10</span>):</span><br><span class="line">    	x.append(i + j)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 优雅写法</span></span><br><span class="line">x = [x + y <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">10</span>) <span class="keyword">for</span> y <span class="keyword">in</span> range(<span class="number">10</span>)]</span><br></pre></td></tr></table></figure>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/09/01/kafka-replication/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          Kafka Replication
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</div>
+
+    <!--/div-->
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2022 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

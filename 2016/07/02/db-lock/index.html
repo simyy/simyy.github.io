@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>锁与MySQL中的锁 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="锁是并发控制主要的技术手段。">
+<meta name="keywords" content="MySQL,数据库,中间件">
+<meta property="og:type" content="article">
+<meta property="og:title" content="锁与MySQL中的锁">
+<meta property="og:url" content="http://simyy.cn/2016/07/02/db-lock/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="锁是并发控制主要的技术手段。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-05-20T07:29:58.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="锁与MySQL中的锁">
+<meta name="twitter:description" content="锁是并发控制主要的技术手段。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<script src="/js/hexo_resize_image.js"></script>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">主页</a></li><li><a href="/2014/07/07/book-list">书单</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <!--div id="main"-->
+      <div id="main">
+
+
+<article id="post-db-lock" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2016/07/02/db-lock/" class="article-date">
+  <time datetime="2016-07-02T07:51:08.000Z" itemprop="datePublished">2016-07-02</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/中间件/">中间件</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/数据库/">数据库</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      锁与MySQL中的锁
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>锁是并发控制主要的技术手段。</p>
+<a id="more"></a>
+<h2 id="悲观锁"><a href="#悲观锁" class="headerlink" title="悲观锁"></a>悲观锁</h2><p><code>悲观锁</code>是建立在避免大量冲突更新的前提下使用的，无论怎样的更新操作都必须顺序执行。</p>
+<p>为了解决大量的冲突更新，需要对数据添加<code>排他锁</code>。</p>
+<blockquote>
+<p><code>排他锁</code>指的是仅拥有锁的情况下才可以更新，排除以外的更新操作。</p>
+</blockquote>
+<p>如果成功，执行更新操作，否则，抛出异常提示执行失败，表明该数据正在被修改。</p>
+<p>更新成功后，释放排他锁，该数据可用于其他更新操作。</p>
+<h2 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a>乐观锁</h2><p><code>乐观锁</code>是建立在支持并发冲突更新的前提下使用的，仅在数据提交时来验证冲土与否。</p>
+<p>为了解决并发的冲突更新，需要对数据添加<code>版本标识</code>。</p>
+<blockquote>
+<p><code>版本标识</code>是利用数据的多版本化来实现数据的冲突检测，冲突的提交依赖版本的高低。</p>
+</blockquote>
+<p>为数据增加一个新的属性版本标识，每当读取数据时，都会把数据的版本信息同时读取出来，每当需要更新数据时，都会数据对应的版本信息与上一次读取的版本信息做对比，只有版本信息相同（数据未被更改）时，才予以更新，否则认为数据已过期。</p>
+<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><p><strong>多读的场景</strong></p>
+<p>多读的场景下，必然带有更少的冲突以及大量的并发读。</p>
+<p>为了实现大量的并发读写，基于<code>多版本的乐观锁</code>的实现更适合。</p>
+<p><strong>多写场景</strong></p>
+<p>多写的场景下，数据均需要写入操作，此时可能需要考虑锁的粒度。</p>
+<p>如果仅对单一数据进行大量的冲突写入，使用多版本化的乐观锁更加适合。</p>
+<p>如果对不同数据的大量写入，使用悲观锁更加合适，避免了大量无效版本对比的开销。</p>
+<p><strong>实际的场景</strong></p>
+<p><code>Memcached</code>使用<code>CAS</code>来解决冲突问题。</p>
+<p><code>Redis</code>通过<code>Watch</code>的<code>CAS</code>来实现事务冲突的回滚。</p>
+<p>传统关系型数据库中的<code>行锁</code>、<code>表锁</code>都属于悲观锁。</p>
+<p>Mysql中的<code>MVCC</code>属于乐观锁。</p>
+<h2 id="locking-in-MySQL"><a href="#locking-in-MySQL" class="headerlink" title="locking in MySQL"></a>locking in MySQL</h2><p>MySQL中常见的锁：<code>行锁</code>、<code>表锁</code>。</p>
+<h3 id="行锁"><a href="#行锁" class="headerlink" title="行锁"></a>行锁</h3><p><code>行级锁</code>是MySQL中锁的力度最小的一种，只会当前操作的行进行加锁，但它开销大，加锁慢。</p>
+<blockquote>
+<p>行锁锁的是<code>聚簇索引</code>。</p>
+</blockquote>
+<p><code>Innodb</code>支持行级锁，通过对索引加锁来实现的。</p>
+<h3 id="表锁"><a href="#表锁" class="headerlink" title="表锁"></a>表锁</h3><p><code>表级锁</code>是对当前操作的整个数据表加锁，它的实现就比较简单，开销小，但对整体性能价差，锁住期间无法对外提供其他服务。</p>
+<p><code>InnoDB</code>和<code>MyISAM</code>都支持表级锁，具体可分为<code>排他锁</code>和<code>共享锁</code>。</p>
+<h2 id="共享锁、排他锁、意向锁"><a href="#共享锁、排他锁、意向锁" class="headerlink" title="共享锁、排他锁、意向锁"></a>共享锁、排他锁、意向锁</h2><p><code>共享锁</code>属于<code>行锁</code>，又称为<code>读锁</code>，允许其他用户读取数据，但任何事务都不可以更改数据。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from student lock in share mode;</span><br></pre></td></tr></table></figure>
+<p><code>排他锁</code>属于<code>行锁</code>，又称为<code>写锁</code>，不允许其他用户的操作（包括写和读）。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from student for update;</span><br></pre></td></tr></table></figure>
+<p><code>意向锁</code>属于<code>表锁</code>，在InooDB中会自动加意向锁。</p>
+<p>意向锁分为两种，<code>意向共享锁</code>和<code>意向排他锁</code>。</p>
+<p>执行<code>insert/update/delete</code>语句时，InnoDB会自动给数据添加<code>意向排他锁</code>，而执行select语句不会加锁。</p>
+<hr>
+<blockquote>
+<p>意向锁存在的意义？</p>
+</blockquote>
+<p>意向锁属于<code>表锁</code>，是在添加<code>行锁</code>前添加的。</p>
+<p><strong>为什么是行锁前添加？</strong></p>
+<p>由于意向锁是为了解<code>决行锁与表锁的冲突</code>。</p>
+<p>假设一种没有意向锁情况：</p>
+<ul>
+<li>A添加了一个行锁；</li>
+<li>B添加了一个表锁，由于A的行锁的存在，B只能通过遍历所有行锁来判断是否可以加表锁。</li>
+</ul>
+<p>问题出现在第二部中的<code>遍历行锁</code>。</p>
+<p>因此，InooDB提供给了<code>意向锁</code>来标示<code>当前表存在行锁</code>，以此来避免表锁的冲突。</p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2016/07/12/linux-zero-copy/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          ZeroCopy
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/06/25/jetty/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          Jetty简介
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</div>
+
+    <!--/div-->
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2022 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

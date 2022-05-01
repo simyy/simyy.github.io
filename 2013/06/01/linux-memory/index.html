@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>Linux 内存管理、进程地址空间 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="Linux内存管理笔记。">
+<meta name="keywords" content="计算机原理,Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 内存管理、进程地址空间">
+<meta property="og:url" content="http://simyy.cn/2013/06/01/linux-memory/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="Linux内存管理笔记。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-12-17T02:30:48.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux 内存管理、进程地址空间">
+<meta name="twitter:description" content="Linux内存管理笔记。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<script src="/js/hexo_resize_image.js"></script>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">主页</a></li><li><a href="/2014/07/07/book-list">书单</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <!--div id="main"-->
+      <div id="main">
+
+
+<article id="post-linux-memory" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2013/06/01/linux-memory/" class="article-date">
+  <time datetime="2013-06-01T03:10:20.000Z" itemprop="datePublished">2013-06-01</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/计算机原理/">计算机原理</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      Linux 内存管理、进程地址空间
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>Linux内存管理笔记。</p>
+<a id="more"></a>
+<h2 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h2><h3 id="页"><a href="#页" class="headerlink" title="页"></a>页</h3><p>物理页作为内存管理的基本单位。<br>内存管理单元通常以页<code>page</code>为单位进行处理。</p>
+<h3 id="区"><a href="#区" class="headerlink" title="区"></a>区</h3><p>由于页位于内存中特定的物理地址上，所以不能将其用于一些特定的任务，故内核把页划分为不同的区。</p>
+<blockquote>
+<p>硬件在内存寻址方面的问题</p>
+</blockquote>
+<p>一些硬件只能通过内存地址来执行直接内存访问（DMA - Direct Memory Access）;<br>一些体系结构其内存的物理寻址范围大于虚拟寻址范围，故，内存不能永久地映射到内核空间。</p>
+<p>解决方法，通过创建三种不同的分区：</p>
+<ul>
+<li>ZONE_DMA–专门执行DMA</li>
+<li>ZONE_NORMAL–正常映射的页</li>
+<li>ZONE_HIGHMEM–高端内存，不能永久映射到内核空间</li>
+</ul>
+<h3 id="获得页"><a href="#获得页" class="headerlink" title="获得页"></a>获得页</h3><p>内核提供了一种请求内存的底层机制，并提供了对它进行访问的几个接口，以页为单位分配内存,<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">struct page* <span class="title">alloc_pages</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">int</span> gfp_mask, <span class="keyword">unsigned</span> <span class="keyword">int</span> order)</span></span></span><br><span class="line"><span class="function"><span class="comment">//该函数分配2^order个连续的物理页，并返回第一个页的page结构体</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">struct page* <span class="title">alloc_page</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">int</span> gfp_mask)</span></span></span><br><span class="line"><span class="function"><span class="comment">//order=0</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="keyword">void</span>* <span class="title">page_address</span><span class="params">(struct page* page)</span></span></span><br><span class="line"><span class="function"><span class="comment">//该函数返回page物理页当前的逻辑地址</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">long</span> _<span class="title">get_free_pages</span><span class="params">(<span class="keyword">unsigned</span> it gfp_mask, <span class="keyword">unsigned</span> <span class="keyword">int</span> order)</span></span></span><br><span class="line"><span class="function"><span class="comment">//该函数分配2^order个连续的物理页，但返回第一个页的逻辑地址</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">long</span> _<span class="title">get_free_page</span><span class="params">(<span class="keyword">unsigned</span> it gfp_mask）</span></span></span><br><span class="line"><span class="function"><span class="params"><span class="comment">//order=0</span></span></span></span><br></pre></td></tr></table></figure></p>
+<h3 id="释放页"><a href="#释放页" class="headerlink" title="释放页"></a>释放页</h3><p>申请空间了，自然总要释放掉,<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> _free_pages(struct page *page, <span class="keyword">unsigned</span> <span class="keyword">int</span> order)</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">free_pages</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">long</span> addr, <span class="keyword">unsigned</span> <span class="keyword">int</span> order)</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">free_page</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">long</span> addr)</span></span></span><br><span class="line"><span class="function"><span class="comment">//释放页时，要谨慎，如果释放错误的页，可能会导致系统崩溃</span></span></span><br></pre></td></tr></table></figure></p>
+<h3 id="kmalloc与vmalloc"><a href="#kmalloc与vmalloc" class="headerlink" title="kmalloc与vmalloc"></a>kmalloc与vmalloc</h3><p>kmalloc与malloc类似，可以获得以字节为单位的一块内核内存，并且内存区在物理上是连续的。<br><figure class="highlight cc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span>* <span class="title">kmalloc</span><span class="params">(<span class="keyword">size_t</span> size, <span class="keyword">int</span> flags)</span></span></span><br><span class="line"><span class="function"><span class="comment">//flags是分类器标志</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kfree</span><span class="params">(<span class="keyword">const</span> <span class="keyword">void</span>* ptr)</span></span></span><br><span class="line"><span class="function"><span class="comment">//这个要对应使用，谨慎vmalloc的不同之处在于，分配的内存虚拟地址是连续的，而物理地址则是无需连续的。</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="keyword">void</span>* <span class="title">vmalloc</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">long</span> size)</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vfree</span><span class="params">(<span class="keyword">void</span>* addr)</span></span></span><br></pre></td></tr></table></figure></p>
+<p>大多数情况下，只有硬件设备需要得到物理地址连续的内存。vmalloc仅在为了获得大块内存时才使用。</p>
+<h3 id="Slab层"><a href="#Slab层" class="headerlink" title="Slab层"></a>Slab层</h3><p>slab分配器扮演了通用数据结构缓存层的角色，<br>通过slab层可以缓存频繁分配和释放的数据结构，避免内存碎片，提高性能。</p>
+<p>slab层把不同的对象划分为高速缓存组，每个高速缓存都存放不同类型的对象。然后高速缓存又被划分为不同的slab。slab由一个或多个物理上连续的页组成。每个slab有三种状态：满、部分满或空。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">page + page + ... + page = a slab</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//创建高速缓存</span></span><br><span class="line"><span class="keyword">kmem_cache_t</span>* kem_cache_create(<span class="keyword">const</span> <span class="keyword">char</span>* name...)</span><br><span class="line"></span><br><span class="line"><span class="comment">//销毁高速缓存</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">kmem_cache_destroy</span><span class="params">(<span class="keyword">kmem_cache_t</span> *cachep)</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="comment">//获取对象</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span>* <span class="title">kmem_cache_alloc</span><span class="params">(<span class="keyword">kmem_cache_t</span> *cachep, <span class="keyword">int</span> flags)</span></span></span><br><span class="line"><span class="function"><span class="comment">//该函数从给定的高速缓存中返回一个指向对象的指针。如果告诉缓存的所有slab中都没有空闲对象，那么slab层必须通过kmem_getpages获取新的页</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="comment">//释放对象</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kmem_cache_free</span><span class="params">(...)</span></span></span><br></pre></td></tr></table></figure>
+<h2 id="CPU的分配"><a href="#CPU的分配" class="headerlink" title="CPU的分配"></a>CPU的分配</h2><p>一般来说，每个CPU的数据存放在一个数组中。数组中的每一项对应着系统上存在的一个处理器。由于这个数据对于当前处理器是唯一的，其他处理器不能访问它，故不需要加锁进行操作。</p>
+<p>使用每个CPU数据可以减少数据锁定（省去数据上锁），大大减少缓存失效（避免同步，不断刷新缓存）。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//创建一个类型为type，名字为name的实例</span></span><br><span class="line">DECLARE_PER_CPUT(type, name);</span><br><span class="line">DEFINE_PER_CPU(type, name);</span><br><span class="line"></span><br><span class="line"><span class="comment">//增加处理器上的name值</span></span><br><span class="line">get_cput_var(name)++;</span><br><span class="line"></span><br><span class="line"><span class="comment">//激活内核抢占</span></span><br><span class="line">put_cput_var(name);</span><br><span class="line"></span><br><span class="line"><span class="comment">//增加指定处理器CPU上的name值</span></span><br><span class="line">per_cpu(name, cpu)++;</span><br><span class="line">运行时的每个CPU数据</span><br><span class="line"></span><br><span class="line"><span class="comment">//分配对象</span></span><br><span class="line"><span class="function"><span class="keyword">void</span>* <span class="title">alloc_percpu</span><span class="params">(type)</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span>* _<span class="title">alloc_percpu</span><span class="params">(<span class="keyword">size_t</span> size, <span class="keyword">size_t</span> align)</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="comment">//释放对象</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">free_percpu</span><span class="params">(<span class="keyword">const</span> <span class="keyword">void</span>*)</span></span></span><br></pre></td></tr></table></figure></p>
+<h2 id="进程地址空间"><a href="#进程地址空间" class="headerlink" title="进程地址空间"></a>进程地址空间</h2><p>Linux操作系统采用虚拟内存技术，因此，系统中的所有进程之间以虚拟方式共享内存。</p>
+<p>现代采用虚拟内存的操作系统通常都使用独立连续的地址空间，而不是分段的。因此，进程地址空间之间彼此互不相干，两个不同的进程可以在它们各自的地址空间的相同地址内存放不同的数据。但是，进程之间也可以选择共享地址空间，这样的进程就是所谓的线程。</p>
+<p>进程只能访问有效范围内的内存地址。每个内存区域也具有相应进程必须遵循的特定访问属性，如只读、只写等属性。如果一个进程访问了不在有效范围中的地址，或以不正确的方式访问有效地址，那么内核就会种植该进程，并返回“段错误”信息。</p>
+<h3 id="内存描述符"><a href="#内存描述符" class="headerlink" title="内存描述符"></a>内存描述符</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//内存描述符结构体 linx/sched.h</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">mm_struct</span>&#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">vm_area_struct</span> *<span class="title">mmap</span>;</span></span><br><span class="line">    ....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>fork</code>函数通过利用<code>copy_mm</code>函数复制父进程的内存描述符，而子进程中的<code>mm_struct</code>是通过<code>allocate_mm</code>宏从<code>mm_cachep slab</code>缓存中得到的。</p>
+<p>如果父进程希望和其子进程共享地址空间，那么在调用clone时，设置<code>CLONE_VM</code>标志，内核就不需要调用<code>alloc_mm</code>函数了，而仅仅需要用<code>copy_mm</code>函数将内存域指向进程的内存描述符。调用<code>exit_mm</code>函数，销毁内存描述符。</p>
+<blockquote>
+<p>注意：内核线程没有进程地址空间，也没有相关的内存描述符。所以内核线程对应的进程描述符中mm域为NULL，这也正式内核线程的真实含义–没有用户上下文。</p>
+</blockquote>
+<h3 id="内存区域"><a href="#内存区域" class="headerlink" title="内存区域"></a>内存区域</h3><p>内存区域在内核中经常被称为虚拟内存区域或VMA。<br>内核将每个内存区域作为一个单独的内存管理对象，每个内存区域都有一直的属性。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//内存区域结构体</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">vm_area_struct</span>&#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">mm_struct</span> *<span class="title">vm_mm</span>;</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="操作内存区域"><a href="#操作内存区域" class="headerlink" title="操作内存区域"></a>操作内存区域</h3><p>为了方便执行对内存区域的操作，内核定义了许多的辅助函数。linux/mm.h<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//搜索内存区域--通过红黑树 mm/mmap.c</span></span><br><span class="line"><span class="function">struct vm_area_struct *<span class="title">find_vma</span><span class="params">(struct mm_struct* mm, <span class="keyword">unsigned</span> <span class="keyword">long</span> addr)</span></span></span><br><span class="line"><span class="function"><span class="comment">//该函数在指定的地址空间中搜索第一个vm_end大于addr的内存区域</span></span></span><br><span class="line"><span class="function">struct vm_area_struct* <span class="title">find_vma_prev</span><span class="params">(struct mm_struct *mm, <span class="keyword">unsigned</span> <span class="keyword">long</span> addr, struct vm_area_struct **pprev)</span></span></span><br><span class="line"><span class="function"><span class="comment">//它返回第一个小于addr的VMA</span></span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> struct vm_area_struct* <span class="title">find_vma_intersection</span><span class="params">(struct mm_struct *mm, <span class="keyword">unsigned</span> <span class="keyword">long</span> start_addr, <span class="keyword">unsigned</span> <span class="keyword">long</span> end_addr)</span></span></span><br><span class="line"><span class="function"><span class="comment">//返回第一个和指定地址区间相交的VMA</span></span></span><br></pre></td></tr></table></figure></p>
+<h3 id="创建删除地址空间"><a href="#创建删除地址空间" class="headerlink" title="创建删除地址空间"></a>创建删除地址空间</h3><p>内核使用do_mmap()函数创建一个新的线性地址空间。这可能会导致扩展已存在的内存区域（和一个已经存在的相邻地址空间的访问权限相同）或创建一个新的区域。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//创建地址区间</span></span><br><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="title">do_mmap</span><span class="params">(....)</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span>* <span class="title">mmap</span><span class="params">(..)</span></span></span><br><span class="line"><span class="function"><span class="comment">//删除地址空间</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">do_munmap</span><span class="params">(...)</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">munmap</span><span class="params">(...)</span></span></span><br></pre></td></tr></table></figure></p>
+<h3 id="页表"><a href="#页表" class="headerlink" title="页表"></a>页表</h3><p>虽然应用程序操作的对象是映射到物理内存上的虚拟内存，但是处理器直接操作的确实物理内存。所以每当一个程序访问一个虚拟地址时，首先必须将虚拟地址转化为物理地址，然后处理器才能解析地址访问请求。地址的转换工作需要通过查询页表才能完成。也就是说，地址转换需要虚拟地址分段，每段虚拟地址都是一个索引指向页表，而页表项指向下一级别的页表或最终物理页面。</p>
+<p>Linux使用三级页表完成地址转换，利用多级页表能够节约地址转换占用的存放空间。</p>
+<ul>
+<li>顶级页–页全局目录(PGD)，指向PMD</li>
+<li>二级页–中间页目录(PMD)，指向页表</li>
+<li>最低级页–页表，指向物理页</li>
+</ul>
+<p>搜索页表的工作是硬件完成的。</p>
+<p>由于几乎每次对虚拟内存的访问都需解析它，才可以得到物理内存中的对应地址，所以也表操作的性能非常关键。为了加快搜索速度，多数体系结构都实现了一个翻译后缓冲器（translation lookaside buffer,TLB）。</p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2013/06/23/malloc-and-free-in-c/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          C语言中的内存分配与释放
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</div>
+
+    <!--/div-->
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2022 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

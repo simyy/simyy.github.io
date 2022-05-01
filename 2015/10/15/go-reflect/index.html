@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>Golang 反射 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="Golang语言中reflect反射机制。详细原文：地址">
+<meta name="keywords" content="编程语言,Golang">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Golang 反射">
+<meta property="og:url" content="http://simyy.cn/2015/10/15/go-reflect/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="Golang语言中reflect反射机制。详细原文：地址">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-05-20T11:45:06.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Golang 反射">
+<meta name="twitter:description" content="Golang语言中reflect反射机制。详细原文：地址">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<script src="/js/hexo_resize_image.js"></script>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">主页</a></li><li><a href="/2014/07/07/book-list">书单</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <!--div id="main"-->
+      <div id="main">
+
+
+<article id="post-go-reflect" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2015/10/15/go-reflect/" class="article-date">
+  <time datetime="2015-10-15T03:31:30.000Z" itemprop="datePublished">2015-10-15</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Golang/">Golang</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/编程语言/">编程语言</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      Golang 反射
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>Golang语言中reflect反射机制。详细原文：<a href="http://blog.golang.org/laws-of-reflection" target="_blank" rel="noopener">地址</a><br><a id="more"></a><br>在go中，反射是建立在类型基础之上，每一个变量都会有一个静态类型。</p>
+<h2 id="接口值到反射对象"><a href="#接口值到反射对象" class="headerlink" title="接口值到反射对象"></a>接口值到反射对象</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">    <span class="string">"reflect"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> x <span class="keyword">int</span> = <span class="number">1</span></span><br><span class="line">    fmt.Println(<span class="string">"type: "</span>, reflect.TypeOf(x))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">type:  int</span><br></pre></td></tr></table></figure>
+<p><code>TypeOf</code>函数的定义如下，参数为接口类型，返回值为类型<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TypeOf</span><span class="params">(i <span class="keyword">interface</span> &#123;&#125;)</span> <span class="title">Type</span></span></span><br></pre></td></tr></table></figure></p>
+<p><code>ValueOf</code>函数的定义如下，参数为接口类型，返回值为<code>Value</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">var x int = 1</span><br><span class="line">fmt.Println(&quot;value: &quot;, reflect.ValueOf(x))</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">value:  &lt;int Value&gt;</span><br></pre></td></tr></table></figure>
+<p>可以通过<code>Kind</code>函数来检查类型，<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fmt.Println(<span class="string">"Kind:  "</span>, reflect.ValueOf(x).Kind())</span><br><span class="line">fmt.Println(<span class="string">"Kind is Int? "</span>, reflect.ValueOf(x).Kind() == reflect.<span class="keyword">int</span>)</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Kind:   int</span><br><span class="line">Kind is Int?  true</span><br></pre></td></tr></table></figure>
+<h2 id="反射对象到接口值"><a href="#反射对象到接口值" class="headerlink" title="反射对象到接口值"></a>反射对象到接口值</h2><p>通过<code>Interface</code>函数可以实现反射对象到接口值的转换，<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(v Value)</span> <span class="title">Interface</span><span class="params">()</span> <span class="title">interface</span></span> &#123;&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Interface 以 interface&#123;&#125; 返回 v 的值</span></span><br><span class="line">y := v.Interface().(<span class="keyword">float64</span>)</span><br><span class="line">fmt.Println(y)</span><br></pre></td></tr></table></figure>
+<h2 id="修改反射对象"><a href="#修改反射对象" class="headerlink" title="修改反射对象"></a>修改反射对象</h2><blockquote>
+<p>修改反射对象的前提条件是其值必须是可设置的</p>
+</blockquote>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> x <span class="keyword">float64</span> = <span class="number">3.4</span></span><br><span class="line">v := reflect.ValueOf(x)</span><br><span class="line">v.SetFloat(<span class="number">7.3</span>) <span class="comment">// Error: panic</span></span><br></pre></td></tr></table></figure>
+<p>为了避免这个问题，需要使用<code>CanSet</code>函数来检查该值的设置性，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">var x float64 = 3.4</span><br><span class="line">v := reflect.ValueOf(x)</span><br><span class="line">fmt.Println(&quot;settability of v: &quot;, v.CanSet())</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">settability of v: false</span><br></pre></td></tr></table></figure>
+<p>那么如何才能设置该值呢？<br>这里需要考虑一个常见的问题，<code>参数传递</code>，传值还是传引用或地址？<br>在上面的例子中，我们使用的是<code>reflect.ValueOf(x)</code>，这是一个值传递，传递的是x的值的一个副本，不是x本身，因此更新副本中的值是不允许的。如果使用<code>reflect.ValueOf(&amp;x)</code>来替换刚才的值传递，就可以实现值的修改。<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">var x float64 = 3.4</span><br><span class="line">p := reflect.ValueOf(&amp;x) // 获取x的地址</span><br><span class="line">fmt.Println(<span class="string">"settability of p: "</span>, p.CanSet())</span><br><span class="line">v := p.Elem()</span><br><span class="line">fmt.Println(<span class="string">"settability of v: "</span>, v.CanSet())</span><br><span class="line">v.SetFloat(7.1)</span><br><span class="line">fmt.Println(v.Interface())</span><br><span class="line">fmt.Println(x)</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">settability of p: <span class="literal">false</span></span><br><span class="line">settability of v: <span class="literal">true</span></span><br><span class="line">7.1</span><br><span class="line">7.1</span><br></pre></td></tr></table></figure>
+<h2 id="获取结构体标签"><a href="#获取结构体标签" class="headerlink" title="获取结构体标签"></a>获取结构体标签</h2><p>首先介绍如何遍历结构体字段内容，<br>假设结构体如下，<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> T <span class="keyword">struct</span> &#123;</span><br><span class="line">    A <span class="keyword">int</span></span><br><span class="line">    B <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">t := T&#123;<span class="number">12</span>, <span class="string">"skidoo"</span>&#125;</span><br></pre></td></tr></table></figure></p>
+<p>从而，通过反射来遍历所有的字段内容<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">s := reflect.ValueOf(&amp;t).Elem()</span><br><span class="line">typeOfT := s.Type()</span><br><span class="line"><span class="keyword">for</span> i := <span class="number">0</span>; i &lt; s.NumField(); i++ &#123;</span><br><span class="line">    f := s.Field(i)</span><br><span class="line">    fmt.Printf(<span class="string">"%d %s %s = %v\n"</span>, i, typeOfT.Field(i).Name, f.Type(), f.Interface())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">0 A int = 23</span><br><span class="line">1 B string = skidoo</span><br></pre></td></tr></table></figure>
+<p>接下来，如何获取结构体的标签内容?<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">type</span> S <span class="keyword">struct</span> &#123;</span><br><span class="line">        F <span class="keyword">string</span> <span class="string">`species:"gopher" color:"blue"`</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    s := S&#123;&#125;</span><br><span class="line">    st := reflect.TypeOf(s)</span><br><span class="line">    field := st.Field(<span class="number">0</span>)</span><br><span class="line">    fmt.Println(field.Tag.Get(<span class="string">"color"</span>), field.Tag.Get(<span class="string">"species"</span>))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="interface-到函数反射"><a href="#interface-到函数反射" class="headerlink" title="interface{}到函数反射"></a>interface{}到函数反射</h2><p>一般情况下，为了存储多个函数值，一般采用<code>map</code>来存储。其中key为函数名称，而value为相应的处理函数。<br>在这里需要定义好函数类型，但是函数的参数以及返回类型就需要是统一的，如下<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">say</span><span class="params">(text <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">    fmt.Println(text)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> funcMap = <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">string</span>]<span class="function"><span class="keyword">func</span><span class="params">(<span class="keyword">string</span>)</span>)</span></span><br><span class="line"><span class="function">    <span class="title">funcMap</span>["<span class="title">say</span>"] = <span class="title">say</span></span></span><br><span class="line">    funcMap["say"]("hello")</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>如果希望<code>map</code>可以存储任意类型的函数（参数不同，返回值不同），那么就需要用interface{}而不是func(param…)来定义value。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">say</span><span class="params">(text <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">    fmt.Println(text)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> funcMap = <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">interface</span>&#123;&#125;)</span><br><span class="line">    funcMap[<span class="string">"say"</span>] = say</span><br><span class="line">    funcMap[<span class="string">"say"</span>](<span class="string">"hello"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cannot call non-function funcMap[<span class="string">"say"</span>] (<span class="built_in">type</span> interface &#123;&#125;)</span><br></pre></td></tr></table></figure>
+<p>直接调用会报错，提示不能调用interface{}类型的函数。</p>
+<p>这时，需要利用<code>reflect</code>把函数从interface转换到函数来使用，<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">    <span class="string">"reflect"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">say</span><span class="params">(text <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">    fmt.Println(text)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Call</span><span class="params">(m <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">interface</span>&#123;&#125;, name <span class="keyword">string</span>, params ... <span class="keyword">interface</span>&#123;&#125;)</span> <span class="params">(result []reflect.Value)</span></span> &#123;</span><br><span class="line">    f := reflect.ValueOf(m[name]) <span class="comment">// 把函数转化为reflect value</span></span><br><span class="line">    in := <span class="built_in">make</span>([]reflect.Value, <span class="built_in">len</span>(params))</span><br><span class="line">    <span class="keyword">for</span> k, param := <span class="keyword">range</span> params &#123;</span><br><span class="line">        in[k] = reflect.ValueOf(param) <span class="comment">// 把参数转为为[] reflect value</span></span><br><span class="line">    &#125;</span><br><span class="line">    result = f.Call(in)</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> funcMap = <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">interface</span>&#123;&#125;)</span><br><span class="line">    funcMap[<span class="string">"say"</span>] = say</span><br><span class="line">    Call(funcMap, <span class="string">"say"</span>, <span class="string">"hello"</span>)</span><br></pre></td></tr></table></figure></p>
+<p>其中，使用Call函数，调用函数v，参数为[]value<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(v Value)</span> <span class="title">Call</span><span class="params">(in []Value)</span> []<span class="title">Value</span></span></span><br></pre></td></tr></table></figure></p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2015/10/28/mysql-procedure/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          MySQL 存储过程
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/09/22/simulate-anneal/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          模拟退火算法
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</div>
+
+    <!--/div-->
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2022 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

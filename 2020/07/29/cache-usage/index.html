@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>Local Cache &amp; Distributed Cache | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="总结下缓存更新思路。">
+<meta name="keywords" content="中间件,缓存">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Local Cache &amp; Distributed Cache">
+<meta property="og:url" content="http://simyy.cn/2020/07/29/cache-usage/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="总结下缓存更新思路。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://simyy.cn/images/cache-usage-1-sync.png">
+<meta property="og:image" content="http://simyy.cn/images/cache-usage-2-async-thread.png">
+<meta property="og:image" content="http://simyy.cn/images/cache-usage-3-async-mq.png">
+<meta property="og:image" content="http://simyy.cn/images/cache-usage-2-async-binlog.png">
+<meta property="og:image" content="http://simyy.cn/images/cache-usage-4-local-pub-sub.png">
+<meta property="og:image" content="http://simyy.cn/images/cache-usage-5-local-pub-sub-with-syncshceduler.png">
+<meta property="og:image" content="http://simyy.cn/images/cache-usage-6-cache-persist.png">
+<meta property="og:image" content="http://simyy.cn/images/cache-usage-7-local-mod.png">
+<meta property="og:updated_time" content="2020-07-31T08:17:46.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Local Cache &amp; Distributed Cache">
+<meta name="twitter:description" content="总结下缓存更新思路。">
+<meta name="twitter:image" content="http://simyy.cn/images/cache-usage-1-sync.png">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<script src="/js/hexo_resize_image.js"></script>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">主页</a></li><li><a href="/2014/07/07/book-list">书单</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <!--div id="main"-->
+      <div id="main">
+
+
+<article id="post-cache-usage" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2020/07/29/cache-usage/" class="article-date">
+  <time datetime="2020-07-29T12:41:08.000Z" itemprop="datePublished">2020-07-29</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/中间件/">中间件</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/缓存/">缓存</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      Local Cache &amp; Distributed Cache
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>总结下缓存更新思路。</p>
+<a id="more"></a>
+<h4 id="缓存"><a href="#缓存" class="headerlink" title="缓存"></a>缓存</h4><p><code>缓存</code>是提高系统性能的关键，也必然会带来<code>数据一致性</code>的问题。</p>
+<p>常见的缓存大概有以下几种，</p>
+<h5 id="客户端（浏览器）缓存"><a href="#客户端（浏览器）缓存" class="headerlink" title="客户端（浏览器）缓存"></a>客户端（浏览器）缓存</h5><p>使用用户本地缓存来减少服务端的请求压力，会造成客户端与服务端数据不一致的问题。</p>
+<blockquote>
+<p>客户端缓存可以有效的降低服务端的压力，例如，抢购以及电商大促时常常先把一些静态数据缓存到客户端本地。</p>
+</blockquote>
+<h5 id="cdn缓存"><a href="#cdn缓存" class="headerlink" title="cdn缓存"></a>cdn缓存</h5><p>利用分布式的<code>边缘服务器</code>对服务端的数据进行缓存，客户端<code>就近获取数据</code>。</p>
+<p>cdn缓存可以理解为利用中间件（分布式缓存）对服务端整体缓存，同样会造成数据不一致的问题。</p>
+<blockquote>
+<p>cdn缓存一般用于静态数据，例如，前端相关的css、js，商品详情页的静态数据。</p>
+</blockquote>
+<h5 id="nginx缓存"><a href="#nginx缓存" class="headerlink" title="nginx缓存"></a>nginx缓存</h5><p>nginx缓存一般仅用于服务端的静态数据的缓存，一般常用于前端相关的css/js等。</p>
+<h5 id="本地缓存"><a href="#本地缓存" class="headerlink" title="本地缓存"></a>本地缓存</h5><p>本地缓存是解决高并发的终极手段，但一定会存在数据不一致的问题。</p>
+<p>大量的本地缓存会占用大量的业务内存，合理的设置LRU以及热点数据的评估是使用本地缓存的关键问题。</p>
+<blockquote>
+<p>为了实现高并发，往往会采用数据的最终一致性。</p>
+</blockquote>
+<h5 id="分布式缓存"><a href="#分布式缓存" class="headerlink" title="分布式缓存"></a>分布式缓存</h5><p>分布式缓存是目前微服务下最常用的缓存手段。</p>
+<p>在一些QPS不高的业务下，并不需要本地缓存，仅仅使用分布式缓存就能实现很好的性能。</p>
+<p>由于分布式缓存引入了新的中间件，会增加整个链路的网络IO开销。</p>
+<blockquote>
+<p>常见的分布式缓存有Redis、Memcached。</p>
+</blockquote>
+<h4 id="缓存更新"><a href="#缓存更新" class="headerlink" title="缓存更新"></a>缓存更新</h4><p>缓存更新的方式大体可以分为两种：<code>同步更新</code>与<code>异步更新</code>。</p>
+<blockquote>
+<p>由于更新的异步化，写入数据的同时不能保证数据的缓存刷新，因此，很难保证数据的强一致性。</p>
+</blockquote>
+<p>同步更新大多适用于数据强一致性，而异步更新大多适用于数据的最终一致性。</p>
+<hr>
+<p>以下几种实例中，均使用<code>Memcached</code>作为分布式缓存，<code>MySQL</code>作为持久化存储。</p>
+<h5 id="基于分布式缓存的同步更新"><a href="#基于分布式缓存的同步更新" class="headerlink" title="基于分布式缓存的同步更新"></a>基于分布式缓存的同步更新</h5><blockquote>
+<p>此方案是最基础的分布式缓存方案，关键在于同步的DB写入与缓存刷新。</p>
+</blockquote>
+<p><strong>read</strong></p>
+<p>优先读取缓存，如果不存在，则回源到DB，重新加载到缓存。</p>
+<p><strong>write</strong></p>
+<p>优先写DB，写成功后同步清理缓存。</p>
+<p><img src="/images/cache-usage-1-sync.png" alt="基于分布式缓存的同步更新"></p>
+<h5 id="基于分布式缓存的线程池异步更新"><a href="#基于分布式缓存的线程池异步更新" class="headerlink" title="基于分布式缓存的线程池异步更新"></a>基于分布式缓存的线程池异步更新</h5><p><strong>read</strong></p>
+<p>同上，优先读取缓存，如果不存在，则回源到DB，重新加载到缓存。</p>
+<p><strong>write</strong></p>
+<p>仅写DB，但写入成功后会直接返回，触发异步线程来做缓存的更新，存在缓存的不一致问题。</p>
+<p><img src="/images/cache-usage-2-async-thread.png" alt="基于分布式缓存的线程池异步更新"></p>
+<p>如图所示，与同步更新相比，异步线程不能保证数据更新的时效性，如果线程出现异常会导致<code>长时间的缓存不一致</code>的问题。</p>
+<p>此外，<code>如何设置合理的异步线程池</code>也是一个关键问题。</p>
+<h5 id="基于分布式缓存的消息异步更新"><a href="#基于分布式缓存的消息异步更新" class="headerlink" title="基于分布式缓存的消息异步更新"></a>基于分布式缓存的消息异步更新</h5><p><strong>read</strong></p>
+<p>同上，优先读取缓存，如果不存在，则回源到DB，重新加载到缓存。</p>
+<p><strong>write</strong></p>
+<p>仅写DB，但写入成功后会直接返回，使用mq作为异步操作持久化的媒介，从而解决异步线程池的问题，但仍然无法解决性能上的问题。</p>
+<p><img src="/images/cache-usage-3-async-mq.png" alt="基于分布式缓存的消息异步更新"></p>
+<p>如图所示，使用<code>RocketMQ</code>中间件来作为异步化的媒介，通过<code>Consumer</code>来触发缓存的刷新。</p>
+<h5 id="基于分布式缓存的binlog异步更新"><a href="#基于分布式缓存的binlog异步更新" class="headerlink" title="基于分布式缓存的binlog异步更新"></a>基于分布式缓存的binlog异步更新</h5><p><strong>read</strong></p>
+<p>同上，优先读取缓存，如果不存在，则回源到DB，重新加载到缓存。</p>
+<p><strong>write</strong></p>
+<p>仅写DB，但写入成功后会直接返回，使用binlog来避免对于mq中间件的依赖，订阅binlog日志来实现缓存的生成。</p>
+<p><img src="/images/cache-usage-2-async-binlog.png" alt="基于分布式缓存的binlog异步更新"></p>
+<p>这种方案引入了binlog日志，从复杂度上降低了直接的依赖，但也引入了间接的依赖。</p>
+<p><code>Instagram</code>才用了这种方式来实现高性能的服务，具体可参考<a href="https://www.youtube.com/watch?v=hnpzNAPiC0E" target="_blank" rel="noopener">Scaling Instagram Infrastructure</a>。</p>
+<h5 id="基于本地缓存的binlog异步更新"><a href="#基于本地缓存的binlog异步更新" class="headerlink" title="基于本地缓存的binlog异步更新"></a>基于本地缓存的binlog异步更新</h5><p><strong>read</strong></p>
+<p>优先读本地缓存，如果不存在，则回源到DB，重新加载到本地缓存。</p>
+<p>此方案不需要两次网络IO（分布式缓存的Request与Response），性能上一定是更好的，但一致性很难保证。</p>
+<p><strong>write</strong></p>
+<p>优先写DB，写入成功并更新本地缓存后会直接返回。</p>
+<p>为了解决分布式场景下本地缓存的同步更新，引入了<code>Redis</code>的发布订阅机制。</p>
+<blockquote>
+<p>此方案仅更新了本地缓存，如果可以保证该用户请求均路由到同一机器，是可以解决当前用户可见性问题。</p>
+</blockquote>
+<p><img src="/images/cache-usage-4-local-pub-sub.png" alt="基于本地缓存的binlog异步更新1"></p>
+<p>考虑到中间件的可靠性与时延问题，增加了<code>SyncScheduler</code>来实现定时同步机制。</p>
+<p><img src="/images/cache-usage-5-local-pub-sub-with-syncshceduler.png" alt="基于本地缓存的binlog异步更新2"></p>
+<h5 id="基于分布式缓存的异步持久化"><a href="#基于分布式缓存的异步持久化" class="headerlink" title="基于分布式缓存的异步持久化"></a>基于分布式缓存的异步持久化</h5><p><strong>read</strong></p>
+<p>仅读取缓存，缓存数据的加载是通过缓存中间件来实现，服务不会直接与DB交互。</p>
+<p><strong>write</strong></p>
+<p>仅写缓存，缓存需要持久化策略，通过binlog通过到MySQL。</p>
+<blockquote>
+<p>此方案使用分布式缓存作为<code>数据库的前置缓存</code>，通过实现缓存的持久化机制来同步数据到DB。</p>
+<p>此方案需要具有缓存中间件定制化开发的能力，缓存异常恢复也是实现高可用服务的关键。</p>
+</blockquote>
+<p><img src="/images/cache-usage-6-cache-persist.png" alt="基于分布式缓存的异步持久化"></p>
+<h5 id="基于本地缓存的分治缓存策略"><a href="#基于本地缓存的分治缓存策略" class="headerlink" title="基于本地缓存的分治缓存策略"></a>基于本地缓存的分治缓存策略</h5><p><strong>read</strong></p>
+<p>需要路由的支持，实现用户的特定路由，从而达到某个用户的所有操作均打到同一台机器上。</p>
+<p>由于每台机器仅接受特定用户的数据，可以通过引入<code>Zookeeper</code>来获取一定的标识来预加载特定的数据。</p>
+<p>仅读取本地缓存，通过<code>SyncSheduler</code>模块主动或定时拉取缓存数据。</p>
+<p><strong>write</strong></p>
+<p>仅写本地缓存，需要同步写入到数据库，从而保证数据的持久化。</p>
+<blockquote>
+<p>此方案是基于路由能力，实现一套特定路由方案的缓存一致性策略。</p>
+<p>通过保证用户请求路由的一致性，使用服务内存缓存特定数据，从而利用分布式服务来代替分布式缓存，从而满足数据的一致性。</p>
+</blockquote>
+<p><img src="/images/cache-usage-7-local-mod.png" alt="基于本地缓存的分治缓存策略"></p>
+<p>这种方案没有具体实施过，特定的路由规则必然带来额外的复杂度。</p>
+<p>这种方案在大型网站的库存系统中是否有过实现也未可知。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p><code>缓存更新</code>是分布式场景下无法避免的问题，大体可以分为<code>同步</code>与<code>异步</code>。</p>
+<p>高性能与数据一致性往往不可兼得，<code>强一致性与最终一致性之间如何取舍</code>是架构设计的必经之路。</p>
+<p>项目设计之初并不需要复杂的缓存设计，在满足性能的前提下架构的设计越简单越好。</p>
+<p>如果DB的性能足以满足当前的需求，就不必引入分布式缓存。</p>
+<p>如果分布式缓存的性能足以满足当前的需求，就不必引入本地缓存。</p>
+<p>如果同步同步更新的性能满足当前的需求，就不必引入异步更新策略。</p>
+<p>如果对数据的实时性要求不高，就没必要一定要同步调用，可以通过各种异步策略来实现。</p>
+<p>如果线程池的方式满足当前的需求，就没必要引入为的中间件。</p>
+<p>…</p>
+<p>总之，缓存设计简单就好。</p>
+<h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><p><a href="https://github.com/liukelin/canal_mysql_nosql_sync" target="_blank" rel="noopener">基于 Canal 的 MySql RabbitMQ Redis/memcached/mongodb 的nosql同步 </a></p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2020/08/08/mysql-innodb-lock/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          InnoDB Locking
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/07/26/java-thread-state/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          JVM Thread State
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</div>
+
+    <!--/div-->
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2022 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

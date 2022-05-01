@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>Spring AOP 失效的原因 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="分析AOP在一定情况下会失效的原因。">
+<meta name="keywords" content="编程语言,Java,Spring">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring AOP 失效的原因">
+<meta property="og:url" content="http://simyy.cn/2020/04/02/java-spring-aop-ineffective/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="分析AOP在一定情况下会失效的原因。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-04-03T05:54:32.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spring AOP 失效的原因">
+<meta name="twitter:description" content="分析AOP在一定情况下会失效的原因。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<script src="/js/hexo_resize_image.js"></script>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">主页</a></li><li><a href="/2014/07/07/book-list">书单</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <!--div id="main"-->
+      <div id="main">
+
+
+<article id="post-java-spring-aop-ineffective" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2020/04/02/java-spring-aop-ineffective/" class="article-date">
+  <time datetime="2020-04-02T10:53:09.000Z" itemprop="datePublished">2020-04-02</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring/">Spring</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/编程语言/">编程语言</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      Spring AOP 失效的原因
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>分析AOP在一定情况下会失效的原因。</p>
+<a id="more"></a>
+<h5 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h5><p><code>Spring</code>提供了事务注解<code>Transactional</code>，在一定的使用场景下会发生事务不生效的情况。</p>
+<p><strong>注：</strong>下列场景中，<code>updateInDB</code>为数据库更新操作。</p>
+<h6 id="场景1（事务生效）"><a href="#场景1（事务生效）" class="headerlink" title="场景1（事务生效）"></a>场景1（事务生效）</h6><p>一般的使用方式如下，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Service</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Transactional</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Long <span class="title">updateA</span><span class="params">(A a)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// Update A</span></span><br><span class="line">        updateInDB(a)</span><br><span class="line">        b = ...</span><br><span class="line">        <span class="comment">// Then update B</span></span><br><span class="line">        updateB(b)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Long <span class="title">updateB</span><span class="params">(B b)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// Update B</span></span><br><span class="line">        updateInDB(b)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ServiceTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> Service service;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        A a = <span class="keyword">new</span> A(...);</span><br><span class="line">        service.updateA(a)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由于<code>updateA</code>包含了<code>updateB</code>的操作，因此<code>updateB</code>与<code>updateA</code>会在一个事务中。</p>
+<p>此时，<code>updateA</code>与<code>updateB</code>会同时生效或失效。</p>
+<h6 id="场景2（事务失效）"><a href="#场景2（事务失效）" class="headerlink" title="场景2（事务失效）"></a>场景2（事务失效）</h6><p>考虑<code>内部调用</code>的情况如下，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Service</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Long <span class="title">update</span><span class="params">(A a)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> updateA(A)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Transactional</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Long <span class="title">updateA</span><span class="params">(A a)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// Update A</span></span><br><span class="line">        updateInDB(a)</span><br><span class="line">        b = ...</span><br><span class="line">        <span class="comment">// Then update B</span></span><br><span class="line">        updateB(b)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Long <span class="title">updateB</span><span class="params">(B b)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// Update B</span></span><br><span class="line">        updateInDB(b)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ServiceTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> Service service;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        A a = <span class="keyword">new</span> A(...);</span><br><span class="line">        service.update(a)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>与场景1不同，此时通过<code>无事务标识的update</code>调用<code>有事务标识的updateA</code>。</p>
+<p>此时，<code>updateA</code>与<code>updateB</code>的事务会失效。</p>
+<h6 id="场景3（事务失效）"><a href="#场景3（事务失效）" class="headerlink" title="场景3（事务失效）"></a>场景3（事务失效）</h6><p>考虑<code>继承调用</code>的场景如下，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BaseService</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Transactional</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Long <span class="title">updateA</span><span class="params">(A a)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// Update A</span></span><br><span class="line">        updateInDB(a)</span><br><span class="line">        b = ...</span><br><span class="line">        <span class="comment">// Then update B</span></span><br><span class="line">        updateB(b)</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> Long <span class="title">updateB</span><span class="params">(B b)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// Update B</span></span><br><span class="line">        updateInDB(b)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Service</span> <span class="keyword">extends</span> <span class="title">BaseService</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Long <span class="title">updateA</span><span class="params">(A a)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// Invoke super.method</span></span><br><span class="line">        <span class="keyword">super</span>.updateA(a)</span><br><span class="line">        ....</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ServiceTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> Service service;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        A a = <span class="keyword">new</span> A(...);</span><br><span class="line">        service.updateA(a)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>BaseService.updateA</code>标记了<code>Transactional</code>注解。</p>
+<p><code>Service</code>继承自<code>BaseService</code>，覆盖了<code>updateA</code>，但没有事务标识。</p>
+<p>此时，<code>service.updateA</code>调用<code>super.updateA</code>是无法保证事务的有效性。</p>
+<h5 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h5><p>首先，<code>Spring的核心</code>是<code>IOC控制反转</code>和<code>AOP面向切面编程</code>。</p>
+<p><code>IOC控制反转</code>也被称为<code>DI依赖注入</code>，负责管理Spring项目中所有对象的<code>生命周期</code>与<code>依赖关系</code>。</p>
+<p><code>AOP面向切面编程</code>是通过<code>预编译</code>或<code>动态代理</code>来改变原有模块功能的技术方式。</p>
+<blockquote>
+<p><code>IOC</code>是实现<code>AOP</code>的基础。</p>
+</blockquote>
+<p><code>AOP</code>无论哪种实现方式都会为模块生成新的代理模块，而模块之间的依赖注入是依赖<code>IOC</code>的。</p>
+<p>也就是说，如果希望<code>AOP</code>生效，必须通过<code>IOC</code>管理的对象实例才可以生效。</p>
+<hr>
+<blockquote>
+<p><code>内部调用</code>: 通过<code>this</code>或<code>super</code>的调用。</p>
+</blockquote>
+<p>通过<code>this</code>和<code>super</code>产生的函数调用与<code>Spring IOC</code>无关，因此<code>AOP</code>无效。</p>
+<p>在<code>场景2</code>和<code>场景3</code>中，虽然<code>updateA</code>与<code>super.updateA</code>都带有Spring的<code>Transactional</code>注解，</p>
+<p>但是通过<code>this</code>与<code>super</code>来调用的，因此，<code>Transactional</code>注解无效。</p>
+<blockquote>
+<p>只有通过<code>代理</code>调用，<code>AOP</code>才会生效，而<code>代理</code>是<code>Spring IOC</code>的一部分。</p>
+</blockquote>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2020/04/16/java-expression-plugin/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Java 表达式引擎分析
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/03/16/python-json-serialize/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          Python Json序列化
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</div>
+
+    <!--/div-->
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2022 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

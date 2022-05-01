@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>Netty设计原理 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="Netty设计原理。">
+<meta name="keywords" content="中间件,编程语言,Java,网络模型">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Netty设计原理">
+<meta property="og:url" content="http://simyy.cn/2020/07/19/netty/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="Netty设计原理。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://simyy.cn/images/netty-1.png">
+<meta property="og:image" content="http://simyy.cn/images/netty-2.png">
+<meta property="og:image" content="http://simyy.cn/images/netty-3.png">
+<meta property="og:image" content="http://simyy.cn/images/netty-4.png">
+<meta property="og:updated_time" content="2020-07-22T02:37:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Netty设计原理">
+<meta name="twitter:description" content="Netty设计原理。">
+<meta name="twitter:image" content="http://simyy.cn/images/netty-1.png">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<script src="/js/hexo_resize_image.js"></script>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">主页</a></li><li><a href="/2014/07/07/book-list">书单</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <!--div id="main"-->
+      <div id="main">
+
+
+<article id="post-netty" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2020/07/19/netty/" class="article-date">
+  <time datetime="2020-07-19T11:23:15.000Z" itemprop="datePublished">2020-07-19</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/中间件/">中间件</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/编程语言/">编程语言</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/网络模型/">网络模型</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      Netty设计原理
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>Netty设计原理。</p>
+<a id="more"></a>
+<h3 id="事件模型"><a href="#事件模型" class="headerlink" title="事件模型"></a>事件模型</h3><p><code>Netty</code>是一个基于<code>Java NIO</code>的高性能的通信框架。</p>
+<p>Netty是<code>Reactor</code>的一种实现，通过分离<code>Boss线程</code>与<code>Worker线程</code>实现高性能的IO操作。</p>
+<p><img src="/images/netty-1.png" alt=""></p>
+<p><code>Selector</code>是事件驱动的核心，是基于<code>select/epoll/kqueue</code>等实现。</p>
+<p><code>BossGroup</code>负责不断循环执行<code>select</code>来获取当前已经就绪的事件。</p>
+<p><code>WorkerGroup</code>负责具体的IO操作(<code>OP_READ</code>/<code>OP_WRITE</code>等)。</p>
+<blockquote>
+<p>注意：BossGroup中线程的数量与绑定的端口有关，如果仅绑定一个端口，线程数为1即可。</p>
+</blockquote>
+<p><code>ServerBootstrapAcceptor</code>负责<code>ParentGroup</code>到<code>ChildGroup</code>之间<code>Channel</code>的传递.</p>
+<h3 id="Channel"><a href="#Channel" class="headerlink" title="Channel"></a>Channel</h3><p><code>Channel</code>是IO操作的媒介，Netty中的Channel与JDK中NIO是一一映射的，</p>
+<ul>
+<li>NioSocketChannel <----> SocketChannel</----></li>
+<li>NioServerSocketChannel <----> ServerSocketChannel</----></li>
+</ul>
+<p><code>Channel</code>是NIO通信的基础，<code>selector</code>是需要注册到<code>Channel</code>来能实现事件驱动的绑定。</p>
+<h4 id="pipeline"><a href="#pipeline" class="headerlink" title="pipeline"></a>pipeline</h4><p>Netty实现了一套<code>pipeline</code>以支持IO流的自定义处理。</p>
+<p><img src="/images/netty-2.png" alt=""></p>
+<p>如图所示，<code>pipeline</code>保存了用于此Channel的所有Handler，</p>
+<p>其中，可以被分为两种：</p>
+<ul>
+<li><code>ChannelInboundHandler</code>：处理读操作（对应着请求）的处理器</li>
+<li><code>ChannelOutboundHandler</code>：处理写操作（对应着回复）的处理器</li>
+</ul>
+<p><code>channel.read()</code>是Channel的读操作，调用<code>findContextInbound</code>获取Inbound处理器，</p>
+<p><code>channel.forceFlush()</code>是Channel的写入操作，调用<code>findContextOutbound</code>获取outbound处理器。</p>
+<blockquote>
+<p>在使用过程中，需要注意Inbound/outbound的顺序。</p>
+</blockquote>
+<p>那么，pipeline到底什么用，举个例子：</p>
+<ul>
+<li>利用<code>ByteToMessageDecoder（ChannelInboundHandler）</code>对读到的数据进行解码，</li>
+<li>利用<code>MessageToByteEncoder（ChannelOutboundHandler）</code>来对回复的数据进行编码。</li>
+</ul>
+<h4 id="selector"><a href="#selector" class="headerlink" title="selector"></a>selector</h4><p><code>NioSocketChannel &amp; NioServerSocketChannel</code>使用<code>SelectorProvider</code>来获取当前平台默认的事件驱动模型。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SelectorProvider DEFAULT_SELECTOR_PROVIDER = SelectorProvider.provider()</span><br></pre></td></tr></table></figure>
+<p><code>SelectionKey</code>是<code>selector</code>获取到已就绪的事件，利用<code>processSelectedKey</code>实现读写事件的分发处理。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">processSelectedKey</span><span class="params">(SelectionKey k, AbstractNioChannel ch)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// 如果是写事件</span></span><br><span class="line">    <span class="keyword">if</span> ((readyOps &amp; SelectionKey.OP_WRITE) != <span class="number">0</span>) &#123;</span><br><span class="line">        ch.unsafe().forceFlush();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果是读事件</span></span><br><span class="line">    <span class="keyword">if</span> ((readyOps &amp; (SelectionKey.OP_READ | SelectionKey.OP_ACCEPT)) != <span class="number">0</span> || readyOps == <span class="number">0</span>) &#123;</span><br><span class="line">        unsafe.read();</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="EventLoop"><a href="#EventLoop" class="headerlink" title="EventLoop"></a>EventLoop</h3><p><code>EventLoop</code>是Netty中用于<code>绑定Channel</code>并<code>处理Channel IO</code>的实现。</p>
+<p>NioEventLoop继承自<code>SingleThreadEventExecutor</code>，也就是说，每一个NioEventLoop就是<code>一个单线程</code>。</p>
+<p><code>SingleThreadEventExecutor</code>是一个单线程的线程池，利用队列实现任务的<code>非阻塞的异步执行</code>。</p>
+<ul>
+<li>运行状态：<code>volatile int state</code>，会涉及到<code>UnSafe.CAS</code>操作</li>
+<li>任务队列：<code>Queue&lt;Runnable&gt; taskQueue</code></li>
+<li>延迟队列：<code>PriorityQueue&lt;ScheduledFutureTask&lt;?&gt;&gt; scheduledTaskQueue</code></li>
+</ul>
+<p>任务执行<code>execute(Runnable task)</code>会把当前任务添加到<code>taskQueue</code>，最后通过<code>runAllTasks</code>来触发任务的执行。</p>
+<p><img src="/images/netty-3.png" alt=""></p>
+<p>上图为<code>NioEventLoop.run</code>函数的大体内容，主要分为两部分，</p>
+<ul>
+<li><code>任务执行</code>：遍历触发<code>taskQueue</code>的缓存的未执行的任务</li>
+<li><code>事件遍历</code>：通过<code>selector.select()</code>获取已就绪的事件</li>
+</ul>
+<h3 id="EventLoopGroup"><a href="#EventLoopGroup" class="headerlink" title="EventLoopGroup"></a>EventLoopGroup</h3><p><code>EventLoopGroup</code>是用来管理<code>EventLoop</code>的，类似于线程池的管理。</p>
+<p>EventLoopGroup继承自<code>EventExecutorGroup</code>，它实现了整个事件池的管理。</p>
+<p><code>MultithreadEventLoopGroup</code>是EventExecutorGroup的抽象实现，负责管理事件执行器的生命周期，</p>
+<p>主要变量有：</p>
+<ul>
+<li>处理器的存储：<code>EventExecutor[] children</code></li>
+<li>处理器的选择：<code>EventExecutorChooserFactory.EventExecutorChooser chooser</code></li>
+</ul>
+<p><code>EventExecutor</code>是基于<code>AbstractExecutorService</code>的实现，等价于<code>Reator模型中的Handler</code>。</p>
+<p>Netty会根据<code>chooser</code>逻辑来选择一个事件执行器来处理Channel上的事件。</p>
+<h3 id="ByteBuf"><a href="#ByteBuf" class="headerlink" title="ByteBuf"></a>ByteBuf</h3><p><code>ByteBuf</code>是Netty提供的一套高性能Byte缓冲区。</p>
+<p><img src="/images/netty-4.png" alt=""></p>
+<p><strong>读写索引</strong></p>
+<p><code>ByteBuf</code>使用<code>readIndex</code>与<code>writeIndex</code>来记录读写情况。</p>
+<p><code>ByteBuffer</code>使用<code>position、limit、capacity</code>来记录读写情况，通过flip切换读写。</p>
+<p><strong>动态扩展</strong></p>
+<p><code>ByteBuf</code>当内存大小不足以写入数据会触发空间扩容（<code>ensureWritable0</code>）。</p>
+<p><code>ByteBuffer</code>的容量固定，超出容量大小会报错。</p>
+<p><strong>零拷贝</strong></p>
+<p><code>CompositeByteBuf</code>是多个ByteBuf的逻辑拼接，使用<code>Component数组</code>来存储ByteBuf的引用，不会产生复制。</p>
+<p>当Component数组大小不足时候，支持自动扩容数组大小，此时的扩容也仅仅涉及到引用的复制。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>Netty是典型的Reactor模型，</p>
+<ul>
+<li>Master与Worker线程分离</li>
+<li>基于线程池的Executor</li>
+<li>基于pipeline的Handler处理机制</li>
+<li>ByteBuf降低缓冲区复制的性能损耗</li>
+</ul>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2020/07/26/java-thread-state/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          JVM Thread State
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/07/04/redis-redlock/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          Redlock - Distributed locks with Redis
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</div>
+
+    <!--/div-->
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2022 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

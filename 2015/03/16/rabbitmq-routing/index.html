@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>RabbitMQ Routing | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="RabbitMQ可以通过路由选择订阅者来发布消息。">
+<meta name="keywords" content="中间件,消息队列,RabbitMQ">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RabbitMQ Routing">
+<meta property="og:url" content="http://simyy.cn/2015/03/16/rabbitmq-routing/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="RabbitMQ可以通过路由选择订阅者来发布消息。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-12-17T02:24:56.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RabbitMQ Routing">
+<meta name="twitter:description" content="RabbitMQ可以通过路由选择订阅者来发布消息。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<script src="/js/hexo_resize_image.js"></script>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">主页</a></li><li><a href="/2014/07/07/book-list">书单</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <!--div id="main"-->
+      <div id="main">
+
+
+<article id="post-rabbitmq-routing" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2015/03/16/rabbitmq-routing/" class="article-date">
+  <time datetime="2015-03-16T13:29:10.000Z" itemprop="datePublished">2015-03-16</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RabbitMQ/">RabbitMQ</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/中间件/">中间件</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/消息队列/">消息队列</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      RabbitMQ Routing
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p><code>RabbitMQ</code>可以通过路由选择订阅者来发布消息。<br><a id="more"></a></p>
+<h2 id="Bindings"><a href="#Bindings" class="headerlink" title="Bindings"></a>Bindings</h2><p>通过下面的函数绑定Exchange与消息队列：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">channel.queue_bind(exchange=exchange_name, queue=queue_name)</span><br></pre></td></tr></table></figure>
+<p>可以通过添加<code>routing_key</code>来做路由选择，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">channel.queue_bind(exchange=exchange_name, queue=queue_name, routing_key=&apos;black&apos;)</span><br></pre></td></tr></table></figure>
+<h2 id="Direct-Exchange"><a href="#Direct-Exchange" class="headerlink" title="Direct Exchange"></a>Direct Exchange</h2><p>为了使用直接转发，可以设置<code>Exchange</code>的类型为<code>direct</code>。</p>
+<p>在<code>rabbitmq</code>中直接转发的算法很简单，如果<code>binding key</code>与<code>routing key</code>相同，消息会直接添加到相应的消息队列中取。</p>
+<h2 id="Multiple-bindings"><a href="#Multiple-bindings" class="headerlink" title="Multiple bindings"></a>Multiple bindings</h2><p><code>rabbitmq</code>允许一个<code>Exchange</code>绑定多个消息队列，那么该<code>Exchange</code>会把消息分别发布到绑定的多个消息队列中。</p>
+<h2 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h2><p><strong>生产者</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># coding=utf-8</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> pika</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">connection = pika.BlockingConnection(pika.ConnectionParameters(</span><br><span class="line">host=<span class="string">'localhost'</span>))</span><br><span class="line">channel = connection.channel()</span><br><span class="line"></span><br><span class="line">channel.exchange_declare(exchange=<span class="string">'news'</span>, type=<span class="string">'fanout'</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">100</span>):</span><br><span class="line">    message = str(i) + <span class="string">'Hello World!'</span></span><br><span class="line">    <span class="keyword">if</span> i%<span class="number">2</span> == <span class="number">0</span>:</span><br><span class="line">        channel.basic_publish(exchange=<span class="string">'news'</span>, routing_key=<span class="string">'0'</span>, body=message)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        channel.basic_publish(exchange=<span class="string">'news'</span>, routing_key=<span class="string">'1'</span>, body=message)</span><br><span class="line">    <span class="keyword">print</span> <span class="string">" [x] Sent %r"</span> % (message,)</span><br><span class="line">    time.sleep(<span class="number">2</span>)</span><br><span class="line">connection.close()</span><br></pre></td></tr></table></figure>
+<p><strong>消费者</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pika</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line">parameters = pika.URLParameters(<span class="string">'amqp://mtest:root@rabbit-server:5672/%2F'</span>)</span><br><span class="line">connection = pika.BlockingConnection(parameters)</span><br><span class="line">channel = connection.channel()</span><br><span class="line"></span><br><span class="line">channel.exchange_declare(exchange=<span class="string">'news'</span>, type=<span class="string">'fanout'</span>)</span><br><span class="line"></span><br><span class="line">result = channel.queue_declare(exclusive=<span class="keyword">True</span>)</span><br><span class="line">queue_name = result.method.queue</span><br><span class="line"></span><br><span class="line">channel.queue_bind(exchange=<span class="string">'news'</span>, queue=queue_name, routing_key=sys.argv[<span class="number">1</span>])</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">' [*] Waiting for news. To exit press CTRL+C'</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">callback</span><span class="params">(ch, method, properties, body)</span>:</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">" [x] %r"</span> % (body,)</span><br><span class="line"></span><br><span class="line">channel.basic_consume(callback, queue=queue_name, no_ack=<span class="keyword">True</span>)</span><br><span class="line"></span><br><span class="line">channel.start_consuming()</span><br><span class="line"> </span><br><span class="line">parameters = pika.URLParameters(<span class="string">'amqp://guest:guest@rabbit-server1:5672/%2F'</span>)</span><br></pre></td></tr></table></figure>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2015/03/16/rabbitmq-topics/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          RabbitMQ topics
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/03/16/rabbitmq-publish-subscribe/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          RabbitMQ Publish/Subscribe
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</div>
+
+    <!--/div-->
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2022 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

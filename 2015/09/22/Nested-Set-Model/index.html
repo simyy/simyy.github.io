@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>MySQL 嵌套集合模型(Nested Set Model) | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="[译文]主要是介绍如何用MySQL来存储嵌套集合数据。">
+<meta name="keywords" content="MySQL,数据库,中间件,译文">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL 嵌套集合模型(Nested Set Model)">
+<meta property="og:url" content="http://simyy.cn/2015/09/22/Nested-Set-Model/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="[译文]主要是介绍如何用MySQL来存储嵌套集合数据。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://simyy.cn/images/Nested-Set-Model-1.png">
+<meta property="og:image" content="http://simyy.cn/images/Nested-Set-Model-2.png">
+<meta property="og:image" content="http://simyy.cn/images/Nested-Set-Model-3.png">
+<meta property="og:image" content="http://simyy.cn/images/Nested-Set-Model-4.png">
+<meta property="og:image" content="http://simyy.cn/images/Nested-Set-Model-5.png">
+<meta property="og:updated_time" content="2019-12-17T02:24:54.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MySQL 嵌套集合模型(Nested Set Model)">
+<meta name="twitter:description" content="[译文]主要是介绍如何用MySQL来存储嵌套集合数据。">
+<meta name="twitter:image" content="http://simyy.cn/images/Nested-Set-Model-1.png">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<script src="/js/hexo_resize_image.js"></script>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">主页</a></li><li><a href="/2014/07/07/book-list">书单</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <!--div id="main"-->
+      <div id="main">
+
+
+<article id="post-Nested-Set-Model" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2015/09/22/Nested-Set-Model/" class="article-date">
+  <time datetime="2015-09-21T16:32:51.000Z" itemprop="datePublished">2015-09-22</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/中间件/">中间件</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/数据库/">数据库</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/译文/">译文</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      MySQL 嵌套集合模型(Nested Set Model)
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>[译文]主要是介绍如何用MySQL来存储嵌套集合数据。</p>
+<a id="more"></a>
+<p>这篇文章主要讲的是嵌套集合模型，所以邻接表不是本文的重点，简单略过就好。</p>
+<p>也许这是<a href="http://mikehillyer.com/articles/managing-hierarchical-data-in-mysql/" target="_blank" rel="noopener">原文地址</a>，因为我也不知道这是不是原文。</p>
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p><strong>什么是分层数据？</strong><br>类似于树形结构，除了根节点和叶子节点外，所有节点都有用一个父节点和多个子节点。</p>
+<p><img src="/images/Nested-Set-Model-1.png" alt=""></p>
+<p>那么，在MySQL中如何处理分层数据呢？</p>
+<p>原文中介绍了两种分层结构模型：<code>邻接表模型</code>和<code>嵌套集合模型</code>。</p>
+<h2 id="邻接表模型-The-Adjacency-List-Model"><a href="#邻接表模型-The-Adjacency-List-Model" class="headerlink" title="邻接表模型(The Adjacency List Model)"></a>邻接表模型(The Adjacency List Model)</h2><p>首先，建立测试表，导入测试数据，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE category(</span><br><span class="line">        category_id INT AUTO_INCREMENT PRIMARY KEY,</span><br><span class="line">        name VARCHAR(20) NOT NULL,</span><br><span class="line">        parent INT DEFAULT NULL</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">INSERT INTO category VALUES</span><br><span class="line">        (1,&apos;ELECTRONICS&apos;,NULL),</span><br><span class="line">        (2,&apos;TELEVISIONS&apos;,1),</span><br><span class="line">        (3,&apos;TUBE&apos;,2),</span><br><span class="line">        (4,&apos;LCD&apos;,2),</span><br><span class="line">        (5,&apos;PLASMA&apos;,2),</span><br><span class="line">        (6,&apos;PORTABLE ELECTRONICS&apos;,1),</span><br><span class="line">        (7,&apos;MP3 PLAYERS&apos;,6),</span><br><span class="line">        (8,&apos;FLASH&apos;,7),</span><br><span class="line">        (9,&apos;CD PLAYERS&apos;,6),</span><br><span class="line">        (10,&apos;2 WAY RADIOS&apos;,6);</span><br><span class="line"></span><br><span class="line">SELECT * FROM category ORDER BY category_id;</span><br><span class="line">+-------------+----------------------+--------+</span><br><span class="line">| category_id | name                 | parent |</span><br><span class="line">+-------------+----------------------+--------+</span><br><span class="line">|           1 | ELECTRONICS          |   NULL |</span><br><span class="line">|           2 | TELEVISIONS          |      1 |</span><br><span class="line">|           3 | TUBE                 |      2 |</span><br><span class="line">|           4 | LCD                  |      2 |</span><br><span class="line">|           5 | PLASMA               |      2 |</span><br><span class="line">|           6 | PORTABLE ELECTRONICS |      1 |</span><br><span class="line">|           7 | MP3 PLAYERS          |      6 |</span><br><span class="line">|           8 | FLASH                |      7 |</span><br><span class="line">|           9 | CD PLAYERS           |      6 |</span><br><span class="line">|          10 | 2 WAY RADIOS         |      6 |</span><br><span class="line">+-------------+----------------------+--------+</span><br><span class="line">10 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure></p>
+<p>在邻接表中，所有的数据均拥有一个Parent字段，用来存储它的父节点。当前节点为根节点的话，它的父节点则为NULL。<br>那么在遍历的时候，可以使用递归来实现查询整棵树，从根节点开始，不断寻找子节点（父节点-&gt;子节点-&gt;父节点-&gt;子节点）。</p>
+<h3 id="检索分层路径"><a href="#检索分层路径" class="headerlink" title="检索分层路径"></a>检索分层路径</h3><p>一般需要获取一个分层结构的路径问题，那么</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">SELECT t1.name AS lev1, t2.name as lev2, t3.name as lev3, t4.name as lev4</span><br><span class="line">FROM category AS t1</span><br><span class="line">LEFT JOIN category AS t2 ON t2.parent = t1.category_id</span><br><span class="line">LEFT JOIN category AS t3 ON t3.parent = t2.category_id</span><br><span class="line">LEFT JOIN category AS t4 ON t4.parent = t3.category_id</span><br><span class="line">WHERE t1.name = &apos;ELECTRONICS&apos;;</span><br><span class="line"></span><br><span class="line">+-------------+----------------------+--------------+-------+</span><br><span class="line">| lev1        | lev2                 | lev3         | lev4  |</span><br><span class="line">+-------------+----------------------+--------------+-------+</span><br><span class="line">| ELECTRONICS | TELEVISIONS          | TUBE         | NULL  |</span><br><span class="line">| ELECTRONICS | TELEVISIONS          | LCD          | NULL  |</span><br><span class="line">| ELECTRONICS | TELEVISIONS          | PLASMA       | NULL  |</span><br><span class="line">| ELECTRONICS | PORTABLE ELECTRONICS | MP3 PLAYERS  | FLASH |</span><br><span class="line">| ELECTRONICS | PORTABLE ELECTRONICS | CD PLAYERS   | NULL  |</span><br><span class="line">| ELECTRONICS | PORTABLE ELECTRONICS | 2 WAY RADIOS | NULL  |</span><br><span class="line">+-------------+----------------------+--------------+-------+</span><br><span class="line">6 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<h2 id="检索叶子节点"><a href="#检索叶子节点" class="headerlink" title="#检索叶子节点"></a>#检索叶子节点</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">SELECT t1.name FROM</span><br><span class="line">category AS t1 LEFT JOIN category as t2</span><br><span class="line">ON t1.category_id = t2.parent</span><br><span class="line">WHERE t2.category_id IS NULL;</span><br><span class="line"></span><br><span class="line">+--------------+</span><br><span class="line">| name         |</span><br><span class="line">+--------------+</span><br><span class="line">| TUBE         |</span><br><span class="line">| LCD          |</span><br><span class="line">| PLASMA       |</span><br><span class="line">| FLASH        |</span><br><span class="line">| CD PLAYERS   |</span><br><span class="line">| 2 WAY RADIOS |</span><br><span class="line">+--------------+</span><br></pre></td></tr></table></figure>
+<h2 id="检索指定路径"><a href="#检索指定路径" class="headerlink" title="#检索指定路径"></a>#检索指定路径</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">SELECT t1.name AS lev1, t2.name as lev2, t3.name as lev3, t4.name as lev4</span><br><span class="line">FROM category AS t1</span><br><span class="line">LEFT JOIN category AS t2 ON t2.parent = t1.category_id</span><br><span class="line">LEFT JOIN category AS t3 ON t3.parent = t2.category_id</span><br><span class="line">LEFT JOIN category AS t4 ON t4.parent = t3.category_id</span><br><span class="line">WHERE t1.name = &apos;ELECTRONICS&apos; AND t4.name = &apos;FLASH&apos;;</span><br><span class="line"></span><br><span class="line">+-------------+----------------------+-------------+-------+</span><br><span class="line">| lev1        | lev2                 | lev3        | lev4  |</span><br><span class="line">+-------------+----------------------+-------------+-------+</span><br><span class="line">| ELECTRONICS | PORTABLE ELECTRONICS | MP3 PLAYERS | FLASH |</span><br><span class="line">+-------------+----------------------+-------------+-------+</span><br><span class="line">1 row in set (0.01 sec)</span><br></pre></td></tr></table></figure>
+<h3 id="邻接表的缺点"><a href="#邻接表的缺点" class="headerlink" title="邻接表的缺点"></a>邻接表的缺点</h3><p>在检索路径的过程中，除了本层外，每一层都会对应一个<code>LEFT JOIN</code>，那么如果层数不定怎么办？或者层数过多？<br>在删除中间层的节点时，需要同时删除该节点下的所有节点，否则会出现孤立节点。</p>
+<h2 id="嵌套集合模型Nested-Set-Model"><a href="#嵌套集合模型Nested-Set-Model" class="headerlink" title="嵌套集合模型Nested Set Model"></a>嵌套集合模型Nested Set Model</h2><p>原文中主要的目的是介绍嵌套集合模型，如下<br><img src="/images/Nested-Set-Model-2.png" alt=""></p>
+<p>通过集合的包含关系，嵌套结合模型可以表示分层结构，每一个分层可以用一个Set来表示（一个圈），父节点所在的圈包含所有子节点所在的圈。</p>
+<p>为了用MySQL来表示集合关系，需要定义连个字段<code>left</code>和<code>right</code>（表示一个集合的范围）。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE nested_category (</span><br><span class="line">        category_id INT AUTO_INCREMENT PRIMARY KEY,</span><br><span class="line">        name VARCHAR(20) NOT NULL,</span><br><span class="line">        lft INT NOT NULL,</span><br><span class="line">        rgt INT NOT NULL</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">INSERT INTO nested_category VALUES</span><br><span class="line">  (1,&apos;ELECTRONICS&apos;,1,20),</span><br><span class="line">  (2,&apos;TELEVISIONS&apos;,2,9),</span><br><span class="line">  (3,&apos;TUBE&apos;,3,4),</span><br><span class="line">  (4,&apos;LCD&apos;,5,6),</span><br><span class="line">  (5,&apos;PLASMA&apos;,7,8),</span><br><span class="line">  (6,&apos;PORTABLE ELECTRONICS&apos;,10,19),</span><br><span class="line">  (7,&apos;MP3 PLAYERS&apos;,11,14),</span><br><span class="line">  (8,&apos;FLASH&apos;,12,13),</span><br><span class="line">  (9,&apos;CD PLAYERS&apos;,15,16),</span><br><span class="line">  (10,&apos;2 WAY RADIOS&apos;,17,18);</span><br><span class="line"></span><br><span class="line">SELECT * FROM nested_category ORDER BY category_id;</span><br><span class="line"></span><br><span class="line">+-------------+----------------------+-----+-----+</span><br><span class="line">| category_id | name                 | lft | rgt |</span><br><span class="line">+-------------+----------------------+-----+-----+</span><br><span class="line">|           1 | ELECTRONICS          |   1 |  20 |</span><br><span class="line">|           2 | TELEVISIONS          |   2 |   9 |</span><br><span class="line">|           3 | TUBE                 |   3 |   4 |</span><br><span class="line">|           4 | LCD                  |   5 |   6 |</span><br><span class="line">|           5 | PLASMA               |   7 |   8 |</span><br><span class="line">|           6 | PORTABLE ELECTRONICS |  10 |  19 |</span><br><span class="line">|           7 | MP3 PLAYERS          |  11 |  14 |</span><br><span class="line">|           8 | FLASH                |  12 |  13 |</span><br><span class="line">|           9 | CD PLAYERS           |  15 |  16 |</span><br><span class="line">|          10 | 2 WAY RADIOS         |  17 |  18 |</span><br><span class="line">+-------------+----------------------+-----+-----+</span><br></pre></td></tr></table></figure>
+<p>由于<code>left</code>和<code>right</code>是MySQL的保留字，因此，字段名称用lft和rgt代替。每一个集合都是从lft开始到rgt结束，也就是集合的两个边界。<br><img src="/images/Nested-Set-Model-3.png" alt=""></p>
+<p>在树中也同样适用，<br><img src="/images/Nested-Set-Model-4.png" alt=""></p>
+<p>当为树状结构编号时，我们从左到右，一次一层，赋值按照从左到右的顺序遍历其子节点，这种方法称为<code>先序遍历算法</code>。</p>
+<h3 id="检索分层路径-1"><a href="#检索分层路径-1" class="headerlink" title="检索分层路径"></a>检索分层路径</h3><p>由于子节点的lft值总在父节点的lft和rgt值之间，所以可以通过父节点连接到子节点上来检索整棵树。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">SELECT node.name</span><br><span class="line">FROM nested_category AS node,</span><br><span class="line">        nested_category AS parent</span><br><span class="line">WHERE node.lft BETWEEN parent.lft AND parent.rgt</span><br><span class="line">        AND parent.name = &apos;ELECTRONICS&apos;</span><br><span class="line">ORDER BY node.lft;</span><br><span class="line"></span><br><span class="line">+----------------------+</span><br><span class="line">| name                 |</span><br><span class="line">+----------------------+</span><br><span class="line">| ELECTRONICS          |</span><br><span class="line">| TELEVISIONS          |</span><br><span class="line">| TUBE                 |</span><br><span class="line">| LCD                  |</span><br><span class="line">| PLASMA               |</span><br><span class="line">| PORTABLE ELECTRONICS |</span><br><span class="line">| MP3 PLAYERS          |</span><br><span class="line">| FLASH                |</span><br><span class="line">| CD PLAYERS           |</span><br><span class="line">| 2 WAY RADIOS         |</span><br><span class="line">+----------------------+&lt;/pre&gt;</span><br></pre></td></tr></table></figure>
+<p>这个方法并不需要考虑层数，而且不需要考虑节点的rgt。</p>
+<h3 id="检索所有叶子节点"><a href="#检索所有叶子节点" class="headerlink" title="检索所有叶子节点"></a>检索所有叶子节点</h3><p>由于每一个叶子节点的<code>rgt=lft+1</code>，那么只需要这一个条件即可。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">SELECT name</span><br><span class="line">FROM nested_category</span><br><span class="line">WHERE rgt = lft + 1;</span><br><span class="line"></span><br><span class="line">+--------------+</span><br><span class="line">| name         |</span><br><span class="line">+--------------+</span><br><span class="line">| TUBE         |</span><br><span class="line">| LCD          |</span><br><span class="line">| PLASMA       |</span><br><span class="line">| FLASH        |</span><br><span class="line">| CD PLAYERS   |</span><br><span class="line">| 2 WAY RADIOS |</span><br><span class="line">+--------------+</span><br></pre></td></tr></table></figure>
+<h3 id="检索节点路径"><a href="#检索节点路径" class="headerlink" title="检索节点路径"></a>检索节点路径</h3><p>不再需要多个join连接操作。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">SELECT parent.name</span><br><span class="line">FROM nested_category AS node,</span><br><span class="line">        nested_category AS parent</span><br><span class="line">WHERE node.lft BETWEEN parent.lft AND parent.rgt</span><br><span class="line">        AND node.name = &apos;FLASH&apos;</span><br><span class="line">ORDER BY node.lft;</span><br><span class="line"></span><br><span class="line">+----------------------+</span><br><span class="line">| name                 |</span><br><span class="line">+----------------------+</span><br><span class="line">| ELECTRONICS          |</span><br><span class="line">| PORTABLE ELECTRONICS |</span><br><span class="line">| MP3 PLAYERS          |</span><br><span class="line">| FLASH                |</span><br><span class="line">+----------------------+</span><br></pre></td></tr></table></figure>
+<h3 id="检索节点深度"><a href="#检索节点深度" class="headerlink" title="检索节点深度"></a>检索节点深度</h3><p>通过<code>COUNT</code>和<code>GROUP BY</code>函数来获取父节点的个数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">SELECT node.name, (COUNT(parent.name) - 1) AS depth</span><br><span class="line">FROM nested_category AS node,</span><br><span class="line">        nested_category AS parent</span><br><span class="line">WHERE node.lft BETWEEN parent.lft AND parent.rgt</span><br><span class="line">GROUP BY node.name</span><br><span class="line">ORDER BY node.lft;</span><br><span class="line"></span><br><span class="line">+----------------------+-------+</span><br><span class="line">| name                 | depth |</span><br><span class="line">+----------------------+-------+</span><br><span class="line">| ELECTRONICS          |     0 |</span><br><span class="line">| TELEVISIONS          |     1 |</span><br><span class="line">| TUBE                 |     2 |</span><br><span class="line">| LCD                  |     2 |</span><br><span class="line">| PLASMA               |     2 |</span><br><span class="line">| PORTABLE ELECTRONICS |     1 |</span><br><span class="line">| MP3 PLAYERS          |     2 |</span><br><span class="line">| FLASH                |     3 |</span><br><span class="line">| CD PLAYERS           |     2 |</span><br><span class="line">| 2 WAY RADIOS         |     2 |</span><br><span class="line">+----------------------+-------+</span><br></pre></td></tr></table></figure>
+<p>甚至可以得到分层的缩进结果，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">SELECT CONCAT( REPEAT(&apos; &apos;, COUNT(parent.name) - 1), node.name) AS name</span><br><span class="line">FROM nested_category AS node,</span><br><span class="line">        nested_category AS parent</span><br><span class="line">WHERE node.lft BETWEEN parent.lft AND parent.rgt</span><br><span class="line">GROUP BY node.name</span><br><span class="line">ORDER BY node.lft;</span><br><span class="line"></span><br><span class="line">+-----------------------+</span><br><span class="line">| name                  |</span><br><span class="line">+-----------------------+</span><br><span class="line">| ELECTRONICS           |</span><br><span class="line">|  TELEVISIONS          |</span><br><span class="line">|   TUBE                |</span><br><span class="line">|   LCD                 |</span><br><span class="line">|   PLASMA              |</span><br><span class="line">|  PORTABLE ELECTRONICS |</span><br><span class="line">|   MP3 PLAYERS         |</span><br><span class="line">|    FLASH              |</span><br><span class="line">|   CD PLAYERS          |</span><br><span class="line">|   2 WAY RADIOS        |</span><br><span class="line">+-----------------------+</span><br></pre></td></tr></table></figure>
+<h3 id="检索子树的深度"><a href="#检索子树的深度" class="headerlink" title="检索子树的深度"></a>检索子树的深度</h3><p>考虑到检索中需要自连接的node或parent，因此需要增加一个额外的连接来作为子查询来限制子树。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">SELECT node.name, (COUNT(parent.name) - (sub_tree.depth + 1)) AS depth</span><br><span class="line">FROM nested_category AS node,</span><br><span class="line">        nested_category AS parent,</span><br><span class="line">        nested_category AS sub_parent,</span><br><span class="line">        (</span><br><span class="line">                SELECT node.name, (COUNT(parent.name) - 1) AS depth</span><br><span class="line">                FROM nested_category AS node,</span><br><span class="line">                nested_category AS parent</span><br><span class="line">                WHERE node.lft BETWEEN parent.lft AND parent.rgt</span><br><span class="line">                AND node.name = &apos;PORTABLE ELECTRONICS&apos;</span><br><span class="line">                GROUP BY node.name</span><br><span class="line">                ORDER BY node.lft</span><br><span class="line">        )AS sub_tree</span><br><span class="line">WHERE node.lft BETWEEN parent.lft AND parent.rgt</span><br><span class="line">        AND node.lft BETWEEN sub_parent.lft AND sub_parent.rgt</span><br><span class="line">        AND sub_parent.name = sub_tree.name</span><br><span class="line">GROUP BY node.name</span><br><span class="line">ORDER BY node.lft;</span><br><span class="line"></span><br><span class="line">+----------------------+-------+</span><br><span class="line">| name                 | depth |</span><br><span class="line">+----------------------+-------+</span><br><span class="line">| PORTABLE ELECTRONICS |     0 |</span><br><span class="line">| MP3 PLAYERS          |     1 |</span><br><span class="line">| FLASH                |     2 |</span><br><span class="line">| CD PLAYERS           |     1 |</span><br><span class="line">| 2 WAY RADIOS         |     1 |</span><br><span class="line">+----------------------+-------+</span><br></pre></td></tr></table></figure>
+<h3 id="检索节点的直接子节点"><a href="#检索节点的直接子节点" class="headerlink" title="检索节点的直接子节点"></a>检索节点的直接子节点</h3><p>假设一个场景，当用户点击网站上电子产品的一个分类时，将呈现该分类下的产品，同时需要列出所有子分类，并不是全部分类。<br>为了限制显示分类的层数，需要使用<code>HAVING</code>字句，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">SELECT node.name, (COUNT(parent.name) - (sub_tree.depth + 1)) AS depth</span><br><span class="line">FROM nested_category AS node,</span><br><span class="line">        nested_category AS parent,</span><br><span class="line">        nested_category AS sub_parent,</span><br><span class="line">        (</span><br><span class="line">                SELECT node.name, (COUNT(parent.name) - 1) AS depth</span><br><span class="line">                FROM nested_category AS node,</span><br><span class="line">                        nested_category AS parent</span><br><span class="line">                WHERE node.lft BETWEEN parent.lft AND parent.rgt</span><br><span class="line">                        AND node.name = &apos;PORTABLE ELECTRONICS&apos;</span><br><span class="line">                GROUP BY node.name</span><br><span class="line">                ORDER BY node.lft</span><br><span class="line">        )AS sub_tree</span><br><span class="line">WHERE node.lft BETWEEN parent.lft AND parent.rgt</span><br><span class="line">        AND node.lft BETWEEN sub_parent.lft AND sub_parent.rgt</span><br><span class="line">        AND sub_parent.name = sub_tree.name</span><br><span class="line">GROUP BY node.name</span><br><span class="line">HAVING depth &amp;lt;= 1</span><br><span class="line">ORDER BY node.lft;</span><br><span class="line"></span><br><span class="line">+----------------------+-------+</span><br><span class="line">| name                 | depth |</span><br><span class="line">+----------------------+-------+</span><br><span class="line">| PORTABLE ELECTRONICS |     0 |</span><br><span class="line">| MP3 PLAYERS          |     1 |</span><br><span class="line">| CD PLAYERS           |     1 |</span><br><span class="line">| 2 WAY RADIOS         |     1 |</span><br><span class="line">+----------------------+-------+</span><br></pre></td></tr></table></figure>
+<h3 id="增加新节点"><a href="#增加新节点" class="headerlink" title="增加新节点"></a>增加新节点</h3><p>上面已经介绍了如何检索结果，那么如何才能增加新的节点呢？<br><img src="/images/Nested-Set-Model-5.png" alt=""></p>
+<p>如果希望在TELEVISIONS和PROTABLE ELECTRONICS节点之间增加一个新的节点，那么新节点的lft和rgt的值应该是10和11，那么所有大于10的节点（新节点右侧的节点）的lft和rgt都应该加2，如上图所示。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">LOCK TABLE nested_category WRITE;</span><br><span class="line"></span><br><span class="line">SELECT @myRight := rgt FROM nested_category</span><br><span class="line">WHERE name = &apos;TELEVISIONS&apos;;</span><br><span class="line"></span><br><span class="line">UPDATE nested_category SET rgt = rgt + 2 WHERE rgt &amp;gt; @myRight;</span><br><span class="line">UPDATE nested_category SET lft = lft + 2 WHERE lft &amp;gt; @myRight;</span><br><span class="line"></span><br><span class="line">INSERT INTO nested_category(name, lft, rgt) VALUES(&apos;GAME CONSOLES&apos;, @myRight + 1, @myRight + 2);</span><br><span class="line"></span><br><span class="line">UNLOCK TABLES</span><br></pre></td></tr></table></figure>
+<p>如果希望在叶子节点下增加节点，需要修改下查询语句，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">LOCK TABLE nested_category WRITE;</span><br><span class="line"></span><br><span class="line">SELECT @myLeft := lft FROM nested_category</span><br><span class="line"></span><br><span class="line">WHERE name = &apos;2 WAY RADIOS&apos;;</span><br><span class="line"></span><br><span class="line">UPDATE nested_category SET rgt = rgt + 2 WHERE rgt &amp;gt; @myLeft;</span><br><span class="line">UPDATE nested_category SET lft = lft + 2 WHERE lft &amp;gt; @myLeft;</span><br><span class="line"></span><br><span class="line">INSERT INTO nested_category(name, lft, rgt) VALUES(&apos;FRS&apos;, @myLeft + 1, @myLeft + 2);</span><br><span class="line"></span><br><span class="line">UNLOCK TABLES;</span><br></pre></td></tr></table></figure>
+<h3 id="删除节点"><a href="#删除节点" class="headerlink" title="删除节点"></a>删除节点</h3><p>删除叶子节点比较容易，只需要删除自己，而删除一个中间层节点就需要删除其所有子节点。在这个模型中，所有子节点的节点正好在lft和rgt之间。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">LOCK TABLE nested_category WRITE;</span><br><span class="line"></span><br><span class="line">SELECT @myLeft := lft, @myRight := rgt, @myWidth := rgt - lft + 1</span><br><span class="line">FROM nested_category</span><br><span class="line">WHERE name = &apos;GAME CONSOLES&apos;;</span><br><span class="line"></span><br><span class="line">DELETE FROM nested_category WHERE lft BETWEEN @myLeft AND @myRight;</span><br><span class="line"></span><br><span class="line">UPDATE nested_category SET rgt = rgt - @myWidth WHERE rgt &amp;gt; @myRight;</span><br><span class="line">UPDATE nested_category SET lft = lft - @myWidth WHERE lft &amp;gt; @myRight;</span><br><span class="line"></span><br><span class="line">UNLOCK TABLES;</span><br></pre></td></tr></table></figure>
+<p>在某些情况下，只需要删除某个节点，但是并不希望删除该节点下的子节点数据。<br>通过把右侧所有节点的左右值-2，当前节点的子节点左右值-1<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">LOCK TABLE nested_category WRITE;</span><br><span class="line"></span><br><span class="line">SELECT @myLeft := lft, @myRight := rgt, @myWidth := rgt - lft + 1</span><br><span class="line">FROM nested_category</span><br><span class="line">WHERE name = &apos;PORTABLE ELECTRONICS&apos;;</span><br><span class="line"></span><br><span class="line">DELETE FROM nested_category WHERE lft = @myLeft;</span><br><span class="line"></span><br><span class="line">UPDATE nested_category SET rgt = rgt - 1, lft = lft - 1 WHERE lft BETWEEN @myLeft AND @myRight;</span><br><span class="line">UPDATE nested_category SET rgt = rgt - 2 WHERE rgt &amp;gt; @myRight;</span><br><span class="line">UPDATE nested_category SET lft = lft - 2 WHERE lft &amp;gt; @myRight;</span><br><span class="line"></span><br><span class="line">UNLOCK TABLES;</span><br></pre></td></tr></table></figure></p>
+<h2 id="最后的思考"><a href="#最后的思考" class="headerlink" title="最后的思考"></a>最后的思考</h2><p>原作者推荐了一本名为《Joe Celko’s Trees and Hierarchies in SQL for Smarties》的书籍，该书的作者是SQL领域的大神Joe Celko（嵌套几何模型的创造者）。这本书涵盖了本文中未涉及到的一些高级话题。</p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2015/09/22/simulate-anneal/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          模拟退火算法
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/09/17/golang-project-import/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          Golang 项目结构和模块导入
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</div>
+
+    <!--/div-->
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2022 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

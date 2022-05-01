@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>分库分表 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="分库分表是为了解决数据库读写的性能问题。">
+<meta name="keywords" content="架构,Sharding">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分库分表">
+<meta property="og:url" content="http://simyy.cn/2019/12/28/sharding/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="分库分表是为了解决数据库读写的性能问题。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://simyy.cn/images/sharding_1.png">
+<meta property="og:image" content="http://simyy.cn/images/sharding_1.png">
+<meta property="og:image" content="http://simyy.cn/images/sharding_1.png">
+<meta property="og:image" content="http://simyy.cn/images/sharding_4.png">
+<meta property="og:image" content="http://simyy.cn/images/sharding_5.png">
+<meta property="og:image" content="http://simyy.cn/images/sharding_6.png">
+<meta property="og:image" content="http://simyy.cn/images/sharding_7.png">
+<meta property="og:image" content="http://simyy.cn/images/sharding_8.png">
+<meta property="og:updated_time" content="2019-12-28T02:04:58.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="分库分表">
+<meta name="twitter:description" content="分库分表是为了解决数据库读写的性能问题。">
+<meta name="twitter:image" content="http://simyy.cn/images/sharding_1.png">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<script src="/js/hexo_resize_image.js"></script>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">主页</a></li><li><a href="/2014/07/07/book-list">书单</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <!--div id="main"-->
+      <div id="main">
+
+
+<article id="post-sharding" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2019/12/28/sharding/" class="article-date">
+  <time datetime="2019-12-28T02:00:25.000Z" itemprop="datePublished">2019-12-28</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Sharding/">Sharding</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/架构/">架构</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      分库分表
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>分库分表是为了解决数据库读写的性能问题。</p>
+<a id="more"></a>
+<h4 id="分片方案"><a href="#分片方案" class="headerlink" title="分片方案"></a>分片方案</h4><p>分库分表的分片方案包括：<code>应用层分片</code>和<code>中间件分片</code>。</p>
+<p><img src="/images/sharding_1.png" alt="分片方案"></p>
+<hr>
+<p><strong>应用层分片：</strong> 分片逻辑耦合在应用系统中，直连数据库。</p>
+<p><strong>优势:</strong> 在于<code>直连</code>，性能更好，运维成本低。</p>
+<p><strong>劣势:</strong> 由于耦合在应用系统中，升级问题较为麻烦，需要每个应用重新升级发布。</p>
+<p>常见的方案有<code>Sharding-jdbc</code>、<code>TDDL</code>。</p>
+<hr>
+<p><strong>中间件分片：</strong> 分片逻辑作封装为独立中间件，独立部署，作为应用系统与数据库之间的代理。</p>
+<p><strong>优势:</strong> 对应用系统无入侵，独立部署后也仅需升级中间件。</p>
+<p><strong>劣势:</strong> 独立部署运维成本高，代理模式增加性能消耗。</p>
+<p>常见的方案有<code>Atlas</code>、<code>Mycat</code>、<code>Cobar</code>.</p>
+<hr>
+<h4 id="数据切分"><a href="#数据切分" class="headerlink" title="数据切分"></a>数据切分</h4><blockquote>
+<p>数据的切分方式分为两种：<code>垂直切分</code>和<code>水平切分</code>。</p>
+</blockquote>
+<p><code>垂直切分</code>是基于<code>业务边界</code>拆分的，数据相对独立，拆分几乎无副作用。</p>
+<p><code>水平切分</code>是基于<code>业务逻辑</code>拆分的，是为了解决大表的拆分策略。</p>
+<blockquote>
+<p>在系统演进的过程中一般都会先经历<code>垂直切分</code>然后再经历<code>水平切分</code>。</p>
+</blockquote>
+<h5 id="垂直切分"><a href="#垂直切分" class="headerlink" title="垂直切分"></a>垂直切分</h5><p><code>垂直切分</code>是指按照业务将表进行分类，重新分配到不同的数据库上，从而实现请求压力的拆分。</p>
+<p><img src="/images/sharding_1.png" alt="垂直切分"></p>
+<p><strong>优点：</strong></p>
+<ul>
+<li>切分规则清晰（划分数据边界）</li>
+<li>切分后数据维护性不变（原有<code>SQL</code>无影响）</li>
+<li>切分后请求压力会由不同业务数据库独自承担（业务之间无影响）</li>
+</ul>
+<p><strong>缺点：</strong></p>
+<ul>
+<li>不同业务之间的事务处理复杂（涉及到分布式事务）</li>
+<li>不同业务之间的表无法<code>JOIN</code>，需要做关联查询（<code>HTTP/RPC</code>）</li>
+</ul>
+<p>在垂直切分情况下，可能存在一张表拆分为多张表的情况，那么原有的<code>直接查询</code>可能就需要修改为<code>关联查询</code>。</p>
+<p>为了避免<code>关联查询</code>带来的性能损耗，在满足业务的情况下，可以冗余部分字段信息来避免关联查询。</p>
+<h5 id="水平切分"><a href="#水平切分" class="headerlink" title="水平切分"></a>水平切分</h5><p><code>水平切分</code>是指按业务逻辑对表中数据行的切分，把单表数据分配到多个数据库及多个表中，从而实现请求压力的拆分。</p>
+<p><code>水平切分</code>注重的是<code>大表的切分</code>，是基于大表中<code>某个字段</code>的<code>某种规则</code>的切分。</p>
+<blockquote>
+<p>什么是大表？</p>
+<p>业界公认MySQL单表容量在<code>1KW</code>以下是最佳状态，因为这时它的<code>B+TREE索引树高在3~5之间</code>。</p>
+</blockquote>
+<p><img src="/images/sharding_1.png" alt="水平切分"></p>
+<p><strong>优点：</strong></p>
+<ul>
+<li>切分后不存在单库大表，读写性能更好</li>
+</ul>
+<p><strong>缺点：</strong></p>
+<ul>
+<li>切分规则会对SQL存在影响（任何SQL都需要带有<code>Sharding Key</code>）</li>
+<li>跨库查询性能差，跨库事务处理复杂（涉及到分布式事务）</li>
+<li>需要考虑后期数据的二次扩展</li>
+<li>数据归档与归档查询</li>
+<li>跨库<code>JOIN</code>性能差</li>
+</ul>
+<h4 id="切分策略"><a href="#切分策略" class="headerlink" title="切分策略"></a>切分策略</h4><p>由于<code>垂直切分</code>是基于业务边界的切分，需要问题在于业务边界的划分，这里不再讨论。</p>
+<p>这里仅分析<code>水平切分</code>。</p>
+<blockquote>
+<p><code>切分策略</code>可以分为：<code>Hash切分</code>和<code>Range切分</code>。</p>
+</blockquote>
+<p><code>数据切分</code>都是基于<code>Sharding Key</code>的，而<code>Sharding Key</code>的选择与业务SQL是强关联的。</p>
+<p>例如，数据库应存在1亿的用户数据，此时需要对用户表进行切分，考虑到业务场景下，大部分的请求都是基于用户纬度来查询的，因此使用用户ID作为<code>Sharding Key</code>来做数据切分。</p>
+<h5 id="Hash切分"><a href="#Hash切分" class="headerlink" title="Hash切分"></a>Hash切分</h5><p><code>Hash切分</code>是最为常用的切分策略，一般采用<code>取模MOD</code>来切分数据表，但其水平扩展会造成<code>数据的迁移</code>。</p>
+<p><img src="/images/sharding_4.png" alt="Hash切分"></p>
+<p>建议取模方式：<code>MOD（2^n）</code>，可以避免部署数据的迁移，例如，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">10 % 4 == 10 % 8 == 2</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>考虑到水平扩展的性能，可以使用一致性Hash算法来切分数据。</p>
+</blockquote>
+<h6 id="一致性Hash切分"><a href="#一致性Hash切分" class="headerlink" title="一致性Hash切分"></a>一致性Hash切分</h6><p>与哈希方法一样，<code>Hash环</code>利用环形形状来表示<code>取模MOD</code>后节点分布情况。</p>
+<p>但是在节点扩容的情况下，不再需要</p>
+<blockquote>
+<p>一致性Hash的优势在于：节点扩容和缩容不会导致大量数据的迁移。</p>
+</blockquote>
+<p><code>一致性Hash</code>的关键：</p>
+<ul>
+<li><code>顺序针</code>寻找最近的节点作为存储数据存储节点</li>
+<li>利用<code>虚拟节点</code>来均衡各个节点的负载情况</li>
+</ul>
+<p><img src="/images/sharding_5.png" alt="一致性Hash"></p>
+<h5 id="Range切分"><a href="#Range切分" class="headerlink" title="Range切分"></a>Range切分</h5><p><code>Range切分</code>是利用数据<code>时间</code>或<code>ID</code>来切分数据表，常用于日志、归档数据的切分，是一种顺序切分。</p>
+<p>切分规则可控，水平扩展不会造成数据迁移，扩展更容易。</p>
+<p>由于数据是按顺序切分的，无法解决集中写入瓶颈的问题，而且存在跨库跨表查询性能查。</p>
+<p><img src="/images/sharding_6.png" alt="Range切分"></p>
+<h4 id="拆分数量"><a href="#拆分数量" class="headerlink" title="拆分数量"></a>拆分数量</h4><p>数据库一般被部署在物理机上，其性能受物理机的影响。</p>
+<blockquote>
+<p>数据库的性能与CPU、内存有直接关系。</p>
+</blockquote>
+<p>常见情况下，一台物理机部署多个数据库实例，多个数据库实例共享同一台主机的性能。</p>
+<p>由于物理机的性能有限，所以在同一台物理机上增加过多的实例是无效的。</p>
+<blockquote>
+<p><strong>集群性能的定义：</strong></p>
+<p><code>Sharding集群性能 = Sharding集群物理机的数量 * 单台物理机的性能</code></p>
+</blockquote>
+<p>具体拆分方式不仅需要通过业务场景来决定的，而且需要DBA合理部署<code>Sharding集群</code>，从而才能实现Sharding集群性能的最大化。</p>
+<h4 id="分布式唯一ID"><a href="#分布式唯一ID" class="headerlink" title="分布式唯一ID"></a>分布式唯一ID</h4><p>在单库单表的情况下，直接使用数据库<code>自增ID</code>。</p>
+<p>在分库分表的情况下，数据分布在不同库表上，无法使用数据库<code>自增特性</code>，需要使用<code>分布式唯一ID</code>。</p>
+<h5 id="UUID"><a href="#UUID" class="headerlink" title="UUID"></a>UUID</h5><p><code>UUID</code>一般通过本地网卡、时间和随记数来生成。</p>
+<ul>
+<li>16字节128位，36个字符长度不适合做主键，存储成本高</li>
+<li>无序，作为主键时会导致B+树索引在写的时候有过多的随机写操作</li>
+</ul>
+<blockquote>
+<p>聚集主键的InnoDB会按照主键进行数据排序，因此要求分布式唯一ID具有<code>有序性</code>；</p>
+</blockquote>
+<h5 id="Redis"><a href="#Redis" class="headerlink" title="Redis"></a>Redis</h5><p><code>Redis</code>提供了<code>incr/increby</code>原子操作，从而可以用来生成分布式ID。</p>
+<ul>
+<li>基于内存自增生成ID，性能较好</li>
+<li>内存自增操作保证ID有序</li>
+<li>单机部署存在可用性问题，需要集群解决单点问题</li>
+<li>双击部署、数据持久化</li>
+</ul>
+<blockquote>
+<p>数据库在插入数据时对分布式ID是强依赖，如果出现问题会导致无法正常插入数据，所以需要保证分布式ID生成器的高可用。</p>
+</blockquote>
+<p>使用<code>incr</code>仅可以生成一个ID；<br>使用<code>increby</code>可以批量生成多个ID，可用于批量插入数据；</p>
+<h5 id="Snowflake"><a href="#Snowflake" class="headerlink" title="Snowflake"></a>Snowflake</h5><p><code>Snowflake</code>是<code>Twitter</code>利用<code>Zookeeper</code>实现了一个全局ID生成的服务。</p>
+<p><code>Snowflake</code>生成的<code>分布式唯一ID</code>的组成 (由高位到低位):</p>
+<ul>
+<li>41 bits: Timestamp (毫秒级)</li>
+<li>10 bits: 节点 ID (datacenter ID 5 bits + worker ID 5 bits)</li>
+<li>12 bits: sequence number</li>
+</ul>
+<p><img src="/images/sharding_7.png" alt="雪花算法"></p>
+<p><strong>优点：</strong></p>
+<ul>
+<li>高性能，低延迟</li>
+<li>按时间有序</li>
+</ul>
+<p><strong>缺点：</strong></p>
+<ul>
+<li>强依赖机器时钟，如果机器上时钟回拨，会导致发号重复或者服务会处于不可用状态</li>
+</ul>
+<h5 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h5><p><a href="https://tech.meituan.com/2017/04/21/mt-leaf.html" target="_blank" rel="noopener">Leaf——美团点评分布式ID生成系统</a></p>
+<h4 id="数据迁移"><a href="#数据迁移" class="headerlink" title="数据迁移"></a>数据迁移</h4><p><code>数据迁移</code>是分库分表的重要工作，按照切分逻辑把历史数据迁移至新的分库分表数据库中。</p>
+<p>常见的两种方式：<code>停机迁移</code>和<code>在线迁移</code>。</p>
+<h5 id="停机迁移"><a href="#停机迁移" class="headerlink" title="停机迁移"></a>停机迁移</h5><p> 数据迁移过程中需要<code>停止相关服务</code>，优势在于迁移过程简单。</p>
+<p> 由于迁移过程中不会产生新的数据，所以迁移过程仅需要一次，迁移完成后恢复服务运行。</p>
+<p> 此方法仅适用于那些调用频次低、暂时停机无影响的服务。</p>
+<h5 id="在线迁移"><a href="#在线迁移" class="headerlink" title="在线迁移"></a>在线迁移</h5><p>数据迁移过程中服务正常运行，优势在于不影响系统运行，但迁移过程复杂。</p>
+<p><strong>迁移步骤为：</strong></p>
+<ul>
+<li>在不影响主库的情况下，基于从库同步历史数据到目标库表中</li>
+<li>上一步同步完成后，切换数据写入开关状态到<code>双写状态1</code>（同步写入历史库表、异步写入切分库表）</li>
+<li>定期检查历史库表和切分库表的数据差异，如果存在数据差异，再次同步差异数据到切分库表</li>
+<li>当数据基本无差异的情况下，切换数据开关状态到<code>双写状态2</code>（同步写入切分库表、异步写入历史库表），此时读写迁移至切分库表</li>
+<li>定期检查历史库表和切分库表的数据差异，如果存在数据差异，再次同步差异数据到历史库表</li>
+<li>稳定运行一段时间后才可以停止历史库表的写入，否则无法实现切分的回滚</li>
+</ul>
+<blockquote>
+<p><code>双写状态</code>这里需要注意下，尽量避免双数据源的同步写入，辅助同步逻辑可以通过异步方式实现。</p>
+</blockquote>
+<p><img src="/images/sharding_8.png" alt="数据迁移"></p>
+<h4 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h4><blockquote>
+<p>只有当数据库性能不能满足业务发展时，才真的需要进行分库分表。</p>
+</blockquote>
+<p>分库分表只会给系统增加复杂度，原本一条SQL可以处理的数据，跨库操作存在大量的网络延迟及数据聚合，将会带来大量的性能损耗。</p>
+<hr>
+<blockquote>
+<p>分库分表不是必须的！</p>
+</blockquote>
+<p>有些场景下，数据是可以通过<code>归档的方式</code>来减少数据的量级。</p>
+<p><code>ES+HBase</code>是比较常见的归档方案，其中，<code>ES</code>仅存储索引字段，<code>HBase</code>存储全量数据。</p>
+<h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><p><a href="https://www.infoq.cn/article/ZMlCBpIhOThWJeqmZD4I" target="_blank" rel="noopener">数据库分库分表基础和实践</a><br><a href="https://www.cnblogs.com/405845829qq/p/7552750.html" target="_blank" rel="noopener">MySQL分库分表方案</a><br><a href="https://zhuanlan.zhihu.com/p/24036067" target="_blank" rel="noopener">大众点评订单系统分库分表实践</a><br><a href="https://cloud.tencent.com/developer/article/1448626" target="_blank" rel="noopener">分库分表最佳实践</a></p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2020/01/01/2019-look-back/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          记录2019
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/12/21/solid-priciple/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          SOLID设计原则
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</div>
+
+    <!--/div-->
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2022 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

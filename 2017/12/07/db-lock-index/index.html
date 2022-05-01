@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>MySQL 事务和索引 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="本文记录下对事务隔离的理解。">
+<meta name="keywords" content="MySQL,数据库,中间件">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL 事务和索引">
+<meta property="og:url" content="http://simyy.cn/2017/12/07/db-lock-index/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="本文记录下对事务隔离的理解。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-04-26T02:52:40.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MySQL 事务和索引">
+<meta name="twitter:description" content="本文记录下对事务隔离的理解。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<script src="/js/hexo_resize_image.js"></script>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">主页</a></li><li><a href="/2014/07/07/book-list">书单</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <!--div id="main"-->
+      <div id="main">
+
+
+<article id="post-db-lock-index" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2017/12/07/db-lock-index/" class="article-date">
+  <time datetime="2017-12-07T10:03:48.000Z" itemprop="datePublished">2017-12-07</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/中间件/">中间件</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/数据库/">数据库</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      MySQL 事务和索引
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>本文记录下对事务隔离的理解。</p>
+<a id="more"></a>
+<h2 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h2><p>存储引擎<code>InnoDB</code>支持<code>事务</code>、<code>行级锁</code>。</p>
+<h2 id="并发问题"><a href="#并发问题" class="headerlink" title="并发问题"></a>并发问题</h2><p>当两个事务同时进行的时候，两者之间互相不知道对方的存在，对自身所处的环境过分乐观，从而没有对操作的数据做一定的保护处理，导致出现以下问题：</p>
+<p><code>更新丢失</code>：两个事务同时读取某一数据，但不同时进行更新操作，导致数据被覆盖的问题（重点在于<code>覆盖更新</code>）。</p>
+<p><code>脏读</code>：一个事务修改了数据但是没有提交，另外一个事务会读取到这些未被提交的数据（重点在于<code>读取未提交的数据</code>）。</p>
+<p><code>不可重复读</code>：一个事务在执行的过程中由于其他事务提交了新数据导致前后两次读取的内容不同（重点在于<code>两次读取内容的不同</code>）。</p>
+<p><code>幻读</code>：一个事务由于其他事务同时的插入或删除造成按照相同条件的两次检索结果不同（重点在于<code>读取条数的不同</code>）。</p>
+<h2 id="隔离级别"><a href="#隔离级别" class="headerlink" title="隔离级别"></a>隔离级别</h2><p><code>InnoDB</code>支持四种隔离级别：</p>
+<ul>
+<li><code>未提交读（read uncommited）</code></li>
+<li><code>提交读（read commited）</code></li>
+<li><code>可重复读（repeatable read）</code></li>
+<li><code>串行化（serializable）</code></li>
+</ul>
+<blockquote>
+<p>默认隔离级别为<code>可重复读</code>。</p>
+</blockquote>
+<p>四个隔离级别逐渐增强。</p>
+<p><code>更新丢失</code>：可以通过CAS（对数据添加对应的版本）来实现数据的更新，当发现数据版本发生变化，则可触发回滚操作。</p>
+<p><code>提交读</code>及以上隔离级别设定，一个事务只能读取另一个事务已经提交的数据，就避免了上面的脏读现象。</p>
+<blockquote>
+<p><code>提交读</code>是通过只读取提交后的数据来避免脏读问题。</p>
+</blockquote>
+<p><code>InnoDB</code>的<code>可重复读</code>并<code>不保证</code>避免<code>幻读</code>，需要应用使用<code>加锁读</code>来保证。而这个加锁度使用到的机制就是<code>next-keylocks</code>,<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM t_bitfly LOCK IN SHARE MODE;</span><br></pre></td></tr></table></figure></p>
+<h2 id="next-key-lock"><a href="#next-key-lock" class="headerlink" title="next-key lock"></a>next-key lock</h2><p><code>InnoDB</code>支持的锁的类型包括：<code>共享锁S</code>、<code>排他锁X</code>、<code>意向共享IS</code>、<code>意向排他IX</code>。</p>
+<blockquote>
+<p>为了方便检查表级锁和行级锁之间的冲突，引入了意向锁。<br>意向锁是表锁，仅仅代表要对某行记录进行操作，只有在对行加锁时，才会判断是否冲突。</p>
+</blockquote>
+<p><code>InnoDB</code>中行锁的算法包括：</p>
+<ul>
+<li><code>record lock</code>：当个行记录上的锁；</li>
+<li><code>gap lock</code>：间隙锁，锁定一个范围（<code>不包括记录本身</code>），为了避免幻读现象（保证同一事物两次读取内容相同）；</li>
+<li><code>next-key lock</code>：行锁和间隙锁的组合，锁定一个范围，并且<code>锁定记录本身</code>，解决幻读问题。</li>
+</ul>
+<p><strong>特殊情况</strong>：唯一索引上不采用Next-Key Lock，而是降级为行级锁, 只锁一行。</p>
+<blockquote>
+<p>间隙锁的区间是右闭区间，例如[1, 5)。</p>
+</blockquote>
+<p>具体例子可以<a href="http://www.cnblogs.com/zhoujinyi/p/3435982.html" target="_blank" rel="noopener">查看</a>。</p>
+<h3 id="普通索引"><a href="#普通索引" class="headerlink" title="普通索引"></a>普通索引</h3><p>对于普通的索引(a)来说，<code>InnoDB</code>的行查询都采用了<code>next-key lock</code>算法，锁定不是单个值，而是一个范围（间隙）。</p>
+<p>例如，如果表中已有[1, 3, 5, 8, 11]，那么所有的间隙如下，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(-无穷, 1] (1, 3] (3, 5] (5, 8] (8, 11] (11, +无穷]</span><br></pre></td></tr></table></figure></p>
+<p>当执行三个事务如下，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">事务A：会锁住8的上下间隙，(5, 8] (8, 11]</span><br><span class="line">select * from t where a = 8 for update;</span><br><span class="line"></span><br><span class="line">事务B： 正常运行</span><br><span class="line">insert into t values(2);</span><br><span class="line"></span><br><span class="line">事务C：由于该范围被锁住，阻塞</span><br><span class="line">insert into t values(11);</span><br></pre></td></tr></table></figure></p>
+<h3 id="唯一索引"><a href="#唯一索引" class="headerlink" title="唯一索引"></a>唯一索引</h3><p>对于唯一索引，<code>next-key lock</code>会做优化，将锁降级为<code>record lock</code>，也就是行锁，仅仅锁定行本身而不是范围。</p>
+<p>因此，如果a为唯一索引(primary or unique)时，事务B和事务C将正常运行。</p>
+<p>对于主键或唯一索引来说，如果锁定的是不存在的值，也会产品间隙锁。</p>
+<h3 id="索引实现"><a href="#索引实现" class="headerlink" title="索引实现"></a>索引实现</h3><p>Btree（B+Tree）</p>
+<p>参考：<a href="http://blog.codinglabs.org/articles/theory-of-mysql-index.html" target="_blank" rel="noopener">http://blog.codinglabs.org/articles/theory-of-mysql-index.html</a></p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2017/12/21/block-chain/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          区块链
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/12/05/mysql-btree/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          InnoDB B+tree索引
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</div>
+
+    <!--/div-->
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2022 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>Java object | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="介绍Java中的object类。">
+<meta name="keywords" content="编程语言,Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java object">
+<meta property="og:url" content="http://simyy.cn/2017/03/30/java-object/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="介绍Java中的object类。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-05-19T12:34:28.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java object">
+<meta name="twitter:description" content="介绍Java中的object类。">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<script src="/js/hexo_resize_image.js"></script>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">主页</a></li><li><a href="/2014/07/07/book-list">书单</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <!--div id="main"-->
+      <div id="main">
+
+
+<article id="post-java-object" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2017/03/30/java-object/" class="article-date">
+  <time datetime="2017-03-30T14:16:32.000Z" itemprop="datePublished">2017-03-30</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/编程语言/">编程语言</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      Java object
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>介绍Java中的object类。</p>
+<a id="more"></a>
+<h2 id="RegisterNatives"><a href="#RegisterNatives" class="headerlink" title="RegisterNatives"></a>RegisterNatives</h2><p><code>RegisterNatives</code>用于寻找本地函数。</p>
+<p><a href="http://stackoverflow.com/questions/1010645/what-does-the-registernatives-method-do" target="_blank" rel="noopener">StackOverflow</a></p>
+<h2 id="getClass"><a href="#getClass" class="headerlink" title="getClass"></a>getClass</h2><p><code>getClass</code>用于返回对象的运行时类型。</p>
+<p><a href="http://stackoverflow.com/questions/30918889/how-to-understand-the-object-getclass-method" target="_blank" rel="noopener">StackOverflow</a></p>
+<h2 id="hashCode"><a href="#hashCode" class="headerlink" title="hashCode"></a>hashCode</h2><p><code>hashCode</code>用于标记对象的唯一值，可用于确定对象在<code>HashTable</code>中的位置，<code>默认值</code>为<code>对象内存地址编号</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span></span></span><br><span class="line"><span class="function"> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> PRIME = <span class="number">31</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> HashCodeBuilder(getId()%<span class="number">2</span>==<span class="number">0</span>?getId()+<span class="number">1</span>:getId(), PRIME).toHashCode();</span><br><span class="line"> &#125;</span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object o)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (o == <span class="keyword">null</span>)</span><br><span class="line">       <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">if</span> (o == <span class="keyword">this</span>)</span><br><span class="line">       <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">if</span> (o.getClass() != getClass())</span><br><span class="line">       <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> EqualsBuilder().append(getId(), ((Demo)o).getId()).isEquals();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="equals"><a href="#equals" class="headerlink" title="equals"></a>equals</h2><p><code>equals</code>用于比较两个对象是否相等。</p>
+<blockquote>
+<p>注意：如果重写<code>equals</code>方法必须重写<code>hashCode</code>方法。</p>
+</blockquote>
+<p><strong>“==”与equals的不同</strong></p>
+<p>对于<code>基本类型</code>来说，<code>==</code>比较的是<code>值的大小</code>；</p>
+<p>对于<code>对象（引用）</code>来说，<code>==</code>比较的是<code>对象地址</code>。</p>
+<p><code>equals</code>无法用于基本类型。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object obj)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (<span class="keyword">this</span> == obj);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="clone"><a href="#clone" class="headerlink" title="clone"></a>clone</h2><p><code>clone</code>用于对象的复制，具体分为两步：</p>
+<ul>
+<li>申请同样大小的内存空间；</li>
+<li>再新的内存空间创建一个相同内容的对象。</li>
+</ul>
+<p><strong>new与clone的区别</strong></p>
+<p>new与clone的区别在于<code>内存空间填充的方式</code>。</p>
+<p><code>new</code>的核心是<code>分配内存</code>，大体步骤如下：</p>
+<ul>
+<li>检查被创建对象的类型；</li>
+<li>申请指定类型的内存空间；</li>
+<li>调用构造函数，填充对象内容；</li>
+<li>返回对象的引用（地址）。</li>
+</ul>
+<p><code>clone</code>的核心是<code>内存复制</code>，大体步骤如下：</p>
+<ul>
+<li>(同new)检查被创建对象的类型；</li>
+<li>(同new)申请指定类型的内存空间；</li>
+<li>拷贝源对象的内存到新的内存空间；</li>
+<li>(同new)返回对象的引用（地址）。</li>
+</ul>
+<blockquote>
+<p>注意：clone是<code>浅拷贝</code>，也就是只拷贝基本类型的值以及对象的引用。</p>
+</blockquote>
+<p><strong>深拷贝</strong></p>
+<p>为了实现深拷贝，需要实现<code>Clonable接口</code>、覆盖并实现<code>clone方法</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Body</span> <span class="keyword">implements</span> <span class="title">Cloneable</span></span>&#123;  </span><br><span class="line">    <span class="keyword">public</span> Head head;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Body</span><span class="params">()</span> </span>&#123;&#125;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Body</span><span class="params">(Head head)</span> </span>&#123;<span class="keyword">this</span>.head = head;&#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="function"><span class="keyword">protected</span> Object <span class="title">clone</span><span class="params">()</span> <span class="keyword">throws</span> CloneNotSupportedException </span>&#123;  </span><br><span class="line">        <span class="comment">// 不仅复制当前对象，而且复制当前对象的引用属性</span></span><br><span class="line">        Body newBody =  (Body) <span class="keyword">super</span>.clone();  </span><br><span class="line">        newBody.head = (Head) head.clone();  </span><br><span class="line">        <span class="keyword">return</span> newBody;  </span><br><span class="line">    &#125;  </span><br><span class="line">      </span><br><span class="line">&#125; </span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Head</span> <span class="keyword">implements</span> <span class="title">Cloneable</span></span>&#123;  </span><br><span class="line">    <span class="keyword">public</span>  Face face;  </span><br><span class="line">      </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Head</span><span class="params">()</span> </span>&#123;&#125;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Head</span><span class="params">(Face face)</span></span>&#123;<span class="keyword">this</span>.face = face;&#125;  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="function"><span class="keyword">protected</span> Object <span class="title">clone</span><span class="params">()</span> <span class="keyword">throws</span> CloneNotSupportedException </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.clone();  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>嵌套对象的深拷贝</code>是需要把每一层嵌套的对象、属性均拷贝才能实现。</p>
+<p>此外，利用<code>Json序列化与反序列化</code>也可以实现相同的功能，不过性能较差。</p>
+<h2 id="toString-NaN"><a href="#toString-NaN" class="headerlink" title="toString"></a>toString</h2><p>默认情况下，返回格式如下,<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getClass().getName() + <span class="string">'@'</span> + Integer.toHexString(hashCode())</span><br></pre></td></tr></table></figure></p>
+<p>一般建议每一个类都重写该方法，便于开发和调试。</p>
+<h2 id="Object-lock"><a href="#Object-lock" class="headerlink" title="Object lock"></a>Object lock</h2><p>所有对象都拥有一把<code>对象锁</code>。</p>
+<p>JVM负责跟踪对象被加锁的次数。如果一个对象被解锁，其计数变为0。在任务（线程）第一次给对象加锁的时候，计数变为1。每当这个相同的任务（线程）在此对象上获得锁时，计数会递增。</p>
+<p>只有首先获得锁的任务（线程）才能继续获取该对象上的多个锁。</p>
+<p>每当任务离开一个<code>synchronized</code>方法，计数递减，当计数为0的时候，锁被完全释放，此时别的任务就可以使用此资源。</p>
+<p>而<code>wait</code>、<code>notify</code>、<code>notifyAll</code>是<code>Java</code>语言提供的实现线程间阻塞(<code>Blocking</code>)和控制进程内调度(<code>inter-process communication</code>)的底层机制。</p>
+<h2 id="wait"><a href="#wait" class="headerlink" title="wait"></a>wait</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Causes the current thread to wait until another thread invokes the notify() method or the notifyAll() method for this object.</span><br></pre></td></tr></table></figure>
+<p><code>wait</code>方法可用来改变当前线程到<code>Wating or TimedWating</code>状态。</p>
+<blockquote>
+<p><code>wait</code>方法必须在拿到对象锁才能执行，也就是所谓的在<code>synchronized</code>内使用。</p>
+</blockquote>
+<p>在调用<code>wait</code>方法之前，线程必须要获得该对象的对象锁，即只能在同步方法或同步块中调用<code>wait</code>方法。</p>
+<p>如果调用<code>wait</code>方法时，没有持有适当的锁，则抛出<code>IllegalMonitorStateException</code>。</p>
+<h2 id="notify-amp-notifyAll"><a href="#notify-amp-notifyAll" class="headerlink" title="notify &amp; notifyAll"></a>notify &amp; notifyAll</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Wakes up a single thread that is waiting on this object&apos;s monitor.</span><br></pre></td></tr></table></figure>
+<p><code>notify</code>方法是为了唤醒<code>wait</code>挂起的线程而存在的。</p>
+<blockquote>
+<p><code>notify</code>方法也必须在拿到对象锁才能执行，也就是所谓的在<code>synchronized</code>内使用。</p>
+</blockquote>
+<blockquote>
+<p>注意：<code>Waiting</code>状态的线程等待的是<code>notify的通知</code>（而不是对象锁）。</p>
+</blockquote>
+<p><code>notify</code>只是唤醒线程，也就是改变线程状态为<code>Runable</code>状态。</p>
+<p><strong>notifyAll</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Wakes up all threads that are waiting on this object&apos;s monitor.</span><br></pre></td></tr></table></figure>
+<p> <code>notifyAll</code>方法用于唤醒全部等待的线程，这些线程同时会去竞争对象锁，先拿到先执行，直到所有线程执行完成。</p>
+<blockquote>
+<p>与notify的区别在于：唤醒线程的个数。</p>
+</blockquote>
+<h2 id="finalize"><a href="#finalize" class="headerlink" title="finalize"></a>finalize</h2><p><code>finalize</code>是<code>GC在回收对象之前</code>最先调用的方法。</p>
+<p><code>C++</code>中的析构函数调用的时机是确定的（对象离开作用域或delete掉），</p>
+<p>但<code>Java</code>中的<code>finalize</code>的调用具有不确定性，只有当JVM发生GC时才会回收这部分对象的内存。</p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2017/04/03/schedule/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Python定时任务
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/03/27/flex/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          Flex
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</div>
+
+    <!--/div-->
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2022 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

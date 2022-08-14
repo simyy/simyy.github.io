@@ -15,7 +15,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://simyy.cn/images/mysql_thread_pool_1.jpg">
 <meta property="og:image" content="http://simyy.cn/images/mysql_thread_pool_2.jpg">
-<meta property="og:updated_time" content="2022-08-14T03:21:51.745Z">
+<meta property="og:updated_time" content="2022-08-14T03:37:08.096Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mysql连接池的坑">
 <meta name="twitter:description" content="数据库连接池的配置不仅会影响client的连接，也会影响server端的性能。">
@@ -115,13 +115,13 @@
 </ul>
 <p>由于以上配置会由于减少线程的回收和增加线程的创建频率均会对占用一定的服务器资源和性能，因此在评估这些参数的时候可以逐渐增加或减少该值，并在当前数据库负载的情况下找到一个合理的值；</p>
 <h3 id="建接数量"><a href="#建接数量" class="headerlink" title="建接数量"></a>建接数量</h3><blockquote>
-<p>mysql的默认建连数据是XX，实际可以按照数据库的性能做一定的调整；<br>数据库的连接会占用服务器的cpu和内存，所以谨慎的限制数据库client和server的连接数是非常重要的；<br>根据经验，32核64G内存的数据库可以配置到万级别的数据库连接数量，同时会有上千台的服务器与单分片的数据库保持着连接；</p>
+<p>mysql的默认建连数据是xxx，实际可以按照数据库的性能做一定的调整；<br>数据库的连接会占用服务器的cpu和内存，所以谨慎的限制数据库client和server的连接数是非常重要的；<br>根据经验，32核64G内存的数据库可以配置到万级别的数据库连接数量，同时会有上千台的服务器与单分片的数据库保持着连接没，例如，1000台服务器，没台服务的连接池配置为50，则整体5W的连接数；</p>
 </blockquote>
 <p>数据库连接数较多情况下，可能会导致那个数据库夯住：</p>
 <ul>
-<li>故障切换，连接数会有翻倍的可能，导致连接数超过数据库上限（数据库默认配置最大连接数5w），无法访问数据库</li>
-<li>故障切换，业务有重试，可能导致连接数超过数据库上限，无法访问数据库</li>
-<li>连接数过多，业务发布需要创建很多连接，会申请比较多的数据库临时内存<br>以上都可能造成数据库hang住，无法提供服务</li>
+<li>故障切换时由于大量的请求同时打到DB，连接数会有翻倍的可能，导致连接数超过数据库上限；</li>
+<li>故障切换时会导致业务访问DB的重试，可能导致连接数超过数据库上限；</li>
+<li>当服务已有连接数过多的时候，业务如果同时发布但并未销毁原有容器，则可能创建最多翻倍的连接，并且会申请最多翻倍的数据库临时内存；</li>
 </ul>
 <h3 id="mysql线程池"><a href="#mysql线程池" class="headerlink" title="mysql线程池"></a>mysql线程池</h3><blockquote>
 <p>参考文档：<a href="https://dbaplus.cn/news-11-1989-1.html" target="_blank" rel="noopener">https://dbaplus.cn/news-11-1989-1.html</a></p>

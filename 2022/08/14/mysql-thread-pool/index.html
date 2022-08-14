@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>mysql连接池的坑 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="数据库连接池的配置不仅会影响client的连接，也会影响server端的性能。">
+<meta name="keywords" content="MySQL,数据库">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mysql连接池的坑">
+<meta property="og:url" content="http://simyy.cn/2022/08/14/mysql-thread-pool/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="数据库连接池的配置不仅会影响client的连接，也会影响server端的性能。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://simyy.cn/images/mysql_thread_pool_1.jpg">
+<meta property="og:image" content="http://simyy.cn/images/mysql_thread_pool_2.jpg">
+<meta property="og:updated_time" content="2022-08-14T03:21:51.745Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="mysql连接池的坑">
+<meta name="twitter:description" content="数据库连接池的配置不仅会影响client的连接，也会影响server端的性能。">
+<meta name="twitter:image" content="http://simyy.cn/images/mysql_thread_pool_1.jpg">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<script src="/js/hexo_resize_image.js"></script>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">主页</a></li><li><a href="/2014/07/07/book-list">书单</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <!--div id="main"-->
+      <div id="main">
+
+
+<article id="post-mysql-thread-pool" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2022/08/14/mysql-thread-pool/" class="article-date">
+  <time datetime="2022-08-14T03:05:55.000Z" itemprop="datePublished">2022-08-14</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/数据库/">数据库</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      mysql连接池的坑
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>数据库连接池的配置不仅会影响client的连接，也会影响server端的性能。</p>
+<a id="more"></a>
+<h3 id="建连的坑"><a href="#建连的坑" class="headerlink" title="建连的坑"></a>建连的坑</h3><blockquote>
+<p>线上环境的p95的数据的性能很差，通过trace链路分析出『均是由于数据库的sql执行的RT较长导致』，这样就比较奇怪了，同样的sql为什么会这么不稳定；<br>尤其在服务发布或流量徒增的过程中，问题现象更加明显；通过DBA的分析得出结论『数据库在有突增的新建连接时会影响sql的执行』，。</p>
+</blockquote>
+<p>针对线上集群，单个数据库端口连接数非常多，每次业务有新的发布会创建比较多的连接，首先会导致『新建连接比较慢』，其次会导致『新建连接过程中会影响已有链接的RT』</p>
+<p><strong>建连慢</strong></p>
+<blockquote>
+<p>建连慢的主要原因在于tcp的建连队列大小，如果设置的队列过小会导致丢弃部分建连的请求，导致服务不可用；<br><a href="https://stackoverflow.com/questions/36594400/what-is-backlog-in-tcp-connections" target="_blank" rel="noopener">https://stackoverflow.com/questions/36594400/what-is-backlog-in-tcp-connections</a></p>
+</blockquote>
+<p>调整内核配置参数，解决单端口连接过多的问题：</p>
+<ul>
+<li>tcp_max_sync_backlog 2048-&gt;8192</li>
+<li>somaxconn 128-&gt;2048</li>
+</ul>
+<p><strong>建连RT影响</strong></p>
+<blockquote>
+<p>建连登录认证也是一个sql，正常都会进入sql队列，与正常的sql在一个队列中，所以会影响正常的sql执行;<br><a href="https://dev.mysql.com/doc/refman/8.0/en/thread-pool-tuning.html" target="_blank" rel="noopener">https://dev.mysql.com/doc/refman/8.0/en/thread-pool-tuning.html</a></p>
+</blockquote>
+<ul>
+<li>thread_pool_stall_limit：线程池中无可用线程时设置建新线程的等待时间，单位为毫秒，默认是500；</li>
+<li>thread_pool_idle_timeout：设置空闲线程销毁前的等待时间，单位为秒，默认是60；</li>
+</ul>
+<p>通过减小timmer检测间隔并提高连接池的超时时间，调整线程的创建和回收策略来优化RT的问题：</p>
+<ul>
+<li>thread_pool_stall_limit 500ms-&gt;10ms</li>
+<li>thread_pool_idle_timeout 60s-&gt;600s</li>
+</ul>
+<p>由于以上配置会由于减少线程的回收和增加线程的创建频率均会对占用一定的服务器资源和性能，因此在评估这些参数的时候可以逐渐增加或减少该值，并在当前数据库负载的情况下找到一个合理的值；</p>
+<h3 id="建接数量"><a href="#建接数量" class="headerlink" title="建接数量"></a>建接数量</h3><blockquote>
+<p>mysql的默认建连数据是XX，实际可以按照数据库的性能做一定的调整；<br>数据库的连接会占用服务器的cpu和内存，所以谨慎的限制数据库client和server的连接数是非常重要的；<br>根据经验，32核64G内存的数据库可以配置到万级别的数据库连接数量，同时会有上千台的服务器与单分片的数据库保持着连接；</p>
+</blockquote>
+<p>数据库连接数较多情况下，可能会导致那个数据库夯住：</p>
+<ul>
+<li>故障切换，连接数会有翻倍的可能，导致连接数超过数据库上限（数据库默认配置最大连接数5w），无法访问数据库</li>
+<li>故障切换，业务有重试，可能导致连接数超过数据库上限，无法访问数据库</li>
+<li>连接数过多，业务发布需要创建很多连接，会申请比较多的数据库临时内存<br>以上都可能造成数据库hang住，无法提供服务</li>
+</ul>
+<h3 id="mysql线程池"><a href="#mysql线程池" class="headerlink" title="mysql线程池"></a>mysql线程池</h3><blockquote>
+<p>参考文档：<a href="https://dbaplus.cn/news-11-1989-1.html" target="_blank" rel="noopener">https://dbaplus.cn/news-11-1989-1.html</a></p>
+</blockquote>
+<p>mysql线程池采用分组管理，连接按照分组算法分配到不同的分组，此后相同请求会在次分组内调度线程执行；此外线程池使用Timer线程定期检查分组运行的情况，并为阻塞的group分配线程。</p>
+<p><img src="/images/mysql_thread_pool_1.jpg" alt="线程池的组成部分"></p>
+<p><strong>group分组</strong></p>
+<ul>
+<li>工作线程：用于处理请求和任务；</li>
+<li>监听线程：用于接收请求并加入任务队列；</li>
+<li>任务队列：用于存放待执行的IO任务，分为高优先级队列和低优先级队列（高优先级队列的任务会优先被处理）；</li>
+</ul>
+<p><strong>timer线程</strong></p>
+<p>timer线程会定期扫描各个group检查是否被阻塞，当发现group内有任务堆积，就会给group创建新的worker进行处理；</p>
+<p><img src="/images/mysql_thread_pool_2.jpg" alt="线程池的工作流程"></p>
+<p><strong>工作流程</strong></p>
+<ul>
+<li>客户端优先会向server发起请求，根据threadid%thread_pool_size确定路由的分组；</li>
+<li>监听线程在收到请求后，会按照队列情况分别处理：<ul>
+<li>队列无请求，则转换为工作线程立即处理；</li>
+<li>队列有请求，则将任务加入任务队列中，排队等待被处理；</li>
+</ul>
+</li>
+<li>工作线程从队列中获取等待被处理的任务，依次进行处理，如果队列为空，则会在等待配置的超时时间后销毁；</li>
+<li>timmer线程会定期检查group是否阻塞，如果存在任务阻塞会创建新的工作线程；</li>
+</ul>
+<h3 id="配置参数"><a href="#配置参数" class="headerlink" title="配置参数"></a>配置参数</h3><p><strong>thread_handling</strong></p>
+<ul>
+<li>one-thread-per-connection（默认，一个连接一个线程）</li>
+<li>pool-of-threads（线程池）</li>
+</ul>
+<p><strong>thread_pool_size</strong></p>
+<ul>
+<li>线程池的分组数量，默认为cpu数量；</li>
+</ul>
+<p><strong>thread_pool_oversubscribe</strong></p>
+<ul>
+<li>分组内的最大线程数，监听不再其内；</li>
+</ul>
+<p><strong>thread_pool_high_prio_mode</strong></p>
+<ul>
+<li>transactions：启动事务的语句放到高优先级队列；</li>
+<li>statements：所有的语句都会放到高优先级队列，不会使用优先级队列；</li>
+<li>none：不使用高优先级队列；</li>
+</ul>
+<p><strong>thread_pool_high_prio_tickets</strong></p>
+<ul>
+<li>控制每个连接最多被放入高优先级队列中的次数，默认为4294967295；</li>
+<li>仅在transactions模式下生效，如果超过阈值，则直接放入低优先级队列；</li>
+</ul>
+<p><strong>thread_pool_idle_timeout</strong></p>
+<ul>
+<li>工作线程最大空闲时间，默认为60秒，超过限制后会退出；</li>
+</ul>
+<p><strong>thread_pool_max_threads</strong></p>
+<ul>
+<li>限制线程池最大的线程数，超过该限制后将无法再创建更多的线程，默认为100000；</li>
+</ul>
+<p><strong>thread_pool_stall_limit</strong></p>
+<ul>
+<li>timer线程的检测group是否异常的时间间隔，默认为500ms；</li>
+</ul>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/09/01/kafka-replication/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          Kafka Replication
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</div>
+
+    <!--/div-->
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2022 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

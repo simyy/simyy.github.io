@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>页面组件化的架构设计与思考 | simyy</title>
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="本文主要用于分享前后端组件化架构设计的实践经验与思考。">
+<meta name="keywords" content="领域建模,架构设计">
+<meta property="og:type" content="article">
+<meta property="og:title" content="页面组件化的架构设计与思考">
+<meta property="og:url" content="http://simyy.cn/2022/03/20/view-module-desgin/index.html">
+<meta property="og:site_name" content="simyy">
+<meta property="og:description" content="本文主要用于分享前后端组件化架构设计的实践经验与思考。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://simyy.cn/images/view-module-desgin-1.jpeg">
+<meta property="og:image" content="http://simyy.cn/images/view-module-desgin-2.jpeg">
+<meta property="og:updated_time" content="2022-08-28T03:10:05.451Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="页面组件化的架构设计与思考">
+<meta name="twitter:description" content="本文主要用于分享前后端组件化架构设计的实践经验与思考。">
+<meta name="twitter:image" content="http://simyy.cn/images/view-module-desgin-1.jpeg">
+  
+    <link rel="alternative" href="/atom.xml" title="simyy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head></html>
+<script src="/js/hexo_resize_image.js"></script>
+<body>
+  <div id="container">
+    <div class="mobile-nav-panel">
+	<i class="icon-reorder icon-large"></i>
+</div>
+<header id="header">
+	<h1 class="blog-title">
+		<a href="/">simyy</a>
+	</h1>
+	<nav class="nav">
+		<ul>
+			<li><a href="/">主页</a></li><li><a href="/2014/07/07/book-list">书单</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li>
+			<li><a id="nav-search-btn" class="nav-icon" title="Search"></a></li>
+			<li><a href="/atom.xml" id="nav-rss-link" class="nav-icon" title="RSS Feed"></a></li>
+		</ul>
+	</nav>
+	<div id="search-form-wrap">
+		<form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://simyy.cn"></form>
+	</div>
+</header>
+    <!--div id="main"-->
+      <div id="main">
+
+
+<article id="post-view-module-desgin" class="post">
+	<footer class="entry-meta-header">
+		<span class="meta-elements date">
+			<a href="/2022/03/20/view-module-desgin/" class="article-date">
+  <time datetime="2022-03-20T02:17:20.000Z" itemprop="datePublished">2022-03-20</time>
+</a>
+
+		</span>
+        <span class="tags">
+	       	
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/架构设计/">架构设计</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/领域建模/">领域建模</a></li></ul>
+
+		</span>
+		<!--span class="meta-elements author">simyy</span-->
+		<div class="commentscount">
+			
+		</div>
+	</footer>
+	
+	<header class="entry-header">
+		
+  
+    <h1 class="article-title entry-title" itemprop="name">
+      页面组件化的架构设计与思考
+    </h1>
+  
+
+	</header>
+	<div class="entry-content">
+		
+    	<p>本文主要用于分享前后端组件化架构设计的实践经验与思考。</p>
+<a id="more"></a>
+<h4 id="现状"><a href="#现状" class="headerlink" title="现状"></a>现状</h4><blockquote>
+<p><strong>职责不清</strong>：前后端没有明显的业务边界，业务逻辑耦合严重；</p>
+</blockquote>
+<p>职责不清会让需求拆解和分析造成困扰，也会造成逻辑的前后端的高度耦合，提高后期的维护成本。</p>
+<p>由于页面的任何改动都需要前后端的支持，整体改动的开发联调工作量以及排期冲突问题都难以接受。</p>
+<blockquote>
+<p><strong>页面性能</strong>：前后端交互逻辑由于年久失修，存在大量的无效请求和重复请求；</p>
+</blockquote>
+<p>由于页面存在大量的无效业务逻辑和资源请求，导致页面渲染性能较差，影响用户体验；</p>
+<p>后端的无效资源请求对服务器和数据库都会造成不必要的压力，属于<code>资源的浪费</code>；</p>
+<h4 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h4><blockquote>
+<p><strong>O1：开发提效</strong></p>
+</blockquote>
+<p>从根本上解决前后端耦合的问题，前端仅关注组件化通用能力的建设，业务逻辑全部内聚在后端；</p>
+<p>页面的动态渲染功能实现配置化、定制化，用于满足不同改动量的需求；</p>
+<blockquote>
+<p><strong>O2：体验优化</strong></p>
+</blockquote>
+<p>后端接口调用链路优化，提高资源利用率，减少无效请求和无效的处理逻辑；</p>
+<p>页面资源依赖优化，从整体页面的视角来分析解决页面渲染性能的问题；</p>
+<h4 id="落地"><a href="#落地" class="headerlink" title="落地"></a>落地</h4><p>考虑到页面逻辑比较复杂，需要人肉来分析识别有效的业务逻辑，因此拆分两个阶段来完成目标：</p>
+<p><strong>阶段1：梳理前端的业务逻辑，优化无效的资源请求，业务逻辑内聚在后端</strong></p>
+<p><strong>阶段2：页面组件化schema设计，实现组件spi扩展、资源自动装配等能力</strong></p>
+<h5 id="阶段1"><a href="#阶段1" class="headerlink" title="阶段1"></a>阶段1</h5><blockquote>
+<p>阶段1主要解决了页面渲染层面业务逻辑的耦合问题，初步实现了前后端分离的目标。</p>
+</blockquote>
+<ul>
+<li>前后端业务逻辑梳理汇总</li>
+<li>页面抽象和页面组件化拆分</li>
+<li>后端资源加载内聚统一</li>
+</ul>
+<p><img src="/images/view-module-desgin-1.jpeg" alt=""></p>
+<p>业务逻辑的梳理是关键，为了避免逻辑的遗漏，通过开发和测试的不同视角来分析和对比业务逻辑：</p>
+<ul>
+<li>开发：从代码层面，阅读前后端的代码逻辑并梳理出一套页面业务逻辑；</li>
+<li>测试：从功能层面，覆盖页面的所有case用例输出一套页面的测试case;</li>
+</ul>
+<p>为了实现页面的自动降级和分段加载，需要对页面整体做一次组件化抽象，拆分思路如下：</p>
+<ul>
+<li>按职责拆分：以功能属性来拆分组件，组件功能内聚（职责单一）；</li>
+<li>按顺序加载：以功能的优先级来分组组件，分段来加载不同组件，实现页面加载的体验优化；</li>
+</ul>
+<p>基于上下文的思想实现页面依赖资源的统一管理，避免资源的重复加载造成的性能问题；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Context</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> AResource aResource;</span><br><span class="line">    <span class="keyword">private</span> AResource bResource;</span><br><span class="line">    <span class="keyword">private</span> AResource cResource;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Context</span><span class="params">(AResource aResource, ...)</span> </span>&#123;</span><br><span class="line">        ....</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="阶段2"><a href="#阶段2" class="headerlink" title="阶段2"></a>阶段2</h5><blockquote>
+<p>阶段2主要解决组件的扩展能力以及资源管理的进一步优化。</p>
+</blockquote>
+<p><img src="/images/view-module-desgin-2.jpeg" alt=""></p>
+<ul>
+<li>组件的通用化设计</li>
+<li>基于SPI的扩展能力</li>
+<li><code>写时复制</code>的资源管理</li>
+</ul>
+<p>组件的通用化设计不仅包含展示层面的组件设计，也包含表单、联动的设计模式。</p>
+<p>组件的抽象定义是为了解决组件的复用性，通过定义通用的展示、表单组件，实现自定义的页面组件渲染能力。</p>
+<p>为了提高页面的扩展能力，对于通用组建提供基于SPI的扩展点，业务上可以很快的实现组件的重载和扩展，同时对不同的业务实现业务的隔离。</p>
+<p>在第一阶段，虽然把资源管理独立出来，但对于不同场景下的资源加载并没有单独优化，因此考虑从资源管理上入手，利用写时复制的思想来解决资源惰性加载的能力，并通过线程cache的手段避免资源的频繁加载，最终实现一个无需使用者关心的资源中心。</p>
+<p><strong>Schema加载</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Schema解析起接口定义，通过实现ISchemaParser接口来注册加载新的组件</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ISchemaParser</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Schema枚举</span></span><br><span class="line">    <span class="function">SchemaEnum <span class="title">getSchemaEnum</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// Schema结构</span></span><br><span class="line">    <span class="function">SchemaStructure <span class="title">get</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Schema配置</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SchemaParserConfiguration</span> <span class="keyword">implements</span> <span class="title">InitializingBean</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> List&lt;ISchemaParser&gt; schemaParsers; <span class="comment">// 利用Spring自动注入</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> Map&lt;SchemaEnum, ISchemaParser&gt; mapping = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> SchemaStructure <span class="title">getBySchemaEnum</span><span class="params">(SchemaEnum schemaEnum)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (mapping.containsKey(schemaEnum)) &#123;</span><br><span class="line">            <span class="keyword">return</span> mapping.get(schemaEnum).get();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 利用InitializingBean初始化映射mapping</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">afterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (CollectionUtils.isEmpty(schemaParsers)) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (ISchemaParser schemaParser : schemaParsers) &#123;</span><br><span class="line">            mapping.put(schemaParser.getSchemaEnum(), schemaParser);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>schema转换</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Schema转换接口定义，通过实现ISchemaTransfer来实现转换器的注册</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ISchemaTransfer</span>&lt;<span class="title">T</span> <span class="keyword">extends</span> <span class="title">IView</span>, <span class="title">R</span>, <span class="title">C</span> <span class="keyword">extends</span> <span class="title">BaseContext</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function">ViewTypeE <span class="title">viewType</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">R <span class="title">transfer</span><span class="params">(T t, C context)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Schema转换配置</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SchemaConfiguration</span> <span class="keyword">implements</span> <span class="title">InitializingBean</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> List&lt;ISchemaTransfer&gt; schemaTransfers;</span><br><span class="line">    <span class="keyword">private</span> Map&lt;ViewTypeE, ISchemaTransfer&gt; mapping = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ISchemaTransfer <span class="title">getByType</span><span class="params">(ViewTypeE viewTypeE)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> mapping.getOrDefault(viewTypeE, <span class="keyword">null</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">afterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (schemaTransfers != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">for</span> (ISchemaTransfer schemaTransfer : schemaTransfers) &#123;</span><br><span class="line">                mapping.put(schemaTransfer.viewType(), schemaTransfer);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>资源上下文管理</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Context</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Map&lt;String, Object&gt; req; <span class="comment">// 存储入参</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> IAContextA aContext; <span class="comment">// 绑定资源，通过外部Spring注入后作为初始化参数引入</span></span><br><span class="line">    <span class="keyword">private</span> IBContext bContext;</span><br><span class="line">    ...</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 初始化资源</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Context <span class="title">init</span><span class="params">(SpingBean springBean)</span> </span>&#123;</span><br><span class="line">        IAContext aContext = <span class="keyword">new</span> DefaultAContext();</span><br><span class="line">        aContext.setSpringBean(springBean);</span><br><span class="line">    </span><br><span class="line">        Context context = <span class="keyword">new</span> Context();</span><br><span class="line">        context.setAContext(aContex);</span><br><span class="line">        <span class="keyword">return</span> context;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">IAContext</span> </span>&#123;</span><br><span class="line">    <span class="function">Resp <span class="title">method</span><span class="params">(Req req)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DefaultAContext</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> SpingBean springBean;</span><br><span class="line">    ...</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> Resp <span class="title">method</span><span class="params">(Req req)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 线程级别的缓存，避免资源重复调用</span></span><br><span class="line">        <span class="keyword">return</span> threadCached(cachedPrefix, uniqueKey, () -&gt; a.method(req));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>基于spi的模块化设计</strong></p>
+<p>1、定义展示类型，由于区分不同场景下使用的模块信息；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IView</span> </span>&#123;</span><br><span class="line">    <span class="function">ViewTypeE <span class="title">viewType</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>2、定义组件spi，以预下单为例，抽象出标题、价格、数量、规格等能力，并指定页面类型为预下单；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IPreOrderView</span>&lt;<span class="title">C</span> <span class="keyword">extends</span> <span class="title">BaseContext</span>&gt; <span class="keyword">extends</span> <span class="title">IView</span>, <span class="title">ICustomMatch</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">default</span> ViewTypeE <span class="title">viewType</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> ViewTypeE.PRE_ORDER_PAGE;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function">String <span class="title">getTitle</span><span class="params">(C context)</span></span>;</span><br><span class="line">    <span class="function">String <span class="title">getTotalPrice</span><span class="params">(C context)</span></span>;</span><br><span class="line">    <span class="function">String <span class="title">getTotalCount</span><span class="params">(C context)</span></span>;</span><br><span class="line">    <span class="function">String <span class="title">getGoodsSpecification</span><span class="params">(C context)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>3、实现spi，主要是利用资源上下文来获取相关资源，渲染模块信息；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@DefaultView</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DefaultPreOrderView</span> <span class="keyword">implements</span> <span class="title">IPreOrderView</span>&lt;<span class="title">SingleOrderContext</span>&gt; </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> &lt;T extends BaseContext&gt; <span class="function"><span class="keyword">boolean</span> <span class="title">matched</span><span class="params">(IView view, T context)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>4、为了实现扩展性，按照默认+扩展的设计思路，优先定义了两种实现策略；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 默认实现</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Target</span>(ElementType.TYPE)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> DefaultView &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 扩展实现，可增加优先级控制</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Target</span>(ElementType.TYPE)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> ExtensionView &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>5、基于构造器的思想，利用资源上线来构件通用的组件，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IViewBuilder</span>&lt;<span class="title">T</span> <span class="keyword">extends</span> <span class="title">IView</span>, <span class="title">C</span> <span class="keyword">extends</span> <span class="title">ViewContext</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function">List&lt;T&gt; <span class="title">build</span><span class="params">(C context)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>页面定义，利用多个spi来组装一个完整的页面结构</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用构造器来构造页面</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IViewBuilder</span> </span>&#123;</span><br><span class="line">    &lt;C extends BaseContext&gt; <span class="function">List&lt;IView&gt; <span class="title">build</span><span class="params">(C context)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象构造器提供了组件扫描、注册、识别的功能</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">AbstractViewBuilder</span>&lt;<span class="title">T</span> <span class="keyword">extends</span> <span class="title">IView</span>&gt; <span class="keyword">implements</span> <span class="title">IViewBuilder</span>, <span class="title">ApplicationContextAware</span>, <span class="title">InitializingBean</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> MatcherConfiguration matcherConfiguration = <span class="keyword">new</span> MatcherConfiguration(); <span class="comment">// 匹配器</span></span><br><span class="line">    <span class="keyword">private</span> ApplicationContext applicationContext; </span><br><span class="line">    <span class="keyword">private</span> List&lt;Class&lt;? extends T&gt;&gt; definitions;</span><br><span class="line">    <span class="keyword">private</span> Map&lt;Class&lt;? extends T&gt;, List&lt;T&gt;&gt; defaultImplements = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">    <span class="keyword">private</span> Map&lt;Class&lt;? extends T&gt;, List&lt;T&gt;&gt; extensionImplements = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">abstract</span> Class&lt;T&gt; <span class="title">getViewType</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">abstract</span> List&lt;Class&lt;? extends T&gt;&gt; getScanDefinitions();</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> &lt;C extends BaseContext&gt; <span class="function">List&lt;IView&gt; <span class="title">build</span><span class="params">(C context)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> matcherConfiguration.doFilter(definitions, defaultImplements, extensionImplements, context);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 初始化定义实现</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">initSpiImplements</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        definitions = getScanDefinitions();</span><br><span class="line">        ...</span><br><span class="line">        Map&lt;String, T&gt; beans = applicationContext.getBeansOfType(getViewType());</span><br><span class="line">        beans.values().stream().forEach(bean -&gt; &#123;</span><br><span class="line">            <span class="keyword">for</span> (Class&lt;? extends T&gt; definition : definitions) &#123;</span><br><span class="line">                <span class="keyword">if</span> (definition.isInstance(bean)) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (bean.getClass().getAnnotation(DefaultView.class) != <span class="keyword">null</span>) &#123;</span><br><span class="line">                        register(defaultImplements, bean, definition);</span><br><span class="line">                        log.info(<span class="string">"ViewBuilder For &#123;&#125; default &#123;&#125;"</span>, getViewType().getSimpleName(), definition.getSimpleName());</span><br><span class="line">                    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (bean.getClass().getAnnotation(ExtensionView.class) != <span class="keyword">null</span>) &#123;</span><br><span class="line">                        register(extensionImplements, bean, definition);</span><br><span class="line">                        log.info(<span class="string">"ViewBuilder For &#123;&#125; extension &#123;&#125;"</span>, getViewType().getSimpleName(), definition.getSimpleName());</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        log.info(<span class="string">"ViewBuilder For &#123;&#125; ignore &#123;&#125;"</span>, getViewType().getSimpleName(), definition.getSimpleName());</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 预下单的页面组装</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PreOrderViewBuilder</span> <span class="keyword">extends</span> <span class="title">AbstractViewBuilder</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> List&lt;Class&lt;? extends IView&gt;&gt; spiDefinitions = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        <span class="comment">// 指定顺序</span></span><br><span class="line">        spiDefinitions.add(IPreOrderView.class);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> List&lt;Class&lt;? extends IView&gt;&gt; getScanDefinitions() &#123;</span><br><span class="line">        <span class="keyword">return</span> spiDefinitions;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>6、为了实现组件的扩展能力，实现了自定义的匹配接口；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IMatch</span> </span>&#123;</span><br><span class="line">    &lt;T extends BaseContext&gt; <span class="function"><span class="keyword">boolean</span> <span class="title">matched</span><span class="params">(IView view, T context)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 自定义匹配</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ICustomMatch</span>&lt;<span class="title">CC</span> <span class="keyword">extends</span> <span class="title">BaseContext</span>&gt; <span class="keyword">extends</span> <span class="title">IMatch</span> </span>&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 匹配逻辑</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">AbstractMatcher</span> <span class="keyword">implements</span> <span class="title">IMatch</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">abstract</span> &lt;T extends BaseContext&gt; <span class="function"><span class="keyword">boolean</span> <span class="title">doMatch</span><span class="params">(IView view, T context)</span></span>;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> &lt;T extends BaseContext&gt; <span class="function"><span class="keyword">boolean</span> <span class="title">matched</span><span class="params">(IView view, T context)</span> </span>&#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 匹配器的注册</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MatcherConfiguration</span>&lt;<span class="title">T</span> <span class="keyword">extends</span> <span class="title">IView</span>, <span class="title">R</span> <span class="keyword">extends</span> <span class="title">BaseContext</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> List&lt;IMatch&gt; MATCHERS = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        MATCHERS.add(<span class="keyword">new</span> CustomMatcher());</span><br><span class="line">        MATCHERS.add(<span class="keyword">new</span> StateMatcher());</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="保障手段"><a href="#保障手段" class="headerlink" title="保障手段"></a>保障手段</h5><p>为了降低重构后页面整体的风险，通过组件隔离、页面灰度、整体页面监控等多个手段来解决页面的问题发现和降级问题。</p>
+<p><strong>隔离</strong></p>
+<p>为了提高整体页面的可用性，通过隔离不同组件的加载和渲染，保证整体页面基本可用的状态。</p>
+<p><strong>灰度</strong></p>
+<p>灰度策略一般选用用户id作为灰度维度，但针对复杂的页面来说，测试很难充分的覆盖每一种业务场景，因此可以考虑基于场景来灰度，具体可以从最基础的业务场景出发进行灰度，逐渐放量到不同的业务场景。</p>
+<p><strong>监控</strong></p>
+<p>监控方面，可以从前端监控和后端监控两个方面入手：</p>
+<p>前端监控可以覆盖用户的实际使用场景，包含页面的打开成功率、页面打开耗时、组件渲染成功率等。</p>
+<p>后端监控可以从系统整体性能和异常发现角度来考虑，包含接口的RT、组件的渲染成功率、组件的渲染异常等角度来发现问题。</p>
+<h4 id="多表单联动"><a href="#多表单联动" class="headerlink" title="多表单联动"></a>多表单联动</h4><p>简单的form标单很容易通过schema这套协议来实现，但对于复杂表单联动很难通过简单的schema协议来实现；</p>
+<blockquote>
+<p>利用后端来维护整个页面的状态来实现多表单的联动。</p>
+</blockquote>
+<p>目前我们通过后端来维护整个页面的渲染逻辑，也就是包含多个组件的联动关系由后端整体下发，举个例子：</p>
+<ul>
+<li>页面分表有两个表单项，B表单项会根据A表单项的选择结果来返回；</li>
+<li>前端第一次请求后端，会返回A所有的可选项目，B表单不会返回；</li>
+<li>当用户选择好A表单后，会向后端请求一次新的页面信息，此时会下发A所有的可选项目以及A当前的选择，并且会下发B表单的可选项；</li>
+<li>当用户选择B表单后，等待用户提交表单，此时完成一次表单的提交；</li>
+</ul>
+<p>经过上面这个过程，有没有发现什么问题？</p>
+<p>页面联动的逻辑前端并不感知，依赖前端的每一次操作都会向后端请求，获取整个页面的最新状态；</p>
+<p>由于引入了页面状态，会导致后端代码变得及其复杂，在实践过程中，前端的工作量整体上是有略微的降低，但后端的工作量会明显的提高；</p>
+
+    
+	</div>
+	
+    
+<nav id="article-nav">
+  
+    <a href="/2022/08/14/mysql-thread-pool/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          mysql连接池的坑
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/09/01/kafka-replication/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">
+        
+          Kafka Replication
+        
+      </div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</div>
+
+    <!--/div-->
+    <div class="mb-search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:simyy.cn">
+  </form>
+</div>
+<footer id="footer">
+	<h1 class="footer-blog-title">
+		<a href="/">simyy</a>
+	</h1>
+    &nbsp;&nbsp;
+	<span class="copyright">
+		&copy; 2022 simyy  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+	</span>
+</footer>
+
+    
+
+<script src="https://cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
